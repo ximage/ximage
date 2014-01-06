@@ -9,8 +9,9 @@ http://www.imgix.com/docs/urlapi
 docs:
 - w
 - h
-- fit=clip,crop,scale,fill,max
-- fm=jpg,png,gif (nope, use .jpg notation)
+- fit=clip,crop,scale,fill,max... (imgix)   ---or---   (mine)
+- &allow=stretch,crop,upscale
+- fm=jpg,png,gif
 - q=0-100,xKB
 - cache=(seconds)
  
@@ -23,6 +24,7 @@ advanced:
 - blur
 - col/int
 - https?
+- config piece sets the max image size (for hack-protection)
  
 
 Oooo, here's a good staring FAQ: http://www.imgix.com/faq
