@@ -41,6 +41,7 @@ advanced simpler:
 - fm = jpg,png,gif
 - q = 0-100,xKB
 - cache = (seconds)
+- bg=#FFFFFF
 
 meta
 - dimensions
