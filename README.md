@@ -1,54 +1,30 @@
-picme
+X-Image Specifications
 =====
 
 Control your images' crop, size, quality and more from the querystring.  Perfect fit as your CDN origin.
 
-notes for me:
-http://www.imgix.com/docs/urlapi
+examples:
+http://i.example.com/house.png?w=100
+http://i.example.com/house@2x.gif?w=100&h=200&v=crop
+http://i.example.com/house@2x.jpg?w=100&h=200&v=black&q=35kb&c=3600&b=75
 
-docs:
-- w
-- h
-- fit=clip,crop,scale,fill,max... (imgix)   ---or---   (mine)
-- &allow=stretch,crop,upscale (stretch & crop only valid if both w & h are used)
-- fm=jpg,png,gif
-- q=0-100,xKB
-- cache=(seconds)
- 
-advanced:
-- crop=top,bottom,left,right,faces?
-- dpr=.75,1,2
-- rot
-- flip
-- rect
-- blur
-- col/int
-- https?
-- config piece sets the max image size (for hack-protection)
- 
+spec:
+- w (alt: width)
+- h (alt: height)
+- v = clip,crop,stretch,#AABBCC (alt: void)
+- @2X (alt: r=2 or resolution=2)
+- .jpg,.png,.gif (alt: f=jpg,png,gif or format=)
+- q = 0-100,xKB (alt: quality)
+- c = (seconds) (alt: cache)
 
+headers:
+Meta data about the image are included in the response headers.  Request using h=x-image-width,x-image-height (alt: headers).  The server can optionally choose to send these down even if not requested.  (Note: This option works great with HEAD in addition to GET.)
+- X-Image-Width
+- X-Image-Height
+- X-Image-Average-Color
+- X-Image-Dominant-Color
+- X-Image-Palette
+- X-Image-Histogram
 
------------
+(config piece sets the max image size, for hack-protection)
 
-
-simpler:
-- w
-- h
-- allow = upscale,stretch,crop (stretch & crop only valid if both w & h are used)
- 
-advanced simpler:
-- dpr = .75,1,2 (what about @2X?)
-- fm = jpg,png,gif
-- q = 0-100,xKB
-- cache = (seconds)
-- bg=#FFFFFF
-
-meta
-- dimensions
-- average color
-- dominant color
-
-
-Oooo, here's a good staring FAQ: http://www.imgix.com/faq
-Do I need to upload my images to imgix?
-imgix acts as a proxy to your existing images, so no uploads are necessary. We can pull your images from your own web folder, web proxy, or Amazon S3 on demand, just give us the details and we can do the heavy lifting.
