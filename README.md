@@ -1,7 +1,9 @@
-X-Image Specifications
+X-Image Protocol
 =====
 
 Control your images' size, crop, quality and more from the querystring.  Great to use as your CDN origin.
+
+X-Image is a specification, not an implementation (technically it's a subset of HTTP) and is therefore agnostic to any specific language or framework.  It's goal is to unify common image manipulation needs behind a simple interface.
 
 Examples
 ---
