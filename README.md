@@ -6,15 +6,15 @@ Control your images' crop, size, quality and more from the querystring.  Perfect
 examples:
 - http://i.example.com/house.png?w=100
 - http://i.example.com/house@2x.gif?w=100&h=200&v=crop
-- http://i.example.com/house@2x.jpg?w=100&h=200&v=black&q=35kb&c=3600&b=75
+- http://i.example.com/house@2x.jpg?w=100&h=200&v=black&q=35kb&c=3600&
 
 spec:
 - w (alt: width)
 - h (alt: height)
-- v = clip,crop,stretch,#AABBCC (alt: void)
-- @2X (alt: r=2 or resolution=2)
+- v = clip,crop,stretch,#aabbcc (alt: void)
+- @2x (alt: r=2 or resolution=2)
 - .jpg,.png,.gif (alt: f=jpg,png,gif or format=)
-- q = 0-100,xKB (alt: quality)
+- q = 0-100,(append kB as alternative to % default) (alt: quality)
 - c = (seconds) (alt: cache)
 
 headers:
