@@ -16,7 +16,7 @@ Querystring
 - h=200 (alt: height)
 - v=clip,crop,stretch,aabbcc (alt: void)
 - q=50 (append kb as alternative to % default) (alt: quality)
-- f=jpg (alt: file.jpg,file.png,file.gif or f=jpg,png,gif or format=jpg,png,gif)
+- f=jpg,png,gif (alt: name.jpg or f=jpg or format=jpg)
 - r=2 (alt: @2x or resolution=2)
 - c=1s,2m,3d (must include units, alt: cache)
 
