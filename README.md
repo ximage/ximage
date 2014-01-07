@@ -37,3 +37,5 @@ Meta data about the image can be included in the response headers.  Request thes
 - `X-Image-Dominant-Color`
 - `X-Image-Palette`
 - `X-Image-Histogram`
+
+Everything is case-insensitive.
