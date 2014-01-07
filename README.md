@@ -12,9 +12,9 @@ spec:
 - w (alt: width)
 - h (alt: height)
 - v = clip,crop,stretch,#aabbcc (alt: void)
-- @2x (alt: r=2 or resolution=2)
-- .jpg,.png,.gif (alt: f=jpg,png,gif or format=)
 - q = 0-100,(append kB as alternative to % default) (alt: quality)
+- .jpg,.png,.gif (alt: f=jpg,png,gif or format=)
+- @2x (alt: r=2 or resolution=2)
 - c = (seconds) (alt: cache)
 
 headers:
