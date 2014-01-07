@@ -4,9 +4,9 @@ X-Image Specifications
 Control your images' crop, size, quality and more from the querystring.  Perfect fit as your CDN origin.
 
 examples:
-http://i.example.com/house.png?w=100
-http://i.example.com/house@2x.gif?w=100&h=200&v=crop
-http://i.example.com/house@2x.jpg?w=100&h=200&v=black&q=35kb&c=3600&b=75
+- http://i.example.com/house.png?w=100
+- http://i.example.com/house@2x.gif?w=100&h=200&v=crop
+- http://i.example.com/house@2x.jpg?w=100&h=200&v=black&q=35kb&c=3600&b=75
 
 spec:
 - w (alt: width)
