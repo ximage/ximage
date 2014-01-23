@@ -1,4 +1,4 @@
-X-Image Protocol
+XImage Protocol
 =====
 
 Control your images' size, crop, quality and more from the querystring.  Great to use as your CDN origin.
@@ -40,6 +40,10 @@ Meta data about the image can be included in the response headers.  Request thes
 - `X-Image-Palette`
 - `X-Image-Histogram`
 
+
+Json
+---
+change the extension to .json... hmmm
 
 ---
 Everything is case-insensitive.
