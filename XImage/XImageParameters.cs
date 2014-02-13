@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
@@ -18,8 +19,8 @@ namespace XImage
 
 	public class XImageParameters
 	{
+		static readonly int MAX_SIZE = ConfigurationManager.AppSettings["XImage.MaxSize"].AsNullableInt() ?? 1000;
 		static readonly string[] PARAM_ORDER = { "w", "h", "c", "q", "f" };
-		static readonly int MAX_IMAGE_WIDTH_OR_HEIGHT = 1000;
 
 		static readonly Dictionary<string, ImageFormat> _supportedFormats = new Dictionary<string, ImageFormat>()
 		{
@@ -60,11 +61,6 @@ namespace XImage
 
 		public XImageParameters(HttpContext httpContext)
 		{
-			ParseValues(httpContext);
-		}
-
-		private void ParseValues(HttpContext httpContext)
-		{
 			var uri = httpContext.Request.Url;
 
 			if (httpContext.Request.RawUrl.Contains("?") && uri.Query.IsNullOrEmpty())
@@ -82,8 +78,8 @@ namespace XImage
 				Width = w.AsNullableInt();
 				if (Width == null || Width <= 0)
 					ThrowArgumentException(uri, "Width must be a positive integer.");
-				if (Width > MAX_IMAGE_WIDTH_OR_HEIGHT)
-					ThrowArgumentException(uri, "Cannot request a width larger than the max configured value of {0}.", MAX_IMAGE_WIDTH_OR_HEIGHT);
+				if (Width > MAX_SIZE)
+					ThrowArgumentException(uri, "Cannot request a width larger than the max configured value of {0}.", MAX_SIZE);
 			}
 
 			var h = q["h"];
@@ -95,8 +91,8 @@ namespace XImage
 				Height = h.AsNullableInt();
 				if (Height == null || Height <= 0)
 					ThrowArgumentException(uri, "Height must be a positive integer.");
-				if (Height > MAX_IMAGE_WIDTH_OR_HEIGHT)
-					ThrowArgumentException(uri, "Cannot request a height larger than max configured value of {0}.", MAX_IMAGE_WIDTH_OR_HEIGHT);
+				if (Height > MAX_SIZE)
+					ThrowArgumentException(uri, "Cannot request a height larger than max configured value of {0}.", MAX_SIZE);
 			}
 
 			if (Width != null && Height != null && allowWUpscaling != allowHUpscaling)
@@ -174,7 +170,7 @@ namespace XImage
 			return "image/" + (Format ?? SourceFormat).ToString().ToLower();
 		}
 
-		private void ThrowArgumentException(Uri uri, string message, params object[] args)
+		void ThrowArgumentException(Uri uri, string message, params object[] args)
 		{
 			var sb = new StringBuilder();
 			sb.AppendLine("ERROR");
@@ -186,7 +182,7 @@ namespace XImage
 			throw new ArgumentException(sb.ToString());
 		}
 
-		private static string GetHelp(Uri uri)
+		static string GetHelp(Uri uri)
 		{
 			var help = string.Format(
 @"____  ___.___                               

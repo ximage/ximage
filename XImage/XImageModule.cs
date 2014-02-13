@@ -34,7 +34,7 @@ namespace XImage
 			}
 		}
 
-		private void EndWithError(HttpApplication app, HttpStatusCode statusCode, string message)
+		void EndWithError(HttpApplication app, HttpStatusCode statusCode, string message)
 		{
 			app.Response.ClearHeaders();
 			app.Response.ClearContent();

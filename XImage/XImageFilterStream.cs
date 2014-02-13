@@ -8,9 +8,9 @@ namespace XImage
 {
 	public class XImageFilterStream : Stream
 	{
-		private MemoryStream _sourceStream = new MemoryStream();
-		private Stream _outputStream;
-		private XImageParameters _parameters;
+		MemoryStream _sourceStream = new MemoryStream();
+		Stream _outputStream;
+		XImageParameters _parameters;
 
 		public override bool CanRead
 		{

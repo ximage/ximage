@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -11,7 +12,7 @@ namespace XImage
 {
 	public class XImager
 	{
-		const int DEFAULT_QUALITY = 75;
+		static readonly int DEFAULT_QUALITY = ConfigurationManager.AppSettings["XImage.DefaultQuality"].AsNullableInt() ?? 75;
 
 		static readonly ImageCodecInfo _jpgEncoder = null;
 		static readonly ImageCodecInfo _gifEncoder = null;
@@ -132,7 +133,7 @@ namespace XImage
 			}
 		}
 
-		static Size GetScaledDimensions(XImageParameters parameters, Size original)
+		Size GetScaledDimensions(XImageParameters parameters, Size original)
 		{
 			if (parameters.Width == null && parameters.Height == null)
 				return original;
