@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30110.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XImage", "XImage\XImage.csproj", "{DE708FBD-0C51-4707-9B30-D84C6A4DC619}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XImage.Tests", "..\..\Documents\Visual Studio 2013\Projects\XImage\XImage.Tests\XImage.Tests.csproj", "{F14D7B84-FC0F-4733-AC37-8B87C179DB69}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DE708FBD-0C51-4707-9B30-D84C6A4DC619}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE708FBD-0C51-4707-9B30-D84C6A4DC619}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE708FBD-0C51-4707-9B30-D84C6A4DC619}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE708FBD-0C51-4707-9B30-D84C6A4DC619}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F14D7B84-FC0F-4733-AC37-8B87C179DB69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F14D7B84-FC0F-4733-AC37-8B87C179DB69}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F14D7B84-FC0F-4733-AC37-8B87C179DB69}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F14D7B84-FC0F-4733-AC37-8B87C179DB69}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
