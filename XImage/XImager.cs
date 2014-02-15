@@ -38,7 +38,7 @@ namespace XImage
 			_encoderParameters.Param[0] = new EncoderParameter(Encoder.Compression, (long)EncoderValue.CompressionLZW);
 			_encoderParameters.Param[1] = new EncoderParameter(Encoder.Quality, (long)(_parameters.Quality ?? DEFAULT_QUALITY));
 
-			var format = parameters.Format ?? parameters.SourceFormat;
+			var format = parameters.OutputFormat ?? parameters.SourceFormat;
 			if (format == ImageFormat.Jpeg)
 				_encoder = _jpgEncoder;
 			else if (format == ImageFormat.Gif)

@@ -43,7 +43,7 @@ namespace XImage
 		public Color? CropAsColor { get; private set; }
 		public int? Quality { get; private set; }
 		public bool QualityAsKb { get; private set; }
-		public ImageFormat Format { get; private set; }
+		public ImageFormat OutputFormat { get; private set; }
 		public ImageFormat SourceFormat { get; private set; }
 
 		public bool HasAnyValues
@@ -55,7 +55,7 @@ namespace XImage
 					Height != null ||
 					Crop != null ||
 					Quality != null ||
-					Format != null;
+					OutputFormat != null;
 			}
 		}
 
@@ -145,19 +145,19 @@ namespace XImage
 					ThrowArgumentException(uri, "Quality must be an integer between 1 and 100 unless you are specifing a content size, e.g. 150kb.");
 			}
 
-			var f = q["f"];
-			if (f != null)
+			var o = q["o"];
+			if (o != null)
 			{
-				Format = _supportedFormats.GetValueOrDefault(f);
-				if (Format == null)
-					ThrowArgumentException(uri, "Format must be either jpg, gif or png.");
+				OutputFormat = _supportedFormats.GetValueOrDefault(o);
+				if (OutputFormat == null)
+					ThrowArgumentException(uri, "Output format must be either jpg, gif or png.");
 				foreach (var format in _supportedFormats.Keys)
-					if (uri.AbsolutePath.EndsWith("." + format, StringComparison.OrdinalIgnoreCase) && f == format)
-						ThrowArgumentException(uri, "If the source image is a {0}, don't specify f={0}.  Enforcing this strictly helps optimize cache hit ratios.", format);
+					if (uri.AbsolutePath.EndsWith("." + format, StringComparison.OrdinalIgnoreCase) && o == format)
+						ThrowArgumentException(uri, "If the source image is a {0}, don't specify o={0}.  Enforcing this strictly helps optimize cache hit ratios.", format);
 			}
 			SourceFormat = _conentTypeFormats.GetValueOrDefault(httpContext.Response.ContentType);
 			if (SourceFormat == null)
-				ThrowArgumentException(uri, "Unrecognized content-type.");
+				ThrowArgumentException(uri, "Unrecognized content-type: {0}.", httpContext.Response.ContentType);
 
 			var requestedOrder = q.AllKeys.Where(k => PARAM_ORDER.Contains(k)).ToArray();
 			var correctOrder = PARAM_ORDER.Where(p => requestedOrder.Contains(p)).ToArray();
@@ -167,7 +167,7 @@ namespace XImage
 
 		public string GetContentType()
 		{
-			return "image/" + (Format ?? SourceFormat).ToString().ToLower();
+			return "image/" + (OutputFormat ?? SourceFormat).ToString().ToLower();
 		}
 
 		void ThrowArgumentException(Uri uri, string message, params object[] args)
@@ -241,7 +241,7 @@ Therefore, capitalization and parameter order are important and superfluous para
              Alternatively, you can specify a max content size (in kilobytes) by appending 'kb', e.g. q=150kb.
              However some file sizes are impossibly small for some formats which will result in a best effort size.
              e.g. <a href=""{0}?q=5"">{0}?q=5</a> or  <a href=""{0}?q=5kb"">{0}?q=5kb</a>
-  f          Format of the image.  Supported values are jpg, gif, png.
+  o          Output format of the image.  Supported values are jpg, gif, png.
              e.g. <a href=""{0}?w=200&f=gif"">{0}?w=200&f=gif</a>
   extend...  XImage is an extensible protocol.  Other XImage implementations are free to add additional features.  These 
              implementations must make their functionality discoverable by appending the name to the bottom of this list.
