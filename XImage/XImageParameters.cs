@@ -63,7 +63,7 @@ namespace XImage
 		{
 			var uri = httpContext.Request.Url;
 
-			if (httpContext.Request.RawUrl.Contains("?") && uri.Query.IsNullOrEmpty())
+			if (httpContext.Request.RawUrl.EndsWith("?help"))
 				throw new ArgumentException(GetHelp(uri));
 
 			var q = HttpUtility.ParseQueryString(uri.Query);
@@ -200,14 +200,15 @@ The X image operates at the server level it can be made to operate at applicatio
 Developing for multiple 
 The goal of the XImage interface is to simplify the development of of apps
 that span across devices with a wide range of screen depths and sizes and varyingly 
+Many advanced frameworks are needing a standard way to request images with particular attributes 
 
 QUERY STRING
 ------------
 To maximize CDN and browser cache hit ratios, the following arguments are designed to have a strict set of rules.  
 Therefore, capitalization and parameter order are important and superfluous parameters will be treated as errors. 
 
-  ?          Help.  Include a '?' with no parameters to show this help screen.  Each implementaion of XImage 
-             must show this help screen which is primarily used to show which features it chose to support or extend.
+  help       Shows this help screen.  Each implementaion of XImage must show this help screen which is primarily 
+             used to show which features it supports.  
   w          Width of the image.  If h is not supplied, it will be inferred proportionally.
              e.g. <a href=""{0}?w=100"">{0}?w=100</a>
   h          Height of the image.  If w is not supplied, it will be inferred proportionally.
