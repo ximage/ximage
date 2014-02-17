@@ -49,10 +49,16 @@ namespace XImage
 				_encoder = _jpgEncoder;
 		}
 
-		public void Generate(Stream inputStream, Stream outputStream)
+		public Dictionary<string, string> Generate(Stream inputStream, Stream outputStream)
 		{
+			var properties = new Dictionary<string, string>();
+
 			using (var sourceImage = Bitmap.FromStream(inputStream))
 			{
+				properties["X-Image-Original-Width"] = sourceImage.Width.ToString();
+				properties["X-Image-Original-Height"] = sourceImage.Height.ToString();
+				properties["X-Image-Original-Format"] = "image/" + new ImageFormatConverter().ConvertToString(sourceImage.RawFormat).ToLower();
+
 				var targetImageSize = GetScaledDimensions(_parameters, sourceImage.Size);
 				var outputDimensions = targetImageSize;
 				var targetIsWiderThanOutput = false;
@@ -73,6 +79,9 @@ namespace XImage
 
 				using (var canvas = new Bitmap(outputDimensions.Width, outputDimensions.Height, PixelFormat.Format32bppArgb))
 				{
+					properties["X-Image-Width"] = canvas.Width.ToString();
+					properties["X-Image-Height"] = canvas.Height.ToString();
+
 					using (var graphics = Graphics.FromImage(canvas))
 					{
 						if (_parameters.CropAsColor != null)
@@ -104,6 +113,8 @@ namespace XImage
 					}
 				}
 			}
+
+			return properties;
 		}
 
 		void BinarySearchImageQuality(Stream outputStream, Bitmap canvas, long lowerRange, long upperRange)
