@@ -52,6 +52,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Help.txt" />
     <Content Include="Images\avatar.jpg" />
     <Content Include="Images\pink.jpg" />
     <Content Include="Web.config" />

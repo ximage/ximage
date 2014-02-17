@@ -1,0 +1,79 @@
+﻿____  ___.___                               
+\   \/  /|   | _____ _____     ____   ____  
+ \     / |   |/     \\__  \   / ___\_/ __ \ 
+ /     \ |   |  Y Y  \/ __ \_/ /_/  >  ___/ 
+/___/\  \|___|__|_|  (____  /\___  / \___  >  by Rylan Barnes.  See <a href=""http://ximage.org"">http://ximage.org</a> for full docs and demos.
+      \_/          \/     \//_____/      \/ 
+XImage (Extensible Image) is an open technology for real-time image manipulation over HTTP.  It defines a standard 
+interface for performing common image operations such as resizing, cropping, compressing, filtering, etc.  
+In addition, it describes how to add extended functionality that might be custom for your use case in a manner 
+that is discoverable and reusable.  
+
+The X image operates at the server level it can be made to operate at application level if desired
+Developing for multiple 
+The goal of the XImage interface is to simplify the development of of apps
+that span across devices with a wide range of screen depths and sizes and varyingly 
+Many advanced frameworks are needing a standard way to request images with particular attributes 
+
+QUERY STRING
+------------
+To maximize CDN and browser cache hit ratios, the following arguments are designed to have a strict set of rules.  
+Therefore, capitalization and parameter order are important and superfluous parameters will be treated as errors. 
+
+  help       Shows this help screen.  Each implementaion of XImage must show this help screen which is primarily 
+             used to show which features it supports.  
+  w          Width of the image.  If h is not supplied, it will be inferred proportionally.
+             e.g. <a href=""{0}?w=100"">{0}?w=100</a>
+  h          Height of the image.  If w is not supplied, it will be inferred proportionally.
+             e.g. <a href=""{0}?h=100"">{0}?h=100</a>
+  !          Allow upscaling.  By default, the image will not be resized larger than it's original dimensions.
+             To override this, append '!' to the end of the width or height.
+             e.g. <a href=""{0}?w=1000!&h=1000!"">{0}?w=1000!&h=1000!</a>
+  c          Cropping mode.  This is only valid when both w and h are specified.  Available options are:
+                (none)       Don't actually supply 'none', just leave it off.  No parts of the image will be cropped.
+                             It will be resized proportionally until it fits completely within the w x h boundaries.
+                             This will likely result in either width or height being smaller than the requested value.
+                             e.g. <a href=""{0}?w=200&h=200"">{0}?w=200&h=200</a>
+                fill         The image will be resized proportionally until it completely fills the w x h boundares.
+                             This will likely result in cropping off either top/bottom edges or left/right edges
+                             but the resulting dimensions will be exactly w x h.
+                             e.g. <a href=""{0}?w=200&h=100&c=fill"">{0}?w=200&h=100&c=fill</a>
+                stretch      Each edge will be resized disproportionally until it reaches its w x h boundaries.
+                             Results are exactly w x h and no edges are cropped but the image will appear distorted.
+                             e.g. <a href=""{0}?w=200&h=100&c=stretch"">{0}?w=200&h=100&c=stretch</a>
+                (color)      It will be resized proportionally until it fits completely within the w x h boundaries.
+                             This will likely result in void space on the left/right or top/bottom which will be 
+                             filled with the supplied color.  Must be a 6 or 8 digit lower case hex, don't use #.
+                             e.g. <a href=""{0}?w=200&h=100&c=3b5999"">{0}?w=200&h=100&c=3b5999</a>
+                extend...    XImage is an extensible protocol.  Other XImage implementations are free to add additional 
+                             cropping modes.  These implementations must make their functionality discoverable by 
+                             appending the name to the bottom of this sub-list.  
+  m          Mask.  Certain shapes can be applied making the outside either transparent or the background color.
+                circle       Applies a circle-shaped mask in the center with a diameter of the shortest edge.
+                             e.g. <a href=""{0}?w=200&m=circle"">{0}?w=200&m=circle</a>
+  f          Filter.
+  q          Quality of the image.  Values, as percentages, must be an integer between 1 - 100.  
+             Alternatively, you can specify a max content size (in kilobytes) by appending 'kb', e.g. q=150kb.
+             However some file sizes are impossibly small for some formats which will result in a best effort size.
+             e.g. <a href=""{0}?q=5"">{0}?q=5</a> or  <a href=""{0}?q=5kb"">{0}?q=5kb</a>
+  o          Output format of the image.  Supported values are jpg, gif, png.
+             e.g. <a href=""{0}?w=200&f=gif"">{0}?w=200&f=gif</a>
+  extend...  XImage is an extensible protocol.  Other XImage implementations are free to add additional features.  These 
+             implementations must make their functionality discoverable by appending the name to the bottom of this list.
+
+RESPONSE HEADERS
+----------------
+XImage uses reponse headers to specify suported capabilities and also to communicate meta data about the image.
+The meta data, in paticular, can become useful with a HEAD request especially when used in conjuction with a CDN for 
+fast, single-digit millisecond response times carrying rich details about that image.
+
+  X-Image-Original-Width: 500
+  X-Image-Original-Height: 600
+  X-Image-Original-Format: image/png
+  X-Image-Width: 100
+  X-Image-Height: 200
+  X-Image-Color-Accent: #ff0000
+  X-Image-Color-Average: #336699
+  X-Image-Color-Base: #555555
+  X-Image-Color-Dominant: #6699cc
+  x-Image-Color-Palette: #111111,#222222,#333333,#444444,#555555,#666666
