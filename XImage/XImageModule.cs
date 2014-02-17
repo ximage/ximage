@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net;
 using System.Web;
 
@@ -19,6 +20,8 @@ namespace XImage
 			{
 				try
 				{
+					var stopwatch = Stopwatch.StartNew();
+
 					var xImageParams = new XImageParameters(app.Context);
 
 					if (xImageParams.HasAnyValues)
@@ -32,6 +35,8 @@ namespace XImage
 
 							foreach (var property in properties)
 								app.Response.Headers.Add(property.Key, property.Value);
+
+							app.Response.Headers.Add("X-Image-Response-Time", string.Format("{0:N2}ms", 1000D * (double)stopwatch.ElapsedTicks / (double)Stopwatch.Frequency));
 						});
 					}
 				}

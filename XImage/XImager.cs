@@ -101,13 +101,11 @@ namespace XImage
 
 			// Color Calculations
 			{
-				var histogram = new Dictionary<Color, int>();
-				int histogramSize = 25;
-
-				var stopwatch = Stopwatch.StartNew();
 				int r = 0, g = 0, b = 0;
 				int rSum = 0, gSum = 0, bSum = 0;
 				int rBucket = 0, gBucket = 0, bBucket = 0;
+				var histogram = new Dictionary<Color, int>();
+				int histogramSize = 32;
 				for (int i = 0; i < byteCount; i += 4)
 				{
 					r = data[i + 2];
@@ -140,23 +138,32 @@ namespace XImage
 				var averageColor = Color.FromArgb(rAvg, gAvg, bAvg);
 				properties["X-Image-Color-Average"] = averageColor.ToHex();
 
-				var dominantColor = histogram.OrderByDescending(p => p.Value).Select(p => p.Key).FirstOrDefault();
-				dominantColor = Color.FromArgb(dominantColor.R * histogramSize, dominantColor.G * histogramSize, dominantColor.B * histogramSize);
-				properties["X-Image-Color-Dominant"] = dominantColor.ToHex();
-
-				var accentColor = histogram
+				var palette = histogram
 					.OrderByDescending(p => p.Value)
-					.Take(10)
-					.OrderByDescending(p => p.Key.R + p.Key.G + p.Key.B)
+					.Take(8)
 					.Select(p => p.Key)
-					.FirstOrDefault();
-				accentColor = Color.FromArgb(accentColor.R * histogramSize, accentColor.G * histogramSize, accentColor.B * histogramSize);
-				properties["X-Image-Color-Accent"] = accentColor.ToHex();
+					.ToList();
+				for (int i = 0; i < palette.Count; i++)
+					palette[i] = Color.FromArgb(palette[i].R * histogramSize, palette[i].G * histogramSize, palette[i].B * histogramSize);
+				properties["X-Image-Color-Palette"] = string.Join(",", palette.Select(c => c.ToHex()));
 
-				properties["X-Image-Color-Time"] = 1000000D * (double)stopwatch.ElapsedTicks / (double)Stopwatch.Frequency + "us";
+				properties["X-Image-Color-Dominant"] = palette
+					.First()
+					.ToHex();
+
+				properties["X-Image-Color-Accent"] = palette
+					.OrderByDescending(p => Math.Max(p.R, Math.Max(p.G, p.B)))
+					.First()
+					.ToHex();
+
+				properties["X-Image-Color-Base"] = palette
+					.OrderBy(p => Math.Max(p.R, Math.Max(p.G, p.B)))
+					.First()
+					.ToHex();
 			}
 
-			Marshal.Copy(data, 0, bitmapData.Scan0, data.Length);
+			// Only do this if we made "edits."
+			// Marshal.Copy(data, 0, bitmapData.Scan0, data.Length);
 			targetImage.UnlockBits(bitmapData);
 		}
 

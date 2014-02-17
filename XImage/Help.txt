@@ -76,4 +76,5 @@ fast, single-digit millisecond response times carrying rich details about that i
   X-Image-Color-Average: #336699
   X-Image-Color-Base: #555555
   X-Image-Color-Dominant: #6699cc
-  x-Image-Color-Palette: #111111,#222222,#333333,#444444,#555555,#666666
+  X-Image-Color-Palette: #111111,#222222,#333333,#444444,#555555,#666666
+  X-Image-Response-Time: 45.12ms
