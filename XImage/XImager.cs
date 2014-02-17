@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Web;
 
 namespace XImage
@@ -70,7 +73,7 @@ namespace XImage
 				{
 					using (var graphics = Graphics.FromImage(canvas))
 					{
-						ProcessImage(graphics, sourceImage, origin, targetImageSize);
+						ProcessImage(sourceImage, canvas, graphics, origin, targetImageSize, properties);
 						SaveImage(canvas, outputStream);
 					}
 				}
@@ -79,7 +82,7 @@ namespace XImage
 			return properties;
 		}
 
-		void ProcessImage(Graphics graphics, Bitmap sourceImage, Point origin, Size targetImageSize)
+		void ProcessImage(Bitmap sourceImage, Bitmap targetImage, Graphics graphics, Point origin, Size targetImageSize, Dictionary<string, string> properties)
 		{
 			if (_parameters.CropAsColor != null)
 				graphics.Clear(_parameters.CropAsColor.Value);
@@ -89,7 +92,72 @@ namespace XImage
 
 			graphics.DrawImage(sourceImage, new Rectangle(origin, targetImageSize));
 
-			// More heavy work will go here...
+			var bitmapData = targetImage.LockBits(new Rectangle(Point.Empty, targetImage.Size), ImageLockMode.ReadWrite, targetImage.PixelFormat);
+			var bytesPerPixel = Bitmap.GetPixelFormatSize(targetImage.PixelFormat) / 8;
+			var byteCount = bitmapData.Stride * targetImage.Height;
+			var pixelCount = byteCount / bytesPerPixel;
+			var data = new byte[byteCount];
+			Marshal.Copy(bitmapData.Scan0, data, 0, data.Length);
+
+			// Color Calculations
+			{
+				var histogram = new Dictionary<Color, int>();
+				int histogramSize = 25;
+
+				var stopwatch = Stopwatch.StartNew();
+				int r = 0, g = 0, b = 0;
+				int rSum = 0, gSum = 0, bSum = 0;
+				int rBucket = 0, gBucket = 0, bBucket = 0;
+				for (int i = 0; i < byteCount; i += 4)
+				{
+					r = data[i + 2];
+					g = data[i + 1];
+					b = data[i];
+
+					// Sum up channels for use on averages.
+					rSum += r;
+					gSum += g;
+					bSum += b;
+
+					// Place colors in buckets for use on pallete.
+					rBucket = (r / histogramSize);
+					gBucket = (g / histogramSize);
+					bBucket = (b / histogramSize);
+
+					// Ignore greys.
+					if (rBucket != gBucket || gBucket != bBucket || bBucket != rBucket)
+					{
+						var bucket = Color.FromArgb(rBucket, gBucket, bBucket);
+						if (!histogram.ContainsKey(bucket))
+							histogram[bucket] = 1;
+						else
+							histogram[bucket]++;
+					}
+				}
+				var rAvg = rSum / pixelCount;
+				var gAvg = gSum / pixelCount;
+				var bAvg = bSum / pixelCount;
+				var averageColor = Color.FromArgb(rAvg, gAvg, bAvg);
+				properties["X-Image-Color-Average"] = averageColor.ToHex();
+
+				var dominantColor = histogram.OrderByDescending(p => p.Value).Select(p => p.Key).FirstOrDefault();
+				dominantColor = Color.FromArgb(dominantColor.R * histogramSize, dominantColor.G * histogramSize, dominantColor.B * histogramSize);
+				properties["X-Image-Color-Dominant"] = dominantColor.ToHex();
+
+				var accentColor = histogram
+					.OrderByDescending(p => p.Value)
+					.Take(10)
+					.OrderByDescending(p => p.Key.R + p.Key.G + p.Key.B)
+					.Select(p => p.Key)
+					.FirstOrDefault();
+				accentColor = Color.FromArgb(accentColor.R * histogramSize, accentColor.G * histogramSize, accentColor.B * histogramSize);
+				properties["X-Image-Color-Accent"] = accentColor.ToHex();
+
+				properties["X-Image-Color-Time"] = 1000000D * (double)stopwatch.ElapsedTicks / (double)Stopwatch.Frequency + "us";
+			}
+
+			Marshal.Copy(data, 0, bitmapData.Scan0, data.Length);
+			targetImage.UnlockBits(bitmapData);
 		}
 
 		Size GetTargetImageSize(Size original)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Web;
 
@@ -29,6 +30,11 @@ namespace XImage
 		public static bool IsNullOrEmpty(this string value)
 		{
 			return string.IsNullOrEmpty(value);
+		}
+
+		public static string ToHex(this Color color)
+		{
+			return string.Format("#{0:X2}{1:X2}{2:X2}", color.R, color.G, color.B);
 		}
 	}
 }
