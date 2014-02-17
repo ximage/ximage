@@ -78,3 +78,19 @@ fast, single-digit millisecond response times carrying rich details about that i
   X-Image-Color-Dominant: #6699cc
   X-Image-Color-Palette: #111111,#222222,#333333,#444444,#555555,#666666
   X-Image-Response-Time: 45.12ms
+
+CDN AND ORIGIN HOSTS
+--------------------
+Origins:
+  origin.x.shopsavvy.com
+CDNs:
+  x.shopsavvy.com 	    xi.mg
+  x1.shopsavvy.com	    1.xi.mg
+  x2.shopsavvy.com	    2.xi.mg
+  x3.shopsavvy.com	    3.xi.mg
+  x4.shopsavvy.com	    4.xi.mg
+  x5.shopsavvy.com	    5.xi.mg
+  x6.shopsavvy.com	    6.xi.mg
+  x7.shopsavvy.com	    7.xi.mg
+  x8.shopsavvy.com	    8.xi.mg
+  x9.shopsavvy.com	    9.xi.mg
