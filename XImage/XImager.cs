@@ -17,6 +17,7 @@ namespace XImage
 		static readonly ImageCodecInfo _jpgEncoder = null;
 		static readonly ImageCodecInfo _gifEncoder = null;
 		static readonly ImageCodecInfo _pngEncoder = null;
+		static readonly Dictionary<ImageFormat, ImageCodecInfo> _formatToCodec = null;
 
 		XImageParameters _parameters = null;
 		EncoderParameters _encoderParameters = null;
@@ -29,87 +30,48 @@ namespace XImage
 			_jpgEncoder = codecs.First(c => c.MimeType == "image/jpeg");
 			_gifEncoder = codecs.First(c => c.MimeType == "image/gif");
 			_pngEncoder = codecs.First(c => c.MimeType == "image/png");
+			_formatToCodec = new Dictionary<ImageFormat, ImageCodecInfo> 
+			{
+				{ ImageFormat.Jpeg, _jpgEncoder },
+				{ ImageFormat.Gif, _gifEncoder },
+				{ ImageFormat.Png, _pngEncoder },
+			};
 		}
 
 		public XImager(XImageParameters parameters)
 		{
 			_parameters = parameters;
+
 			_encoderParameters = new EncoderParameters(2);
 			_encoderParameters.Param[0] = new EncoderParameter(Encoder.Compression, (long)EncoderValue.CompressionLZW);
 			_encoderParameters.Param[1] = new EncoderParameter(Encoder.Quality, (long)(_parameters.Quality ?? DEFAULT_QUALITY));
 
-			var format = parameters.OutputFormat ?? parameters.SourceFormat;
-			if (format == ImageFormat.Jpeg)
-				_encoder = _jpgEncoder;
-			else if (format == ImageFormat.Gif)
-				_encoder = _gifEncoder;
-			else if (format == ImageFormat.Png)
-				_encoder = _pngEncoder;
-			else
-				_encoder = _jpgEncoder;
+			_encoder = _formatToCodec[parameters.OutputFormat ?? parameters.SourceFormat ?? ImageFormat.Jpeg];
 		}
 
-		public Dictionary<string, string> Generate(Stream inputStream, Stream outputStream)
+		public Dictionary<string, string> CopyTo(Stream inputStream, Stream outputStream)
 		{
 			var properties = new Dictionary<string, string>();
 
-			using (var sourceImage = Bitmap.FromStream(inputStream))
+			using (var sourceImage = Bitmap.FromStream(inputStream) as Bitmap)
 			{
+				var targetImageSize = GetTargetImageSize(sourceImage.Size);
+				var targetIsWiderThanOutput = GetIsTargetWiderThanOutput(targetImageSize);
+				var outputDimensions = GetOutputDimensions(targetImageSize, targetIsWiderThanOutput);
+				var origin = GetImageOrigin(targetImageSize, targetIsWiderThanOutput, outputDimensions);
+
 				properties["X-Image-Original-Width"] = sourceImage.Width.ToString();
 				properties["X-Image-Original-Height"] = sourceImage.Height.ToString();
 				properties["X-Image-Original-Format"] = "image/" + new ImageFormatConverter().ConvertToString(sourceImage.RawFormat).ToLower();
-
-				var targetImageSize = GetScaledDimensions(_parameters, sourceImage.Size);
-				var outputDimensions = targetImageSize;
-				var targetIsWiderThanOutput = false;
-
-				if (_parameters.Crop == Crops.FILL || _parameters.Crop == Crops.COLOR)
-				{
-					outputDimensions.Width = _parameters.Width.Value;
-					outputDimensions.Height = _parameters.Height.Value;
-					targetIsWiderThanOutput = (float)outputDimensions.Width / (float)outputDimensions.Height < (float)targetImageSize.Width / (float)targetImageSize.Height;
-
-					if (!_parameters.AllowUpscaling && _parameters.Crop == Crops.FILL)
-					{
-						float scale = targetIsWiderThanOutput ? (float)targetImageSize.Height / (float)outputDimensions.Height : (float)targetImageSize.Width / (float)outputDimensions.Width;
-						outputDimensions.Height = Convert.ToInt32(_parameters.Height * scale);
-						outputDimensions.Width = Convert.ToInt32(_parameters.Width * scale);
-					}
-				}
+				properties["X-Image-Width"] = outputDimensions.Width.ToString();
+				properties["X-Image-Height"] = outputDimensions.Height.ToString();
 
 				using (var canvas = new Bitmap(outputDimensions.Width, outputDimensions.Height, PixelFormat.Format32bppArgb))
 				{
-					properties["X-Image-Width"] = canvas.Width.ToString();
-					properties["X-Image-Height"] = canvas.Height.ToString();
-
 					using (var graphics = Graphics.FromImage(canvas))
 					{
-						if (_parameters.CropAsColor != null)
-							graphics.Clear(_parameters.CropAsColor.Value);
-
-						if (_encoder.MimeType == "image/png")
-							graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-
-						Point origin = Point.Empty;
-						if (_parameters.Crop == Crops.FILL)
-						{
-							if (targetIsWiderThanOutput)
-								origin.X -= (targetImageSize.Width - outputDimensions.Width) / 2;
-							else
-								origin.Y -= (targetImageSize.Height - outputDimensions.Height) / 2;
-						}
-						else if (_parameters.Crop == Crops.COLOR)
-						{
-							origin.X -= (targetImageSize.Width - outputDimensions.Width) / 2;
-							origin.Y -= (targetImageSize.Height - outputDimensions.Height) / 2;
-						}
-
-						graphics.DrawImage(sourceImage, new Rectangle(origin, targetImageSize));
-
-						if (_parameters.QualityAsKb && _encoder.MimeType == "image/jpeg")
-							BinarySearchImageQuality(outputStream, canvas, 1, 100);
-						else
-							canvas.Save(outputStream, _encoder, _encoderParameters);
+						ProcessImage(graphics, sourceImage, origin, targetImageSize);
+						SaveImage(canvas, outputStream);
 					}
 				}
 			}
@@ -117,52 +79,38 @@ namespace XImage
 			return properties;
 		}
 
-		void BinarySearchImageQuality(Stream outputStream, Bitmap canvas, long lowerRange, long upperRange)
+		void ProcessImage(Graphics graphics, Bitmap sourceImage, Point origin, Size targetImageSize)
 		{
-			long targetSize = _parameters.Quality.Value * 1024;
-			long testQuality = (upperRange - lowerRange) / 2L + lowerRange;
-			using (var mem = new MemoryStream())
-			{
-				_encoderParameters.Param[1] = new EncoderParameter(Encoder.Quality, testQuality);
-				canvas.Save(mem, _encoder, _encoderParameters);
+			if (_parameters.CropAsColor != null)
+				graphics.Clear(_parameters.CropAsColor.Value);
 
-				// If the sizes are within 10%, we're good to go.
-				var closeness = (float)Math.Abs(mem.Length - targetSize) / (float)targetSize;
-				if (closeness < .1F || ++saveAttempts >= 5)
-				{
-					mem.Position = 0;
-					mem.CopyTo(outputStream);
-				}
-				else if (targetSize < mem.Length)
-				{
-					BinarySearchImageQuality(outputStream, canvas, lowerRange, testQuality);
-				}
-				else
-				{
-					BinarySearchImageQuality(outputStream, canvas, testQuality, upperRange);
-				}
-			}
+			if (_encoder.MimeType == "image/png")
+				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+
+			graphics.DrawImage(sourceImage, new Rectangle(origin, targetImageSize));
+
+			// More heavy work will go here...
 		}
 
-		Size GetScaledDimensions(XImageParameters parameters, Size original)
+		Size GetTargetImageSize(Size original)
 		{
-			if (parameters.Width == null && parameters.Height == null)
+			if (_parameters.Width == null && _parameters.Height == null)
 				return original;
 
-			if (parameters.Crop != null && (parameters.Width == null || parameters.Height == null))
+			if (_parameters.Crop != null && (_parameters.Width == null || _parameters.Height == null))
 				throw new ArgumentException("Cannot specify a fit without also specifying both width and height.");
 
 			Size scaled = original;
 
 			// If no fit is specified, default to clip.
-			var fit = parameters.Crop ?? Crops.NONE;
+			var fit = _parameters.Crop ?? Crops.NONE;
 
 			// If upscaling is not allowed (the default), cap those values.
-			var parametersWidth = parameters.Width;
-			if (parametersWidth != null && !parameters.AllowUpscaling)
+			var parametersWidth = _parameters.Width;
+			if (parametersWidth != null && !_parameters.AllowUpscaling)
 				parametersWidth = Math.Min(original.Width, parametersWidth.Value);
-			var parametersHeight = parameters.Height;
-			if (parametersHeight != null && !parameters.AllowUpscaling)
+			var parametersHeight = _parameters.Height;
+			if (parametersHeight != null && !_parameters.AllowUpscaling)
 				parametersHeight = Math.Min(original.Height, parametersHeight.Value);
 
 			// In the event that just one dimension was specified, i.e. just w or just h,
@@ -204,6 +152,90 @@ namespace XImage
 			}
 
 			return scaled;
+		}
+
+		bool GetIsTargetWiderThanOutput(Size targetImageSize)
+		{
+			if (_parameters.Crop == Crops.FILL || _parameters.Crop == Crops.COLOR)
+				return (float)_parameters.Width.Value / (float)_parameters.Height.Value < (float)targetImageSize.Width / (float)targetImageSize.Height;
+			else
+				return false;
+		}
+
+		Size GetOutputDimensions(Size targetImageSize, bool targetIsWiderThanOutput)
+		{
+			Size outputDimensions = targetImageSize;
+
+			if (_parameters.Crop == Crops.FILL || _parameters.Crop == Crops.COLOR)
+			{
+				outputDimensions.Width = _parameters.Width.Value;
+				outputDimensions.Height = _parameters.Height.Value;
+
+				if (!_parameters.AllowUpscaling && _parameters.Crop == Crops.FILL)
+				{
+					float scale = targetIsWiderThanOutput ? (float)targetImageSize.Height / (float)outputDimensions.Height : (float)targetImageSize.Width / (float)outputDimensions.Width;
+					outputDimensions.Height = Convert.ToInt32(_parameters.Height * scale);
+					outputDimensions.Width = Convert.ToInt32(_parameters.Width * scale);
+				}
+			}
+
+			return outputDimensions;
+		}
+
+		Point GetImageOrigin(Size targetImageSize, bool targetIsWiderThanOutput, Size outputDimensions)
+		{
+			Point origin = Point.Empty;
+
+			if (_parameters.Crop == Crops.FILL)
+			{
+				if (targetIsWiderThanOutput)
+					origin.X -= (targetImageSize.Width - outputDimensions.Width) / 2;
+				else
+					origin.Y -= (targetImageSize.Height - outputDimensions.Height) / 2;
+			}
+			else if (_parameters.Crop == Crops.COLOR)
+			{
+				origin.X -= (targetImageSize.Width - outputDimensions.Width) / 2;
+				origin.Y -= (targetImageSize.Height - outputDimensions.Height) / 2;
+			}
+
+			return origin;
+		}
+
+		void SaveImage(Bitmap canvas, Stream outputStream)
+		{
+			if (_parameters.QualityAsKb && _encoder.MimeType == "image/jpeg")
+				BinarySearchImageQuality(canvas, outputStream, 1, 100);
+			else
+				canvas.Save(outputStream, _encoder, _encoderParameters);
+		}
+
+
+		void BinarySearchImageQuality(Bitmap canvas, Stream outputStream, long lowerRange, long upperRange)
+		{
+			long targetSize = _parameters.Quality.Value * 1024;
+			long testQuality = (upperRange - lowerRange) / 2L + lowerRange;
+			using (var mem = new MemoryStream())
+			{
+				_encoderParameters.Param[1] = new EncoderParameter(Encoder.Quality, testQuality);
+				canvas.Save(mem, _encoder, _encoderParameters);
+
+				// If the sizes are within 10%, we're good to go.
+				var closeness = (float)Math.Abs(mem.Length - targetSize) / (float)targetSize;
+				if (closeness < .1F || ++saveAttempts >= 5)
+				{
+					mem.Position = 0;
+					mem.CopyTo(outputStream);
+				}
+				else if (targetSize < mem.Length)
+				{
+					BinarySearchImageQuality(canvas, outputStream, lowerRange, testQuality);
+				}
+				else
+				{
+					BinarySearchImageQuality(canvas, outputStream, testQuality, upperRange);
+				}
+			}
 		}
 	}
 }

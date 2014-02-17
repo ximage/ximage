@@ -28,7 +28,7 @@ namespace XImage
 						var output = app.Response.Filter;
 						app.Response.Filter = new InterceptingStream(bufferedStream =>
 						{
-							var properties = new XImager(xImageParams).Generate(bufferedStream, output);
+							var properties = new XImager(xImageParams).CopyTo(bufferedStream, output);
 
 							foreach (var property in properties)
 								app.Response.Headers.Add(property.Key, property.Value);
