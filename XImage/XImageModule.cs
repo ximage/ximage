@@ -24,7 +24,12 @@ namespace XImage
 					if (xImageParams.HasAnyValues)
 					{
 						app.Response.ContentType = xImageParams.GetContentType();
-						app.Response.Filter = new XImageFilterStream(app.Response.Filter, xImageParams);
+
+						var output = app.Response.Filter;
+						app.Response.Filter = new InterceptingStream(bufferedStream =>
+						{
+							new XImager(xImageParams).Generate(bufferedStream, output);
+						});
 					}
 				}
 				catch (ArgumentException ex)
