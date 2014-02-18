@@ -36,7 +36,7 @@ namespace XImage
 							foreach (var property in properties)
 								app.Response.Headers.Add(property.Key, property.Value);
 
-							app.Response.Headers.Add("X-Image-Response-Time", string.Format("{0:N2}ms", 1000D * (double)stopwatch.ElapsedTicks / (double)Stopwatch.Frequency));
+							app.Response.Headers.Add("X-Image-Processing-Time", string.Format("{0:N2}ms", 1000D * (double)stopwatch.ElapsedTicks / (double)Stopwatch.Frequency));
 						});
 					}
 				}
