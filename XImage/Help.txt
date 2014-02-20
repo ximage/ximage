@@ -2,7 +2,7 @@
 \   \/  /|   | _____ _____     ____   ____  
  \     / |   |/     \\__  \   / ___\_/ __ \ 
  /     \ |   |  Y Y  \/ __ \_/ /_/  >  ___/ 
-/___/\  \|___|__|_|  (____  /\___  / \___  >  by Rylan Barnes.  See <a href="http://ximage.org">http://ximage.org</a> for full docs and demos.
+/___/\  \|___|__|_|  (____  /\___  / \___  >  by Rylan Barnes.  See <a href="http://ximage.org">ximage.org</a> for full docs and demos.
       \_/          \/     \//_____/      \/ 
 XImage (Extensible Image) is an open technology for real-time image manipulation over HTTP.  It defines a standard 
 interface for performing common image operations such as resizing, cropping, compressing, filtering, etc.  
