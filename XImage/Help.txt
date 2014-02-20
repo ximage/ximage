@@ -20,7 +20,7 @@ QUERY STRING
 To maximize CDN and browser cache hit ratios, the following arguments are designed to have a strict set of rules.  
 Therefore, capitalization and parameter order are important and superfluous parameters will be treated as errors. 
 
-  help       Shows this help screen.  Each implementaion of XImage must show this help screen which is primarily 
+  help       Shows this help screen.  Each implementation of XImage must show this help screen which is primarily 
              used to show which features it supports.  
   w          Width of the image.  If h is not supplied, it will be inferred proportionally.
              e.g. <a href="{0}?w=100">{0}?w=100</a>
@@ -34,7 +34,7 @@ Therefore, capitalization and parameter order are important and superfluous para
                              It will be resized proportionally until it fits completely within the w x h boundaries.
                              This will likely result in either width or height being smaller than the requested value.
                              e.g. <a href="{0}?w=200&h=200">{0}?w=200&h=200</a>
-                fill         The image will be resized proportionally until it completely fills the w x h boundares.
+                fill         The image will be resized proportionally until it completely fills the w x h boundaries.
                              This will likely result in cropping off either top/bottom edges or left/right edges
                              but the resulting dimensions will be exactly w x h.
                              e.g. <a href="{0}?w=200&h=100&c=fill">{0}?w=200&h=100&c=fill</a>
@@ -45,13 +45,16 @@ Therefore, capitalization and parameter order are important and superfluous para
                              This will likely result in void space on the left/right or top/bottom which will be 
                              filled with the supplied color.  Must be a 6 or 8 digit lower case hex, don't use #.
                              e.g. <a href="{0}?w=200&h=100&c=3b5999">{0}?w=200&h=100&c=3b5999</a>
-                extend...    XImage is an extensible protocol.  Other XImage implementations are free to add additional 
-                             cropping modes.  These implementations must make their functionality discoverable by 
-                             appending the name to the bottom of this sub-list.  
   m          Mask.  Certain shapes can be applied making the outside either transparent or the background color.
                 circle       Applies a circle-shaped mask in the center with a diameter of the shortest edge.
                              e.g. <a href="{0}?w=200&m=circle">{0}?w=200&m=circle</a>
-  f          Filter.
+                roundrect(n) Rounds the corners with a radius of n.  
+                             e.g. <a href="{0}?w=200&m=roundrect(10)">{0}?w=200&m=roundrect(10)</a>
+  f          Filter.  This list is loosely based on CSS3 filters.
+                blur(r)      Applies a gaussian blur with a radius of r.
+                             e.g. <a href="{0}?blur(10)">{0}?blur(10)</a>
+                tint(c,p)    Applies a tint with a color of c and by a percentage of p.
+                             e.g. <a href="{0}?tint(ff0000,50)">{0}?tint(ff0000,50 )</a>
   q          Quality of the image.  Values, as percentages, must be an integer between 1 - 100.  
              Alternatively, you can specify a max content size (in kilobytes) by appending 'kb', e.g. q=150kb.
              However some file sizes are impossibly small for some formats which will result in a best effort size.
@@ -63,8 +66,8 @@ Therefore, capitalization and parameter order are important and superfluous para
 
 RESPONSE HEADERS
 ----------------
-XImage uses reponse headers to specify suported capabilities and also to communicate meta data about the image.
-The meta data, in paticular, can become useful with a HEAD request especially when used in conjuction with a CDN for 
+XImage uses response headers to specify supported capabilities and also to communicate meta data about the image.
+The meta data, in particular, can become useful with a HEAD request especially when used in conjunction with a CDN for 
 fast, single-digit millisecond response times carrying rich details about that image.
 
   X-Image-Original-Width: 500
