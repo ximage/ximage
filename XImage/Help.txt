@@ -54,15 +54,18 @@ Therefore, capitalization and parameter order are important and superfluous para
                 blur(r)      Applies a gaussian blur with a radius of r.
                              e.g. <a href="{0}?blur(10)">{0}?blur(10)</a>
                 tint(c,p)    Applies a tint with a color of c and by a percentage of p.
-                             e.g. <a href="{0}?tint(ff0000,50)">{0}?tint(ff0000,50 )</a>
+                             e.g. <a href="{0}?tint(ff0000,50)">{0}?tint(ff0000,50)</a>
+  t          Text.  Write text over the image.
+                footer(t)    Centers text at the bottom of the image.
+                             e.g. <a href="{0}?footer('Hello world!')">{0}?footer('Hello world!')</a>
+                header(t)    Centers text at the top of the image.
+                             e.g. <a href="{0}?header('Hello world!')">{0}?header('Hello world!')</a>
   q          Quality of the image.  Values, as percentages, must be an integer between 1 - 100.  
              Alternatively, you can specify a max content size (in kilobytes) by appending 'kb', e.g. q=150kb.
              However some file sizes are impossibly small for some formats which will result in a best effort size.
              e.g. <a href="{0}?q=5">{0}?q=5</a> or  <a href="{0}?q=5kb">{0}?q=5kb</a>
   o          Output format of the image.  Supported values are jpg, gif, png.
-             e.g. <a href="{0}?w=200&f=gif">{0}?w=200&f=gif</a>
-  extend...  XImage is an extensible protocol.  Other XImage implementations are free to add additional features.  These 
-             implementations must make their functionality discoverable by appending the name to the bottom of this list.
+             e.g. <a href="{0}?w=200&f=gif">{0}?w=200&f=gif</a>             
 
 RESPONSE HEADERS
 ----------------
