@@ -1,4 +1,4 @@
-XImage Protocol
+XImage.NET
 =====
 Middleware for your images. Control size, crop, quality, filters, format and more from the query string.
 
