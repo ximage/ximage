@@ -143,23 +143,26 @@ namespace XImage
 					.Take(8)
 					.Select(p => p.Key)
 					.ToList();
-				for (int i = 0; i < palette.Count; i++)
-					palette[i] = Color.FromArgb(palette[i].R * histogramSize, palette[i].G * histogramSize, palette[i].B * histogramSize);
-				properties["X-Image-Color-Palette"] = string.Join(",", palette.Select(c => c.ToHex()));
+				if (palette.Count > 0)
+				{
+					for (int i = 0; i < palette.Count; i++)
+						palette[i] = Color.FromArgb(palette[i].R * histogramSize, palette[i].G * histogramSize, palette[i].B * histogramSize);
+					properties["X-Image-Color-Palette"] = string.Join(",", palette.Select(c => c.ToHex()));
 
-				properties["X-Image-Color-Dominant"] = palette
-					.First()
-					.ToHex();
+					properties["X-Image-Color-Dominant"] = palette
+						.First()
+						.ToHex();
 
-				properties["X-Image-Color-Accent"] = palette
-					.OrderByDescending(p => Math.Max(p.R, Math.Max(p.G, p.B)))
-					.First()
-					.ToHex();
+					properties["X-Image-Color-Accent"] = palette
+						.OrderByDescending(p => Math.Max(p.R, Math.Max(p.G, p.B)))
+						.First()
+						.ToHex();
 
-				properties["X-Image-Color-Base"] = palette
-					.OrderBy(p => Math.Max(p.R, Math.Max(p.G, p.B)))
-					.First()
-					.ToHex();
+					properties["X-Image-Color-Base"] = palette
+						.OrderBy(p => Math.Max(p.R, Math.Max(p.G, p.B)))
+						.First()
+						.ToHex();
+				}
 			}
 
 			// Only do this if we made "edits."
