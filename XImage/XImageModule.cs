@@ -1,12 +1,17 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Net;
+using System.Reflection;
 using System.Web;
+using System.Linq;
 
 namespace XImage
 {
 	public class XImageModule : IHttpModule
 	{
+		static readonly string HELP = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream("XImage.Help.txt")).ReadToEnd();
+
 		public void Init(HttpApplication context)
 		{
 			context.PostRequestHandlerExecute += InterceptImage;
@@ -47,14 +52,26 @@ namespace XImage
 			}
 		}
 
-		void EndWithError(HttpApplication app, HttpStatusCode statusCode, string message)
+		void EndWithError(HttpApplication app, HttpStatusCode statusCode, string error = null)
 		{
 			app.Response.ClearHeaders();
 			app.Response.ClearContent();
 			app.Response.TrySkipIisCustomErrors = true;
 			app.Response.StatusCode = (int)statusCode;
 			app.Response.ContentType = "text/html";
-			app.Response.Write("<pre>" + message + "</pre>");
+			app.Response.Output.WriteLine("<html><body><pre>");
+			if (!error.IsNullOrEmpty())
+			{
+				app.Response.Output.WriteLine("ERROR");
+				app.Response.Output.WriteLine("-----");
+				app.Response.Output.WriteLine(error);
+				app.Response.Output.WriteLine("");
+
+				app.Response.AddHeader("X-Image-Error", error);
+			}
+			app.Response.Output.WriteLine(HELP, app.Request.Url.Segments.Last());
+			app.Response.Output.WriteLine("</pre></body></html>");
+	
 			app.Response.End();
 		}
 
