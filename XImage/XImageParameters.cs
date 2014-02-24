@@ -23,7 +23,7 @@ namespace XImage
 	public class XImageParameters
 	{
 		static readonly int MAX_SIZE = ConfigurationManager.AppSettings["XImage.MaxSize"].AsNullableInt() ?? 1000;
-		static readonly string[] PARAM_ORDER = { "w", "h", "c", "q", "f" };
+		static readonly string[] PARAM_ORDER = { "w", "h", "c", "f", "q", "o" };
 
 		static readonly Dictionary<string, ImageFormat> _supportedFormats = new Dictionary<string, ImageFormat>()
 		{
@@ -44,6 +44,7 @@ namespace XImage
 		public bool AllowUpscaling { get; private set; }
 		public string Crop { get; private set; }
 		public Color? CropAsColor { get; private set; }
+		public string Filters { get; private set; }
 		public int? Quality { get; private set; }
 		public bool QualityAsKb { get; private set; }
 		public ImageFormat OutputFormat { get; private set; }
@@ -69,6 +70,7 @@ namespace XImage
 			ParseHelp(httpContext);
 			ParseWidthAndHeight(q);
 			ParseCrop(q);
+			ParseFilters(q);
 			ParseQuality(q);
 			ParseFormats(httpContext, q);
 			ParseOrder(q);
@@ -145,6 +147,38 @@ namespace XImage
 
 				if ((Width == null || Height == null) && Crop != null)
 					throw new ArgumentException("A cropping mode is only valid when both width and height are specified.");
+			}
+		}
+
+		void ParseFilters(NameValueCollection q)
+		{
+			var filterValues = q["f"];
+			if (filterValues != null)
+			{
+				var filters = filterValues.SplitClean(';');
+				if (filters.Length == 0)
+					throw new ArgumentException("The f parameter cannot be empty.  Exclude this parameters if no filters are needed.");
+				foreach (var filter in filters)
+				{
+					// Note: This doesn't account for strings as filter args yet, just numbers.
+					if (filter.Contains(' '))
+						throw new ArgumentException("Don't leave any spaces in your filter methods.  Enforcing this strictly helps optimize cache hit ratios.");
+					var tokens = filter.Split('(', ')');
+					if (tokens.Length < 3 || tokens[2] != "")
+						throw new ArgumentException("Filter methods must be of the format 'method(arg1,arg2,...)'.");
+					var method = tokens[0];
+					var strArgs = tokens[1].Split(',');
+					var args = new object[strArgs.Length];
+					for (int i = 0; i < args.Length; i++)
+					{
+						if (strArgs[i].AsNullableInt().HasValue)
+							args[i] = strArgs[i].AsNullableInt().Value;
+						else if (strArgs[i].AsNullableDecimal().HasValue)
+							args[i] = strArgs[i].AsNullableDecimal().Value;
+						else
+							throw new ArgumentException(string.Format("Unrecognized type as filter argument: {0}.", strArgs[i]));
+					}
+				}
 			}
 		}
 

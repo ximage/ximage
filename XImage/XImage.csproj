@@ -64,6 +64,7 @@
     <Compile Include="XImageModule.cs" />
     <Compile Include="XImageParameters.cs" />
     <Compile Include="XImager.cs" />
+    <Compile Include="XImagerFilters.cs" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

@@ -20,6 +20,18 @@ namespace XImage
 			return null;
 		}
 
+		public static decimal? AsNullableDecimal(this string value)
+		{
+			if (value == null)
+				return null;
+
+			decimal d;
+			if (decimal.TryParse(value, out d))
+				return d;
+
+			return null;
+		}
+
 		public static TValue GetValueOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key)
 		{
 			TValue value;
@@ -35,6 +47,11 @@ namespace XImage
 		public static string ToHex(this Color color)
 		{
 			return string.Format("#{0:X2}{1:X2}{2:X2}", color.R, color.G, color.B);
+		}
+
+		public static string[] SplitClean(this string value, params char[] separator)
+		{
+			return value.Split(separator, StringSplitOptions.RemoveEmptyEntries);
 		}
 	}
 }

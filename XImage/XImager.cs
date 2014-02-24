@@ -288,7 +288,6 @@ namespace XImage
 				canvas.Save(outputStream, _encoder, _encoderParameters);
 		}
 
-
 		void BinarySearchImageQuality(Bitmap canvas, Stream outputStream, long lowerRange, long upperRange)
 		{
 			long targetSize = _parameters.Quality.Value * 1024;
