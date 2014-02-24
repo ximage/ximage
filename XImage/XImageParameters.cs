@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Configuration;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -63,13 +64,24 @@ namespace XImage
 
 		public XImageParameters(HttpContext httpContext)
 		{
-			var uri = httpContext.Request.Url;
+			var q = HttpUtility.ParseQueryString(httpContext.Request.Url.Query);
 
+			ParseHelp(httpContext);
+			ParseWidthAndHeight(q);
+			ParseCrop(q);
+			ParseQuality(q);
+			ParseFormats(httpContext, q);
+			ParseOrder(q);
+		}
+
+		void ParseHelp(HttpContext httpContext)
+		{
 			if (httpContext.Request.RawUrl.EndsWith("?help"))
 				throw new ArgumentException(string.Empty);
+		}
 
-			var q = HttpUtility.ParseQueryString(uri.Query);
-
+		void ParseWidthAndHeight(NameValueCollection q)
+		{
 			bool allowWUpscaling = false, allowHUpscaling = false;
 			var w = q["w"];
 			if (w != null)
@@ -100,7 +112,10 @@ namespace XImage
 			if (Width != null && Height != null && allowWUpscaling != allowHUpscaling)
 				throw new ArgumentException("If upscaling '!' is enabled and both w and h are specified, the '!' must be used on both.  Enforcing this strictly helps optimize cache hit ratios.");
 			AllowUpscaling = allowWUpscaling || allowHUpscaling;
+		}
 
+		void ParseCrop(NameValueCollection q)
+		{
 			var c = q["c"];
 			if (c != null)
 			{
@@ -131,7 +146,10 @@ namespace XImage
 				if ((Width == null || Height == null) && Crop != null)
 					throw new ArgumentException("A cropping mode is only valid when both width and height are specified.");
 			}
+		}
 
+		void ParseQuality(NameValueCollection q)
+		{
 			var quality = q["q"];
 			if (quality != null)
 			{
@@ -146,7 +164,10 @@ namespace XImage
 				if (!QualityAsKb && Quality > 100)
 					throw new ArgumentException("Quality must be an integer between 1 and 100 unless you are specifing a content size, e.g. 150kb.");
 			}
+		}
 
+		void ParseFormats(HttpContext httpContext, NameValueCollection q)
+		{
 			var o = q["o"];
 			if (o != null)
 			{
@@ -154,13 +175,16 @@ namespace XImage
 				if (OutputFormat == null)
 					throw new ArgumentException("Output format must be either jpg, gif or png.");
 				foreach (var format in _supportedFormats.Keys)
-					if (uri.AbsolutePath.EndsWith("." + format, StringComparison.OrdinalIgnoreCase) && o == format)
+					if (httpContext.Request.Url.AbsolutePath.EndsWith("." + format, StringComparison.OrdinalIgnoreCase) && o == format)
 						throw new ArgumentException("If the source image is a {0}, don't specify o={0}.  Enforcing this strictly helps optimize cache hit ratios.", format);
 			}
 			SourceFormat = _conentTypeFormats.GetValueOrDefault(httpContext.Response.ContentType);
 			if (SourceFormat == null)
 				throw new ArgumentException("Unrecognized content-type: {0}.", httpContext.Response.ContentType);
+		}
 
+		void ParseOrder(NameValueCollection q)
+		{
 			var requestedOrder = q.AllKeys.Where(k => PARAM_ORDER.Contains(k)).ToArray();
 			var correctOrder = PARAM_ORDER.Where(p => requestedOrder.Contains(p)).ToArray();
 			if (string.Concat(requestedOrder) != string.Concat(correctOrder))
