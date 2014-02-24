@@ -23,12 +23,11 @@ Therefore, capitalization and parameter order are important and superfluous para
   help       Shows this help screen.  Each implementation of XImage must show this help screen which is primarily 
              used to show which features it supports.  
   w          Width of the image.  If h is not supplied, it will be inferred proportionally.
-             e.g. <a href="{0}?w=100">{0}?w=100</a>
+             By default, it will not be resized larger than its original dimensions.  To override , append '!'.
+             e.g. <a href="{0}?w=100">{0}?w=100</a> or <a href="{0}?w=1000!">{0}?w=1000!</a>
   h          Height of the image.  If w is not supplied, it will be inferred proportionally.
-             e.g. <a href="{0}?h=100">{0}?h=100</a>
-  !          Allow upscaling.  By default, the image will not be resized larger than it's original dimensions.
-             To override this, append '!' to the end of the width or height.
-             e.g. <a href="{0}?w=1000!&h=1000!">{0}?w=1000!&h=1000!</a>
+             By default, it will not be resized larger than its original dimensions.  To override , append '!'.
+             e.g. <a href="{0}?h=100">{0}?h=100</a> or <a href="{0}?h=1000!">{0}?h=1000!</a>
   c          Cropping mode.  This is only valid when both w and h are specified.  Available options are:
                 (none)       Don't actually supply 'none', just leave it off.  No parts of the image will be cropped.
                              It will be resized proportionally until it fits completely within the w x h boundaries.
@@ -45,16 +44,16 @@ Therefore, capitalization and parameter order are important and superfluous para
                              This will likely result in void space on the left/right or top/bottom which will be 
                              filled with the supplied color.  Must be a 6 or 8 digit lower case hex, don't use #.
                              e.g. <a href="{0}?w=200&h=100&c=3b5999">{0}?w=200&h=100&c=3b5999</a>
-  m          Mask.  Certain shapes can be applied making the outside either transparent or the background color.
-                circle       Applies a circle-shaped mask in the center with a diameter of the shortest edge.
-                             e.g. <a href="{0}?w=200&m=circle">{0}?w=200&m=circle</a>
-                roundrect(n) Rounds the corners with a radius of n.  
-                             e.g. <a href="{0}?w=200&m=roundrect(10)">{0}?w=200&m=roundrect(10)</a>
   f          Filter.  This list is loosely based on CSS3 filters.
                 blur(r)      Applies a gaussian blur with a radius of r.
                              e.g. <a href="{0}?blur(10)">{0}?blur(10)</a>
                 tint(c,p)    Applies a tint with a color of c and by a percentage of p.
                              e.g. <a href="{0}?tint(ff0000,50)">{0}?tint(ff0000,50)</a>
+  m          Mask.  Certain shapes can be applied making the outside either transparent or the background color.
+                circle       Applies a circle-shaped mask in the center with a diameter of the shortest edge.
+                             e.g. <a href="{0}?w=200&m=circle">{0}?w=200&m=circle</a>
+                roundrect(n) Rounds the corners with a radius of n.  
+                             e.g. <a href="{0}?w=200&m=roundrect(10)">{0}?w=200&m=roundrect(10)</a>
   t          Text.  Write text over the image.
                 footer(t)    Centers text at the bottom of the image.
                              e.g. <a href="{0}?footer('Hello world!')">{0}?footer('Hello world!')</a>
