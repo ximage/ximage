@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Drawing;
 using System.Linq;
 using System.Web;
@@ -52,6 +53,17 @@ namespace XImage.Utilities
 		public static string[] SplitClean(this string value, params char[] separator)
 		{
 			return value.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+		}
+
+		public static bool ContainsAnyKeys(this NameValueCollection collection, IEnumerable<string> keys)
+		{
+			// It seems that when the querystring has a key but no value, e.g. '?help' NVC reports 'help'
+			// as the value and null for the key.  I was expecting 'help' as the key.  
+
+			return Enumerable
+				.Range(0, collection.AllKeys.Length)
+				.Select(i => collection.AllKeys[i] ?? collection.Get(i))
+				.Any(i => keys.Contains(i));
 		}
 	}
 }

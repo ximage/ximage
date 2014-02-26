@@ -17,7 +17,7 @@ namespace XImage
 	public class XImager2
 	{
 		// Width, Height, Crop, Filter, Mask, Text, Output
-		public static readonly string[] XIMAGE_PARAMETERS = { "w", "h", "c", "f", "m", "t", "o" };
+		public static readonly string[] XIMAGE_PARAMETERS = { "help", "w", "h", "c", "f", "m", "t", "o" };
 
 		private static Stopwatch _stopwatch = Stopwatch.StartNew();
 

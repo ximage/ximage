@@ -26,59 +26,28 @@ namespace XImage
 			// received an image content-type and the query string has at least one modifier.
 			if (app.Response.StatusCode == 200 && 
 				app.Response.ContentType.StartsWith("image/") &&
-				app.Request.QueryString.AllKeys.Any(p => XImager2.XIMAGE_PARAMETERS.Contains(p)))
+				app.Request.QueryString.ContainsAnyKeys(XImager2.XIMAGE_PARAMETERS))
 			{
-				try
+				// ASP.NET bug requires we hit the Filter getter before the setter.
+				var outputStream = app.Response.Filter;
+
+				app.Response.Filter = new InterceptingStream(_ =>
 				{
-					var outputStream = app.Response.Filter;
-					app.Response.Filter = new InterceptingStream(bufferedStream =>
+					try
 					{
-						using (var request = new XImageRequest(app.Context))
+						using (var xRequest = new XImageRequest(app.Context))
 						{
-							using (var response = new XImageResponse(app.Context))
+							using (var xResponse = new XImageResponse(app.Context))
 							{
-								XImager2.ProcessImage(request, response);
+								XImager2.ProcessImage(xRequest, xResponse);
 							}
 						}
-					});
-				}
-				catch (ArgumentException ex)
-				{
-					EndWithError(app, HttpStatusCode.BadRequest, ex.Message);
-				}
-			}
-		}
-
-		void InterceptImage(object sender, EventArgs e)
-		{
-			var app = sender as HttpApplication;
-
-			if (app.Response.StatusCode == 200 && app.Response.ContentType.StartsWith("image/"))
-			{
-				try
-				{
-					// Don't do any work if the query string doesn't have any modifiers.
-					if (app.Request.QueryString.AllKeys.Any(p => XImager2.XIMAGE_PARAMETERS.Contains(p)))
-					{
-						var outputStream = app.Response.Filter;
-						app.Response.Filter = new InterceptingStream(bufferedStream =>
-						{
-							var stopwatch = Stopwatch.StartNew();
-
-							var request = new XImageRequest(app.Context);
-							var properties = new XImager(request).CopyTo(bufferedStream, outputStream);
-
-							app.Response.ContentType = request.Output.ContentType;
-							app.Response.Headers.Add("X-Image-Processing-Time", string.Format("{0:N2}ms", 1000D * (double)stopwatch.ElapsedTicks / (double)Stopwatch.Frequency));
-							foreach (var property in properties)
-								app.Response.Headers.Add(property.Key, property.Value);
-						});
 					}
-				}
-				catch (ArgumentException ex)
-				{
-					EndWithError(app, HttpStatusCode.BadRequest, ex.Message);
-				}
+					catch (ArgumentException ex)
+					{
+						EndWithError(app, HttpStatusCode.BadRequest, ex.Message);
+					}
+				});
 			}
 		}
 

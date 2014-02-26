@@ -6,23 +6,13 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Web;
+using XImage.Utilities;
 
 namespace XImage
 {
 	public class XImageResponse : IDisposable
 	{
-		public Stream InputStream { get; private set; }
-
-		private Bitmap _inputImage = null;
-		public Bitmap InputImage
-		{
-			get
-			{
-				if (_inputImage == null)
-					_inputImage = Bitmap.FromStream(InputStream) as Bitmap;
-				return _inputImage;
-			}
-		}
+		public Bitmap InputImage { get; private set; }
 
 		public Rectangle InputBounds { get; set; }
 
@@ -56,21 +46,21 @@ namespace XImage
 
 		public XImageResponse(HttpContext httpContext)
 		{
-			InputStream = httpContext.Response.Filter;
+			InputImage = Bitmap.FromStream(httpContext.Response.Filter) as Bitmap;
 			OutputStream = httpContext.Response.OutputStream;
 			Properties = httpContext.Response.Headers;
 		}
 
 		public void Dispose()
 		{
-			if (_inputImage != null)
-				_inputImage.Dispose();
+			if (InputImage != null)
+				InputImage.Dispose();
 			if (_outputImage != null)
 				_outputImage.Dispose();
 			if (_outputGraphics != null)
 				_outputGraphics.Dispose();
 
-			// Don't dispose the streams.
+			// Don't dispose the stream.
 		}
 	}
 }

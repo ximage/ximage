@@ -70,6 +70,8 @@ namespace XImage
 			ParseFilters(q);
 			ParseOutput(httpContext, q);
 			ParseOrder(q);
+
+			httpContext.Response.ContentType = Output.ContentType;
 		}
 
 		void ParseHelp(HttpContext httpContext)
@@ -207,7 +209,7 @@ namespace XImage
 			}
 			else
 			{
-				throw new ArgumentException("Unrecognized output type: {0}.", method);
+				throw new ArgumentException(string.Format("Unrecognized output type: {0}.", method));
 			}
 		}
 
