@@ -21,10 +21,9 @@ namespace XImage
 		public const string COLOR = "color";
 	}
 
-	public class XImageRequest
+	public class XImageRequest : IDisposable
 	{
 		static readonly int MAX_SIZE = ConfigurationManager.AppSettings["XImage.MaxSize"].AsNullableInt() ?? 1000;
-		static readonly string[] PARAM_ORDER = { "w", "h", "c", "f", "m", "t", "o" };
 		static readonly Dictionary<string, ICrop> _cropsLookup;
 		static readonly Dictionary<string, IFilter> _filtersLookup;
 		static readonly Dictionary<string, IMask> _masksLookup;
@@ -40,18 +39,6 @@ namespace XImage
 		public List<string[]> FiltersArgs { get; private set; }
 		public IOutput Output { get; private set; }
 		public string[] OutputArgs { get; private set; }
-		public bool HasAnyValues
-		{
-			get
-			{
-				return
-					Width != null ||
-					Height != null ||
-					Crop != null ||
-					(Filters != null && Filters.Count > 0);
-			}
-		}
-
 		static XImageRequest()
 		{
 			var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(a => a.GetTypes()).ToList();
@@ -226,10 +213,14 @@ namespace XImage
 
 		void ParseOrder(NameValueCollection q)
 		{
-			var requestedOrder = q.AllKeys.Where(k => PARAM_ORDER.Contains(k)).ToArray();
-			var correctOrder = PARAM_ORDER.Where(p => requestedOrder.Contains(p)).ToArray();
+			var requestedOrder = q.AllKeys.Where(k => XImager2.XIMAGE_PARAMETERS.Contains(k)).ToArray();
+			var correctOrder = XImager2.XIMAGE_PARAMETERS.Where(p => requestedOrder.Contains(p)).ToArray();
 			if (string.Concat(requestedOrder) != string.Concat(correctOrder))
 				throw new ArgumentException("Each parameter is optional.  But they must appear in the order of w, h, c, f, m, t, o. Enforcing this strictly helps optimize cache hit ratios.");
+		}
+
+		public void Dispose()
+		{
 		}
 	}
 }
