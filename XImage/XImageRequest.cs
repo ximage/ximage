@@ -215,8 +215,8 @@ namespace XImage
 
 		void ParseOrder(NameValueCollection q)
 		{
-			var requestedOrder = q.AllKeys.Where(k => XImager2.XIMAGE_PARAMETERS.Contains(k)).ToArray();
-			var correctOrder = XImager2.XIMAGE_PARAMETERS.Where(p => requestedOrder.Contains(p)).ToArray();
+			var requestedOrder = q.AllKeys.Where(k => XImager.XIMAGE_PARAMETERS.Contains(k)).ToArray();
+			var correctOrder = XImager.XIMAGE_PARAMETERS.Where(p => requestedOrder.Contains(p)).ToArray();
 			if (string.Concat(requestedOrder) != string.Concat(correctOrder))
 				throw new ArgumentException("Each parameter is optional.  But they must appear in the order of w, h, c, f, m, t, o. Enforcing this strictly helps optimize cache hit ratios.");
 		}

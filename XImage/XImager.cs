@@ -16,60 +16,54 @@ namespace XImage
 {
 	public class XImager
 	{
-		XImageRequest _request = null;
+		// Width, Height, Crop, Filter, Mask, Text, Output
+		public static readonly string[] XIMAGE_PARAMETERS = { "help", "w", "h", "c", "f", "m", "t", "o" };
 
-		public XImager(XImageRequest request)
+		private static Stopwatch _stopwatch = Stopwatch.StartNew();
+
+		public static void ProcessImage(XImageRequest request, XImageResponse response)
 		{
-			_request = request;
-		}
+			var timestamp = _stopwatch.ElapsedTicks;
 
-		public Dictionary<string, string> CopyTo(Stream inputStream, Stream outputStream)
-		{
-			var properties = new Dictionary<string, string>();
+			response.Properties["X-Image-Original-Width"] = response.InputImage.Width.ToString();
+			response.Properties["X-Image-Original-Height"] = response.InputImage.Height.ToString();
+			response.Properties["X-Image-Original-Format"] = "image/" + new ImageFormatConverter().ConvertToString(response.InputImage.RawFormat).ToLower();
 
-			using (var sourceImage = Bitmap.FromStream(inputStream) as Bitmap)
-			{
-				var targetImageSize = GetTargetImageSize(sourceImage.Size);
-				var targetIsWiderThanOutput = GetIsTargetWiderThanOutput(targetImageSize);
-				var outputDimensions = GetOutputDimensions(targetImageSize, targetIsWiderThanOutput);
-				var origin = GetImageOrigin(targetImageSize, targetIsWiderThanOutput, outputDimensions);
+			// ---------- Goes in ICrop ----------
+			var targetImageSize = GetTargetImageSize(request, response.InputImage.Size);
+			var targetIsWiderThanOutput = GetIsTargetWiderThanOutput(request, targetImageSize);
+			var outputDimensions = GetOutputDimensions(request, targetImageSize, targetIsWiderThanOutput);
+			var origin = GetImageOrigin(request, targetImageSize, targetIsWiderThanOutput, outputDimensions);
+			response.OutputSize = outputDimensions;
+			// -----------------------------------
 
-				properties["X-Image-Original-Width"] = sourceImage.Width.ToString();
-				properties["X-Image-Original-Height"] = sourceImage.Height.ToString();
-				properties["X-Image-Original-Format"] = "image/" + new ImageFormatConverter().ConvertToString(sourceImage.RawFormat).ToLower();
-				properties["X-Image-Width"] = outputDimensions.Width.ToString();
-				properties["X-Image-Height"] = outputDimensions.Height.ToString();
+			response.Properties["X-Image-Width"] = outputDimensions.Width.ToString();
+			response.Properties["X-Image-Height"] = outputDimensions.Height.ToString();
 
-				using (var outputImage = new Bitmap(outputDimensions.Width, outputDimensions.Height, PixelFormat.Format32bppArgb))
-				{
-					using (var graphics = Graphics.FromImage(outputImage))
-					{
-						ProcessImage(sourceImage, outputImage, graphics, outputStream, origin, targetImageSize, properties);
-					}
-				}
-			}
-
-			return properties;
-		}
-
-		void ProcessImage(Bitmap sourceImage, Bitmap outputImage, Graphics outputGraphics, Stream outputStream, Point origin, Size targetImageSize, Dictionary<string, string> properties)
-		{
-			if (_request.CropAsColor != null)
-				outputGraphics.Clear(_request.CropAsColor.Value);
+			// ---------- Goes in ICrop ----------
+			if (request.CropAsColor != null)
+				response.OutputGraphics.Clear(request.CropAsColor.Value);
+			// -----------------------------------
 
 			//if (_encoder.MimeType == "image/png")
 			//	outputGraphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 
-			outputGraphics.DrawImage(sourceImage, new Rectangle(origin, targetImageSize));
+			response.OutputGraphics.DrawImage(response.InputImage, new Rectangle(origin, targetImageSize));
 
-			var bitmapData = outputImage.LockBits(new Rectangle(Point.Empty, outputImage.Size), ImageLockMode.ReadWrite, outputImage.PixelFormat);
-			var bytesPerPixel = Bitmap.GetPixelFormatSize(outputImage.PixelFormat) / 8;
-			var byteCount = bitmapData.Stride * outputImage.Height;
+			var bitmapData = response.OutputImage.LockBits(new Rectangle(Point.Empty, response.OutputImage.Size), ImageLockMode.ReadWrite, response.OutputImage.PixelFormat);
+			var bytesPerPixel = Bitmap.GetPixelFormatSize(response.OutputImage.PixelFormat) / 8;
+			var byteCount = bitmapData.Stride * response.OutputImage.Height;
 			var pixelCount = byteCount / bytesPerPixel;
 			var data = new byte[byteCount];
 			Marshal.Copy(bitmapData.Scan0, data, 0, data.Length);
 
-			// Color Calculations
+			// ---------- Goes in IFilter ----------
+			for (int i = 0; i < request.Filters.Count; i++)
+				request.Filters[i].ProcessImage(data, request.FiltersArgs[i]);
+			// -----------------------------------
+
+
+			// ---------- Goes in IProperties ----------
 			{
 				int r = 0, g = 0, b = 0;
 				int rSum = 0, gSum = 0, bSum = 0;
@@ -106,7 +100,7 @@ namespace XImage
 				var gAvg = gSum / pixelCount;
 				var bAvg = bSum / pixelCount;
 				var averageColor = Color.FromArgb(rAvg, gAvg, bAvg);
-				properties["X-Image-Color-Average"] = averageColor.ToHex();
+				response.Properties["X-Image-Color-Average"] = averageColor.ToHex();
 
 				var palette = histogram
 					.OrderByDescending(p => p.Value)
@@ -117,55 +111,55 @@ namespace XImage
 				{
 					for (int i = 0; i < palette.Count; i++)
 						palette[i] = Color.FromArgb(palette[i].R * histogramSize, palette[i].G * histogramSize, palette[i].B * histogramSize);
-					properties["X-Image-Color-Palette"] = string.Join(",", palette.Select(c => c.ToHex()));
+					response.Properties["X-Image-Color-Palette"] = string.Join(",", palette.Select(c => c.ToHex()));
 
-					properties["X-Image-Color-Dominant"] = palette
+					response.Properties["X-Image-Color-Dominant"] = palette
 						.First()
 						.ToHex();
 
-					properties["X-Image-Color-Accent"] = palette
+					response.Properties["X-Image-Color-Accent"] = palette
 						.OrderByDescending(p => Math.Max(p.R, Math.Max(p.G, p.B)))
 						.First()
 						.ToHex();
 
-					properties["X-Image-Color-Base"] = palette
+					response.Properties["X-Image-Color-Base"] = palette
 						.OrderBy(p => Math.Max(p.R, Math.Max(p.G, p.B)))
 						.First()
 						.ToHex();
 				}
 			}
-
-			for (int i = 0; i < _request.Filters.Count; i++)
-				_request.Filters[i].ProcessImage(data, _request.FiltersArgs[i]);
+			// -----------------------------------
 
 			// Only copy bytes back if we made "edits."
-			if (_request.Filters.Count > 0)
+			if (request.Filters.Count > 0)
 				Marshal.Copy(data, 0, bitmapData.Scan0, data.Length);
 
-			outputImage.UnlockBits(bitmapData);
+			response.OutputImage.UnlockBits(bitmapData);
 
-			_request.Output.ProcessImage(outputImage, outputStream, _request.OutputArgs);
+			request.Output.ProcessImage(response.OutputImage, response.OutputStream, request.OutputArgs);
+
+			response.Properties.Add("X-Image-Processing-Time", string.Format("{0:N2}ms", 1000D * (double)(_stopwatch.ElapsedTicks - timestamp) / (double)Stopwatch.Frequency));
 		}
 
-		Size GetTargetImageSize(Size original)
+		static Size GetTargetImageSize(XImageRequest request, Size original)
 		{
-			if (_request.Width == null && _request.Height == null)
+			if (request.Width == null && request.Height == null)
 				return original;
 
-			if (_request.Crop != null && (_request.Width == null || _request.Height == null))
+			if (request.Crop != null && (request.Width == null || request.Height == null))
 				throw new ArgumentException("Cannot specify a fit without also specifying both width and height.");
 
 			Size scaled = original;
 
 			// If no fit is specified, default to clip.
-			var fit = _request.Crop ?? Crops.NONE;
+			var fit = request.Crop ?? Crops.NONE;
 
 			// If upscaling is not allowed (the default), cap those values.
-			var parametersWidth = _request.Width;
-			if (parametersWidth != null && !_request.AllowUpscaling)
+			var parametersWidth = request.Width;
+			if (parametersWidth != null && !request.AllowUpscaling)
 				parametersWidth = Math.Min(original.Width, parametersWidth.Value);
-			var parametersHeight = _request.Height;
-			if (parametersHeight != null && !_request.AllowUpscaling)
+			var parametersHeight = request.Height;
+			if (parametersHeight != null && !request.AllowUpscaling)
 				parametersHeight = Math.Min(original.Height, parametersHeight.Value);
 
 			// In the event that just one dimension was specified, i.e. just w or just h,
@@ -209,46 +203,46 @@ namespace XImage
 			return scaled;
 		}
 
-		bool GetIsTargetWiderThanOutput(Size targetImageSize)
+		static bool GetIsTargetWiderThanOutput(XImageRequest request, Size targetImageSize)
 		{
-			if (_request.Crop == Crops.FILL || _request.Crop == Crops.COLOR)
-				return (float)_request.Width.Value / (float)_request.Height.Value < (float)targetImageSize.Width / (float)targetImageSize.Height;
+			if (request.Crop == Crops.FILL || request.Crop == Crops.COLOR)
+				return (float)request.Width.Value / (float)request.Height.Value < (float)targetImageSize.Width / (float)targetImageSize.Height;
 			else
 				return false;
 		}
 
-		Size GetOutputDimensions(Size targetImageSize, bool targetIsWiderThanOutput)
+		static Size GetOutputDimensions(XImageRequest request, Size targetImageSize, bool targetIsWiderThanOutput)
 		{
 			Size outputDimensions = targetImageSize;
 
-			if (_request.Crop == Crops.FILL || _request.Crop == Crops.COLOR)
+			if (request.Crop == Crops.FILL || request.Crop == Crops.COLOR)
 			{
-				outputDimensions.Width = _request.Width.Value;
-				outputDimensions.Height = _request.Height.Value;
+				outputDimensions.Width = request.Width.Value;
+				outputDimensions.Height = request.Height.Value;
 
-				if (!_request.AllowUpscaling && _request.Crop == Crops.FILL)
+				if (!request.AllowUpscaling && request.Crop == Crops.FILL)
 				{
 					float scale = targetIsWiderThanOutput ? (float)targetImageSize.Height / (float)outputDimensions.Height : (float)targetImageSize.Width / (float)outputDimensions.Width;
-					outputDimensions.Height = Convert.ToInt32(_request.Height * scale);
-					outputDimensions.Width = Convert.ToInt32(_request.Width * scale);
+					outputDimensions.Height = Convert.ToInt32(request.Height * scale);
+					outputDimensions.Width = Convert.ToInt32(request.Width * scale);
 				}
 			}
 
 			return outputDimensions;
 		}
 
-		Point GetImageOrigin(Size targetImageSize, bool targetIsWiderThanOutput, Size outputDimensions)
+		static Point GetImageOrigin(XImageRequest request, Size targetImageSize, bool targetIsWiderThanOutput, Size outputDimensions)
 		{
 			Point origin = Point.Empty;
 
-			if (_request.Crop == Crops.FILL)
+			if (request.Crop == Crops.FILL)
 			{
 				if (targetIsWiderThanOutput)
 					origin.X -= (targetImageSize.Width - outputDimensions.Width) / 2;
 				else
 					origin.Y -= (targetImageSize.Height - outputDimensions.Height) / 2;
 			}
-			else if (_request.Crop == Crops.COLOR)
+			else if (request.Crop == Crops.COLOR)
 			{
 				origin.X -= (targetImageSize.Width - outputDimensions.Width) / 2;
 				origin.Y -= (targetImageSize.Height - outputDimensions.Height) / 2;

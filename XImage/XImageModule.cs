@@ -15,10 +15,10 @@ namespace XImage
 
 		public void Init(HttpApplication context)
 		{
-			context.PostRequestHandlerExecute += InterceptImage2;
+			context.PostRequestHandlerExecute += InterceptImage;
 		}
 
-		void InterceptImage2(object sender, EventArgs e)
+		void InterceptImage(object sender, EventArgs e)
 		{
 			var app = sender as HttpApplication;
 
@@ -26,7 +26,7 @@ namespace XImage
 			// received an image content-type and the query string has at least one modifier.
 			if (app.Response.StatusCode == 200 && 
 				app.Response.ContentType.StartsWith("image/") &&
-				app.Request.QueryString.ContainsAnyKeys(XImager2.XIMAGE_PARAMETERS))
+				app.Request.QueryString.ContainsAnyKeys(XImager.XIMAGE_PARAMETERS))
 			{
 				// ASP.NET bug requires we hit the Filter getter before the setter.
 				var outputStream = app.Response.Filter;
@@ -39,7 +39,7 @@ namespace XImage
 						{
 							using (var xResponse = new XImageResponse(app.Context))
 							{
-								XImager2.ProcessImage(xRequest, xResponse);
+								XImager.ProcessImage(xRequest, xResponse);
 							}
 						}
 					}

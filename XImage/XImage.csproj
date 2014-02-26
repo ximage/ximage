@@ -71,9 +71,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\InterceptingStream.cs" />
     <Compile Include="XImageModule.cs" />
-    <Compile Include="XImager2.cs" />
-    <Compile Include="XImageRequest.cs" />
     <Compile Include="XImager.cs" />
+    <Compile Include="XImageRequest.cs" />
     <Compile Include="XImageResponse.cs" />
   </ItemGroup>
   <ItemGroup>
