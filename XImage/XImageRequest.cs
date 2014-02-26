@@ -51,6 +51,7 @@ namespace XImage
 		public string Crop { get; private set; }
 		public Color? CropAsColor { get; private set; }
 		public List<IFilter> Filters { get; private set; }
+		public List<string[]> FiltersArgs { get; private set; }
 		public int? Quality { get; private set; }
 		public bool QualityAsKb { get; private set; }
 		public ImageFormat OutputFormat { get; private set; }
@@ -180,6 +181,7 @@ namespace XImage
 		void ParseFilters(NameValueCollection q)
 		{
 			Filters = new List<IFilter>();
+			FiltersArgs = new List<string[]>();
 
 			var filterValues = q["f"];
 			if (filterValues != null)
@@ -200,9 +202,14 @@ namespace XImage
 
 					IFilter found;
 					if (_filtersLookup.TryGetValue(filter, out found))
+					{
 						Filters.Add(found);
+						FiltersArgs.Add(args);
+					}
 					else
+					{
 						throw new ArgumentException(string.Format("Couldn't find any filters by the name {0}.", filter));
+					}
 				}
 			}
 		}

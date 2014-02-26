@@ -74,13 +74,7 @@ namespace XImage
 				{
 					using (var graphics = Graphics.FromImage(outputImage))
 					{
-						var response = new XImageResponse(sourceImage, outputImage, graphics, properties);
-
-						ProcessImage(sourceImage, outputImage, graphics, origin, targetImageSize, properties);
-
-						// Work should really go here...
-
-						SaveImage(outputImage, outputStream);
+						ProcessImage(sourceImage, outputImage, graphics, outputStream, origin, targetImageSize, properties);
 					}
 				}
 			}
@@ -88,19 +82,21 @@ namespace XImage
 			return properties;
 		}
 
-		void ProcessImage(Bitmap sourceImage, Bitmap targetImage, Graphics graphics, Point origin, Size targetImageSize, Dictionary<string, string> properties)
+		void ProcessImage(Bitmap sourceImage, Bitmap outputImage, Graphics outputGraphics, Stream outputStream, Point origin, Size targetImageSize, Dictionary<string, string> properties)
 		{
+			var response = new XImageResponse(sourceImage, outputImage, outputGraphics, properties);
+
 			if (_request.CropAsColor != null)
-				graphics.Clear(_request.CropAsColor.Value);
+				outputGraphics.Clear(_request.CropAsColor.Value);
 
 			if (_encoder.MimeType == "image/png")
-				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+				outputGraphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 
-			graphics.DrawImage(sourceImage, new Rectangle(origin, targetImageSize));
+			outputGraphics.DrawImage(sourceImage, new Rectangle(origin, targetImageSize));
 
-			var bitmapData = targetImage.LockBits(new Rectangle(Point.Empty, targetImage.Size), ImageLockMode.ReadWrite, targetImage.PixelFormat);
-			var bytesPerPixel = Bitmap.GetPixelFormatSize(targetImage.PixelFormat) / 8;
-			var byteCount = bitmapData.Stride * targetImage.Height;
+			var bitmapData = outputImage.LockBits(new Rectangle(Point.Empty, outputImage.Size), ImageLockMode.ReadWrite, outputImage.PixelFormat);
+			var bytesPerPixel = Bitmap.GetPixelFormatSize(outputImage.PixelFormat) / 8;
+			var byteCount = bitmapData.Stride * outputImage.Height;
 			var pixelCount = byteCount / bytesPerPixel;
 			var data = new byte[byteCount];
 			Marshal.Copy(bitmapData.Scan0, data, 0, data.Length);
@@ -171,12 +167,16 @@ namespace XImage
 				}
 			}
 
-			foreach (var filter in _request.Filters)
-				filter.ProcessImage(data);
+			for (int i = 0; i < _request.Filters.Count; i++)
+				_request.Filters[i].ProcessImage(data, _request.FiltersArgs[i]);
 
-			// Only do this if we made "edits."
-			Marshal.Copy(data, 0, bitmapData.Scan0, data.Length);
-			targetImage.UnlockBits(bitmapData);
+			// Only copy bytes back if we made "edits."
+			if (_request.Filters.Count > 0)
+				Marshal.Copy(data, 0, bitmapData.Scan0, data.Length);
+
+			outputImage.UnlockBits(bitmapData);
+
+			SaveImage(outputImage, outputStream);
 		}
 
 		Size GetTargetImageSize(Size original)
