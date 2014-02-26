@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Web;
 
-namespace XImage
+namespace XImage.Utilities
 {
 	public static class Extensions
 	{

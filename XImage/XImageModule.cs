@@ -5,12 +5,13 @@ using System.Net;
 using System.Reflection;
 using System.Web;
 using System.Linq;
+using XImage.Utilities;
 
 namespace XImage
 {
 	public class XImageModule : IHttpModule
 	{
-		static readonly string HELP = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream("XImage.Help.txt")).ReadToEnd();
+		static readonly string HELP = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream("XImage.Resources.Help.txt")).ReadToEnd();
 
 		public void Init(HttpApplication context)
 		{
@@ -27,7 +28,7 @@ namespace XImage
 				{
 					var stopwatch = Stopwatch.StartNew();
 
-					var xImageParams = new XImageParameters(app.Context);
+					var xImageParams = new XImageRequest(app.Context);
 
 					if (xImageParams.HasAnyValues)
 					{

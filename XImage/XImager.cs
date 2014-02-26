@@ -10,6 +10,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Web;
+using XImage.Utilities;
 
 namespace XImage
 {
@@ -22,7 +23,7 @@ namespace XImage
 		static readonly ImageCodecInfo _pngEncoder = null;
 		static readonly Dictionary<ImageFormat, ImageCodecInfo> _formatToCodec = null;
 
-		XImageParameters _parameters = null;
+		XImageRequest _request = null;
 		EncoderParameters _encoderParameters = null;
 		ImageCodecInfo _encoder = null;
 		int saveAttempts = 0;
@@ -41,15 +42,15 @@ namespace XImage
 			};
 		}
 
-		public XImager(XImageParameters parameters)
+		public XImager(XImageRequest request)
 		{
-			_parameters = parameters;
+			_request = request;
 
 			_encoderParameters = new EncoderParameters(2);
 			_encoderParameters.Param[0] = new EncoderParameter(Encoder.Compression, (long)EncoderValue.CompressionLZW);
-			_encoderParameters.Param[1] = new EncoderParameter(Encoder.Quality, (long)(_parameters.Quality ?? DEFAULT_QUALITY));
+			_encoderParameters.Param[1] = new EncoderParameter(Encoder.Quality, (long)(_request.Quality ?? DEFAULT_QUALITY));
 
-			_encoder = _formatToCodec[parameters.OutputFormat ?? parameters.SourceFormat ?? ImageFormat.Jpeg];
+			_encoder = _formatToCodec[request.OutputFormat ?? request.SourceFormat ?? ImageFormat.Jpeg];
 		}
 
 		public Dictionary<string, string> CopyTo(Stream inputStream, Stream outputStream)
@@ -69,12 +70,17 @@ namespace XImage
 				properties["X-Image-Width"] = outputDimensions.Width.ToString();
 				properties["X-Image-Height"] = outputDimensions.Height.ToString();
 
-				using (var canvas = new Bitmap(outputDimensions.Width, outputDimensions.Height, PixelFormat.Format32bppArgb))
+				using (var outputImage = new Bitmap(outputDimensions.Width, outputDimensions.Height, PixelFormat.Format32bppArgb))
 				{
-					using (var graphics = Graphics.FromImage(canvas))
+					using (var graphics = Graphics.FromImage(outputImage))
 					{
-						ProcessImage(sourceImage, canvas, graphics, origin, targetImageSize, properties);
-						SaveImage(canvas, outputStream);
+						var response = new XImageResponse(sourceImage, outputImage, graphics, properties);
+
+						ProcessImage(sourceImage, outputImage, graphics, origin, targetImageSize, properties);
+
+						// Work should really go here...
+
+						SaveImage(outputImage, outputStream);
 					}
 				}
 			}
@@ -84,8 +90,8 @@ namespace XImage
 
 		void ProcessImage(Bitmap sourceImage, Bitmap targetImage, Graphics graphics, Point origin, Size targetImageSize, Dictionary<string, string> properties)
 		{
-			if (_parameters.CropAsColor != null)
-				graphics.Clear(_parameters.CropAsColor.Value);
+			if (_request.CropAsColor != null)
+				graphics.Clear(_request.CropAsColor.Value);
 
 			if (_encoder.MimeType == "image/png")
 				graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
@@ -165,30 +171,33 @@ namespace XImage
 				}
 			}
 
+			foreach (var filter in _request.Filters)
+				filter.ProcessImage(data);
+
 			// Only do this if we made "edits."
-			// Marshal.Copy(data, 0, bitmapData.Scan0, data.Length);
+			Marshal.Copy(data, 0, bitmapData.Scan0, data.Length);
 			targetImage.UnlockBits(bitmapData);
 		}
 
 		Size GetTargetImageSize(Size original)
 		{
-			if (_parameters.Width == null && _parameters.Height == null)
+			if (_request.Width == null && _request.Height == null)
 				return original;
 
-			if (_parameters.Crop != null && (_parameters.Width == null || _parameters.Height == null))
+			if (_request.Crop != null && (_request.Width == null || _request.Height == null))
 				throw new ArgumentException("Cannot specify a fit without also specifying both width and height.");
 
 			Size scaled = original;
 
 			// If no fit is specified, default to clip.
-			var fit = _parameters.Crop ?? Crops.NONE;
+			var fit = _request.Crop ?? Crops.NONE;
 
 			// If upscaling is not allowed (the default), cap those values.
-			var parametersWidth = _parameters.Width;
-			if (parametersWidth != null && !_parameters.AllowUpscaling)
+			var parametersWidth = _request.Width;
+			if (parametersWidth != null && !_request.AllowUpscaling)
 				parametersWidth = Math.Min(original.Width, parametersWidth.Value);
-			var parametersHeight = _parameters.Height;
-			if (parametersHeight != null && !_parameters.AllowUpscaling)
+			var parametersHeight = _request.Height;
+			if (parametersHeight != null && !_request.AllowUpscaling)
 				parametersHeight = Math.Min(original.Height, parametersHeight.Value);
 
 			// In the event that just one dimension was specified, i.e. just w or just h,
@@ -234,8 +243,8 @@ namespace XImage
 
 		bool GetIsTargetWiderThanOutput(Size targetImageSize)
 		{
-			if (_parameters.Crop == Crops.FILL || _parameters.Crop == Crops.COLOR)
-				return (float)_parameters.Width.Value / (float)_parameters.Height.Value < (float)targetImageSize.Width / (float)targetImageSize.Height;
+			if (_request.Crop == Crops.FILL || _request.Crop == Crops.COLOR)
+				return (float)_request.Width.Value / (float)_request.Height.Value < (float)targetImageSize.Width / (float)targetImageSize.Height;
 			else
 				return false;
 		}
@@ -244,16 +253,16 @@ namespace XImage
 		{
 			Size outputDimensions = targetImageSize;
 
-			if (_parameters.Crop == Crops.FILL || _parameters.Crop == Crops.COLOR)
+			if (_request.Crop == Crops.FILL || _request.Crop == Crops.COLOR)
 			{
-				outputDimensions.Width = _parameters.Width.Value;
-				outputDimensions.Height = _parameters.Height.Value;
+				outputDimensions.Width = _request.Width.Value;
+				outputDimensions.Height = _request.Height.Value;
 
-				if (!_parameters.AllowUpscaling && _parameters.Crop == Crops.FILL)
+				if (!_request.AllowUpscaling && _request.Crop == Crops.FILL)
 				{
 					float scale = targetIsWiderThanOutput ? (float)targetImageSize.Height / (float)outputDimensions.Height : (float)targetImageSize.Width / (float)outputDimensions.Width;
-					outputDimensions.Height = Convert.ToInt32(_parameters.Height * scale);
-					outputDimensions.Width = Convert.ToInt32(_parameters.Width * scale);
+					outputDimensions.Height = Convert.ToInt32(_request.Height * scale);
+					outputDimensions.Width = Convert.ToInt32(_request.Width * scale);
 				}
 			}
 
@@ -264,14 +273,14 @@ namespace XImage
 		{
 			Point origin = Point.Empty;
 
-			if (_parameters.Crop == Crops.FILL)
+			if (_request.Crop == Crops.FILL)
 			{
 				if (targetIsWiderThanOutput)
 					origin.X -= (targetImageSize.Width - outputDimensions.Width) / 2;
 				else
 					origin.Y -= (targetImageSize.Height - outputDimensions.Height) / 2;
 			}
-			else if (_parameters.Crop == Crops.COLOR)
+			else if (_request.Crop == Crops.COLOR)
 			{
 				origin.X -= (targetImageSize.Width - outputDimensions.Width) / 2;
 				origin.Y -= (targetImageSize.Height - outputDimensions.Height) / 2;
@@ -282,7 +291,7 @@ namespace XImage
 
 		void SaveImage(Bitmap canvas, Stream outputStream)
 		{
-			if (_parameters.QualityAsKb && _encoder.MimeType == "image/jpeg")
+			if (_request.QualityAsKb && _encoder.MimeType == "image/jpeg")
 				BinarySearchImageQuality(canvas, outputStream, 1, 100);
 			else
 				canvas.Save(outputStream, _encoder, _encoderParameters);
@@ -290,7 +299,7 @@ namespace XImage
 
 		void BinarySearchImageQuality(Bitmap canvas, Stream outputStream, long lowerRange, long upperRange)
 		{
-			long targetSize = _parameters.Quality.Value * 1024;
+			long targetSize = _request.Quality.Value * 1024;
 			long testQuality = (upperRange - lowerRange) / 2L + lowerRange;
 			using (var mem = new MemoryStream())
 			{

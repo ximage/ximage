@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Web;
+using XImage.Utilities;
 
 namespace XImage
 {
@@ -20,10 +21,15 @@ namespace XImage
 		public const string COLOR = "color";
 	}
 
-	public class XImageParameters
+	public class XImageRequest
 	{
 		static readonly int MAX_SIZE = ConfigurationManager.AppSettings["XImage.MaxSize"].AsNullableInt() ?? 1000;
 		static readonly string[] PARAM_ORDER = { "w", "h", "c", "f", "q", "o" };
+		static readonly Dictionary<string, ICrop> _cropsLookup;
+		static readonly Dictionary<string, IFilter> _filtersLookup;
+		static readonly Dictionary<string, IMask> _masksLookup;
+		static readonly Dictionary<string, IText> _textsLookup;
+		static readonly Dictionary<string, IOutput> _outputsLookup;
 
 		static readonly Dictionary<string, ImageFormat> _supportedFormats = new Dictionary<string, ImageFormat>()
 		{
@@ -44,7 +50,7 @@ namespace XImage
 		public bool AllowUpscaling { get; private set; }
 		public string Crop { get; private set; }
 		public Color? CropAsColor { get; private set; }
-		public string Filters { get; private set; }
+		public List<IFilter> Filters { get; private set; }
 		public int? Quality { get; private set; }
 		public bool QualityAsKb { get; private set; }
 		public ImageFormat OutputFormat { get; private set; }
@@ -63,7 +69,28 @@ namespace XImage
 			}
 		}
 
-		public XImageParameters(HttpContext httpContext)
+		static XImageRequest()
+		{
+			var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(a => a.GetTypes()).ToList();
+
+			_cropsLookup = GetInstances<ICrop>(types).ToDictionary(k => k.MethodName.ToLower(), v => v);
+			_filtersLookup = GetInstances<IFilter>(types).ToDictionary(k => k.MethodName.ToLower(), v => v);
+			_masksLookup = GetInstances<IMask>(types).ToDictionary(k => k.MethodName.ToLower(), v => v);
+			_textsLookup = GetInstances<IText>(types).ToDictionary(k => k.MethodName.ToLower(), v => v);
+			_outputsLookup = GetInstances<IOutput>(types).ToDictionary(k => k.MethodName.ToLower(), v => v);
+		}
+
+		static List<T> GetInstances<T>(List<Type> types)
+			where T : class
+		{
+			var interfaceType = typeof(T);
+			return types
+				.Where(t => interfaceType.IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract)
+				.Select(t => Activator.CreateInstance(t) as T)
+				.ToList();
+		}
+
+		public XImageRequest(HttpContext httpContext)
 		{
 			var q = HttpUtility.ParseQueryString(httpContext.Request.Url.Query);
 
@@ -152,6 +179,8 @@ namespace XImage
 
 		void ParseFilters(NameValueCollection q)
 		{
+			Filters = new List<IFilter>();
+
 			var filterValues = q["f"];
 			if (filterValues != null)
 			{
@@ -164,20 +193,16 @@ namespace XImage
 					if (filter.Contains(' '))
 						throw new ArgumentException("Don't leave any spaces in your filter methods.  Enforcing this strictly helps optimize cache hit ratios.");
 					var tokens = filter.Split('(', ')');
-					if (tokens.Length < 3 || tokens[2] != "")
+					if (tokens.Length == 3 && tokens[2] != "")
 						throw new ArgumentException("Filter methods must be of the format 'method(arg1,arg2,...)'.");
 					var method = tokens[0];
-					var strArgs = tokens[1].Split(',');
-					var args = new object[strArgs.Length];
-					for (int i = 0; i < args.Length; i++)
-					{
-						if (strArgs[i].AsNullableInt().HasValue)
-							args[i] = strArgs[i].AsNullableInt().Value;
-						else if (strArgs[i].AsNullableDecimal().HasValue)
-							args[i] = strArgs[i].AsNullableDecimal().Value;
-						else
-							throw new ArgumentException(string.Format("Unrecognized type as filter argument: {0}.", strArgs[i]));
-					}
+					var args = tokens.Length > 2 ? tokens[1].Split(',') : null;
+
+					IFilter found;
+					if (_filtersLookup.TryGetValue(filter, out found))
+						Filters.Add(found);
+					else
+						throw new ArgumentException(string.Format("Couldn't find any filters by the name {0}.", filter));
 				}
 			}
 		}
