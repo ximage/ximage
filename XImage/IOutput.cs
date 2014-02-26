@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,8 +14,10 @@ namespace XImage
 
 		string MethodDescription { get; }
 
-		string ExampleQueryString { get; }
+		string[] ExampleQueryStrings { get; }
 
-		void ProcessImage(XImageRequest request, XImageResponse response, params string[] args);
+		string ContentType { get; }
+
+		void ProcessImage(Bitmap outputImage, Stream outputStream, params string[] args);
 	}
 }

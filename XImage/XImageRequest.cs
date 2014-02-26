@@ -24,26 +24,12 @@ namespace XImage
 	public class XImageRequest
 	{
 		static readonly int MAX_SIZE = ConfigurationManager.AppSettings["XImage.MaxSize"].AsNullableInt() ?? 1000;
-		static readonly string[] PARAM_ORDER = { "w", "h", "c", "f", "q", "o" };
+		static readonly string[] PARAM_ORDER = { "w", "h", "c", "f", "m", "t", "o" };
 		static readonly Dictionary<string, ICrop> _cropsLookup;
 		static readonly Dictionary<string, IFilter> _filtersLookup;
 		static readonly Dictionary<string, IMask> _masksLookup;
 		static readonly Dictionary<string, IText> _textsLookup;
 		static readonly Dictionary<string, IOutput> _outputsLookup;
-
-		static readonly Dictionary<string, ImageFormat> _supportedFormats = new Dictionary<string, ImageFormat>()
-		{
-			{ "jpg", ImageFormat.Jpeg },
-			{ "gif", ImageFormat.Gif },
-			{ "png", ImageFormat.Png },
-		};
-		static readonly Dictionary<string, ImageFormat> _conentTypeFormats = new Dictionary<string, ImageFormat>()
-		{
-			{ "image/jpg", ImageFormat.Jpeg },
-			{ "image/jpeg", ImageFormat.Jpeg },
-			{ "image/gif", ImageFormat.Gif },
-			{ "image/png", ImageFormat.Png },
-		};
 
 		public int? Width { get; private set; }
 		public int? Height { get; private set; }
@@ -52,11 +38,8 @@ namespace XImage
 		public Color? CropAsColor { get; private set; }
 		public List<IFilter> Filters { get; private set; }
 		public List<string[]> FiltersArgs { get; private set; }
-		public int? Quality { get; private set; }
-		public bool QualityAsKb { get; private set; }
-		public ImageFormat OutputFormat { get; private set; }
-		public ImageFormat SourceFormat { get; private set; }
-
+		public IOutput Output { get; private set; }
+		public string[] OutputArgs { get; private set; }
 		public bool HasAnyValues
 		{
 			get
@@ -65,8 +48,7 @@ namespace XImage
 					Width != null ||
 					Height != null ||
 					Crop != null ||
-					Quality != null ||
-					OutputFormat != null;
+					(Filters != null && Filters.Count > 0);
 			}
 		}
 
@@ -99,8 +81,7 @@ namespace XImage
 			ParseWidthAndHeight(q);
 			ParseCrop(q);
 			ParseFilters(q);
-			ParseQuality(q);
-			ParseFormats(httpContext, q);
+			ParseOutput(httpContext, q);
 			ParseOrder(q);
 		}
 
@@ -214,39 +195,33 @@ namespace XImage
 			}
 		}
 
-		void ParseQuality(NameValueCollection q)
+		void ParseOutput(HttpContext httpContext, NameValueCollection q)
 		{
-			var quality = q["q"];
-			if (quality != null)
-			{
-				QualityAsKb = quality.EndsWith("kb");
-				if (QualityAsKb)
-					quality = quality.Substring(0, quality.Length - 2);
-				Quality = quality.AsNullableInt();
-				if (Quality == null)
-					throw new ArgumentException("Quality must be an integer between 1 and 100 or a size in kb, e.g. 150kb.");
-				if (Quality <= 0)
-					throw new ArgumentException("Quality must be an integer between 1 and 100.");
-				if (!QualityAsKb && Quality > 100)
-					throw new ArgumentException("Quality must be an integer between 1 and 100 unless you are specifing a content size, e.g. 150kb.");
-			}
-		}
+			var o = q["o"] ?? httpContext.Response.ContentType;
+			if (o == null)
+				throw new ArgumentException("No output format specified.  Use ?o={output} or ensure the Content-Type response header is set.");
 
-		void ParseFormats(HttpContext httpContext, NameValueCollection q)
-		{
-			var o = q["o"];
-			if (o != null)
+			o = o.Replace("image/", "").Replace("jpeg", "jpg");
+
+			// Note: This doesn't account for strings as filter args yet, just numbers.
+			if (o.Contains(' '))
+				throw new ArgumentException("Don't leave any spaces in your filter methods.  Enforcing this strictly helps optimize cache hit ratios.");
+			var tokens = o.Split('(', ')');
+			if (tokens.Length == 3 && tokens[2] != "")
+				throw new ArgumentException("Filter methods must be of the format 'method(arg1,arg2,...)'.");
+			var method = tokens[0];
+			var args = tokens.Length > 2 ? tokens[1].Split(',') : null;
+
+			IOutput output;
+			if (_outputsLookup.TryGetValue(method, out output))
 			{
-				OutputFormat = _supportedFormats.GetValueOrDefault(o);
-				if (OutputFormat == null)
-					throw new ArgumentException("Output format must be either jpg, gif or png.");
-				foreach (var format in _supportedFormats.Keys)
-					if (httpContext.Request.Url.AbsolutePath.EndsWith("." + format, StringComparison.OrdinalIgnoreCase) && o == format)
-						throw new ArgumentException("If the source image is a {0}, don't specify o={0}.  Enforcing this strictly helps optimize cache hit ratios.", format);
+				Output = output;
+				OutputArgs = args;
 			}
-			SourceFormat = _conentTypeFormats.GetValueOrDefault(httpContext.Response.ContentType);
-			if (SourceFormat == null)
-				throw new ArgumentException("Unrecognized content-type: {0}.", httpContext.Response.ContentType);
+			else
+			{
+				throw new ArgumentException("Unrecognized output type: {0}.", method);
+			}
 		}
 
 		void ParseOrder(NameValueCollection q)
@@ -254,12 +229,7 @@ namespace XImage
 			var requestedOrder = q.AllKeys.Where(k => PARAM_ORDER.Contains(k)).ToArray();
 			var correctOrder = PARAM_ORDER.Where(p => requestedOrder.Contains(p)).ToArray();
 			if (string.Concat(requestedOrder) != string.Concat(correctOrder))
-				throw new ArgumentException("Each parameter is optional.  But they must appear in the order of w, h, c, q, f. Enforcing this strictly helps optimize cache hit ratios.");
-		}
-
-		public string GetContentType()
-		{
-			return "image/" + (OutputFormat ?? SourceFormat).ToString().ToLower();
+				throw new ArgumentException("Each parameter is optional.  But they must appear in the order of w, h, c, f, m, t, o. Enforcing this strictly helps optimize cache hit ratios.");
 		}
 	}
 }

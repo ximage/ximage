@@ -16,41 +16,11 @@ namespace XImage
 {
 	public class XImager
 	{
-		static readonly int DEFAULT_QUALITY = ConfigurationManager.AppSettings["XImage.DefaultQuality"].AsNullableInt() ?? 75;
-
-		static readonly ImageCodecInfo _jpgEncoder = null;
-		static readonly ImageCodecInfo _gifEncoder = null;
-		static readonly ImageCodecInfo _pngEncoder = null;
-		static readonly Dictionary<ImageFormat, ImageCodecInfo> _formatToCodec = null;
-
 		XImageRequest _request = null;
-		EncoderParameters _encoderParameters = null;
-		ImageCodecInfo _encoder = null;
-		int saveAttempts = 0;
-
-		static XImager()
-		{
-			var codecs = ImageCodecInfo.GetImageEncoders();
-			_jpgEncoder = codecs.First(c => c.MimeType == "image/jpeg");
-			_gifEncoder = codecs.First(c => c.MimeType == "image/gif");
-			_pngEncoder = codecs.First(c => c.MimeType == "image/png");
-			_formatToCodec = new Dictionary<ImageFormat, ImageCodecInfo> 
-			{
-				{ ImageFormat.Jpeg, _jpgEncoder },
-				{ ImageFormat.Gif, _gifEncoder },
-				{ ImageFormat.Png, _pngEncoder },
-			};
-		}
 
 		public XImager(XImageRequest request)
 		{
 			_request = request;
-
-			_encoderParameters = new EncoderParameters(2);
-			_encoderParameters.Param[0] = new EncoderParameter(Encoder.Compression, (long)EncoderValue.CompressionLZW);
-			_encoderParameters.Param[1] = new EncoderParameter(Encoder.Quality, (long)(_request.Quality ?? DEFAULT_QUALITY));
-
-			_encoder = _formatToCodec[request.OutputFormat ?? request.SourceFormat ?? ImageFormat.Jpeg];
 		}
 
 		public Dictionary<string, string> CopyTo(Stream inputStream, Stream outputStream)
@@ -89,8 +59,8 @@ namespace XImage
 			if (_request.CropAsColor != null)
 				outputGraphics.Clear(_request.CropAsColor.Value);
 
-			if (_encoder.MimeType == "image/png")
-				outputGraphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+			//if (_encoder.MimeType == "image/png")
+			//	outputGraphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 
 			outputGraphics.DrawImage(sourceImage, new Rectangle(origin, targetImageSize));
 
@@ -176,7 +146,7 @@ namespace XImage
 
 			outputImage.UnlockBits(bitmapData);
 
-			SaveImage(outputImage, outputStream);
+			_request.Output.ProcessImage(outputImage, outputStream, _request.OutputArgs);
 		}
 
 		Size GetTargetImageSize(Size original)
@@ -287,41 +257,6 @@ namespace XImage
 			}
 
 			return origin;
-		}
-
-		void SaveImage(Bitmap canvas, Stream outputStream)
-		{
-			if (_request.QualityAsKb && _encoder.MimeType == "image/jpeg")
-				BinarySearchImageQuality(canvas, outputStream, 1, 100);
-			else
-				canvas.Save(outputStream, _encoder, _encoderParameters);
-		}
-
-		void BinarySearchImageQuality(Bitmap canvas, Stream outputStream, long lowerRange, long upperRange)
-		{
-			long targetSize = _request.Quality.Value * 1024;
-			long testQuality = (upperRange - lowerRange) / 2L + lowerRange;
-			using (var mem = new MemoryStream())
-			{
-				_encoderParameters.Param[1] = new EncoderParameter(Encoder.Quality, testQuality);
-				canvas.Save(mem, _encoder, _encoderParameters);
-
-				// If the sizes are within 10%, we're good to go.
-				var closeness = (float)Math.Abs(mem.Length - targetSize) / (float)targetSize;
-				if (closeness < .1F || ++saveAttempts >= 5)
-				{
-					mem.Position = 0;
-					mem.CopyTo(outputStream);
-				}
-				else if (targetSize < mem.Length)
-				{
-					BinarySearchImageQuality(canvas, outputStream, lowerRange, testQuality);
-				}
-				else
-				{
-					BinarySearchImageQuality(canvas, outputStream, testQuality, upperRange);
-				}
-			}
 		}
 	}
 }

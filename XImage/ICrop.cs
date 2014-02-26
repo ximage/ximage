@@ -12,7 +12,7 @@ namespace XImage
 		
 		string MethodDescription { get; }
 
-		string ExampleQueryString { get; }
+		string[] ExampleQueryStrings { get; }
 
 		void ProcessImage(XImageRequest request, XImageResponse response, params string[] args);
 	}

@@ -28,16 +28,16 @@ namespace XImage
 				{
 					var stopwatch = Stopwatch.StartNew();
 
-					var xImageParams = new XImageRequest(app.Context);
+					var request = new XImageRequest(app.Context);
 
-					if (xImageParams.HasAnyValues)
+					if (request.HasAnyValues)
 					{
-						app.Response.ContentType = xImageParams.GetContentType();
+						app.Response.ContentType = request.Output.ContentType;
 
-						var output = app.Response.Filter;
+						var outputStream = app.Response.Filter;
 						app.Response.Filter = new InterceptingStream(bufferedStream =>
 						{
-							var properties = new XImager(xImageParams).CopyTo(bufferedStream, output);
+							var properties = new XImager(request).CopyTo(bufferedStream, outputStream);
 
 							foreach (var property in properties)
 								app.Response.Headers.Add(property.Key, property.Value);

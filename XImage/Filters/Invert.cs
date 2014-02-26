@@ -17,17 +17,16 @@ namespace XImage.Filters
 			get { return "Inverts the colors"; }
 		}
 
-		public string ExampleQueryString
+		public string[] ExampleQueryStrings
 		{
-			get { return "invert"; }
+			get { return new string[] { "invert" }; }
 		}
 
 		public void ProcessImage(byte[] data, params string[] args)
 		{
 			for (int i = 0; i < data.Length; i++)
-			{
-				data[i] = (byte)(255 - data[i]);
-			}
+				if (i % 4 != 3) // ignore the alpha channel
+					data[i] = (byte)(255 - data[i]);
 		}
 	}
 }
