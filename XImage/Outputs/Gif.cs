@@ -10,12 +10,11 @@ namespace XImage.Outputs
 {
 	public class Gif : IOutput
 	{
-		public string MethodName { get { return "gif"; } }
-		public string MethodDescription { get { return "Uses a gif encoder."; } }
-		public string[] ExampleQueryStrings { get { return new string[]{ "gif" }; } }
+		public string Documentation { get { return "Uses a gif encoder."; } }
+
 		public string ContentType { get { return "image/gif"; } }
 
-		public void ProcessImage(Bitmap outputImage, Stream outputStream, params string[] args)
+		public void ProcessImage(Bitmap outputImage, Stream outputStream)
 		{
 			outputImage.Save(outputStream, ImageFormat.Gif);
 		}

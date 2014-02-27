@@ -8,12 +8,8 @@ namespace XImage
 {
 	public interface IFilter
 	{
-		string MethodName { get; }
+		string Documentation { get; }
 
-		string MethodDescription { get; }
-
-		string[] ExampleQueryStrings { get; }
-
-		void ProcessImage(byte[] data, params string[] args);
+		void ProcessImage(byte[] data);
 	}
 }

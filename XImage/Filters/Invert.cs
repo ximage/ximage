@@ -7,22 +7,12 @@ namespace XImage.Filters
 {
 	public class Invert : IFilter
 	{
-		public string MethodName
-		{
-			get { return "Invert"; }
-		}
-
-		public string MethodDescription
+		public string Documentation
 		{
 			get { return "Inverts the colors"; }
 		}
 
-		public string[] ExampleQueryStrings
-		{
-			get { return new string[] { "invert" }; }
-		}
-
-		public void ProcessImage(byte[] data, params string[] args)
+		public void ProcessImage(byte[] data)
 		{
 			for (int i = 0; i < data.Length; i++)
 				if (i % 4 != 3) // ignore the alpha channel

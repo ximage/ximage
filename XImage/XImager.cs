@@ -59,7 +59,7 @@ namespace XImage
 
 			// ---------- Goes in IFilter ----------
 			for (int i = 0; i < request.Filters.Count; i++)
-				request.Filters[i].ProcessImage(data, request.FiltersArgs[i]);
+				request.Filters[i].ProcessImage(data);
 			// -----------------------------------
 
 
@@ -136,7 +136,7 @@ namespace XImage
 
 			response.OutputImage.UnlockBits(bitmapData);
 
-			request.Output.ProcessImage(response.OutputImage, response.OutputStream, request.OutputArgs);
+			request.Output.ProcessImage(response.OutputImage, response.OutputStream);
 
 			response.Properties.Add("X-Image-Processing-Time", string.Format("{0:N2}ms", 1000D * (double)(_stopwatch.ElapsedTicks - timestamp) / (double)Stopwatch.Frequency));
 		}

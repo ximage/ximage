@@ -10,14 +10,10 @@ namespace XImage
 {
 	public interface IOutput
 	{
-		string MethodName { get; }
-
-		string MethodDescription { get; }
-
-		string[] ExampleQueryStrings { get; }
+		string Documentation { get; }
 
 		string ContentType { get; }
 
-		void ProcessImage(Bitmap outputImage, Stream outputStream, params string[] args);
+		void ProcessImage(Bitmap outputImage, Stream outputStream);
 	}
 }

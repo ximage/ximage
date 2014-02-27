@@ -8,11 +8,7 @@ namespace XImage
 {
 	public interface IMask
 	{
-		string MethodName { get; }
-
-		string MethodDescription { get; }
-
-		string[] ExampleQueryStrings { get; }
+		string Documentation { get; }
 
 		void ProcessImage(XImageRequest request, XImageResponse response, params string[] args);
 	}

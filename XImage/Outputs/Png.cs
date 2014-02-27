@@ -10,12 +10,11 @@ namespace XImage.Outputs
 {
 	public class Png : IOutput
 	{
-		public string MethodName { get { return "png"; } }
-		public string MethodDescription { get { return "Uses a png encoder."; } }
-		public string[] ExampleQueryStrings { get { return new string[] { "png" }; } }
+		public string Documentation { get { return "Uses a png encoder."; } }
+
 		public string ContentType { get { return "image/png"; } }
 
-		public void ProcessImage(Bitmap outputImage, Stream outputStream, params string[] args)
+		public void ProcessImage(Bitmap outputImage, Stream outputStream)
 		{
 			outputImage.Save(outputStream, ImageFormat.Png);
 		}

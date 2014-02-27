@@ -7,11 +7,7 @@ namespace XImage
 {
 	public interface IText
 	{
-		string MethodName { get; }
-
-		string MethodDescription { get; }
-
-		string[] ExampleQueryStrings { get; }
+		string Documentation { get; }
 
 		void ProcessImage(XImageRequest request, XImageResponse response, params string[] args);
 	}
