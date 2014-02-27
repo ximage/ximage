@@ -65,5 +65,10 @@ namespace XImage.Utilities
 				.Select(i => collection.AllKeys[i] ?? collection.Get(i))
 				.Any(i => keys.Contains(i));
 		}
+
+		public static BitmapBits GetBitmapBits(this Bitmap bitmap, bool writeAccess = false)
+		{
+			return new BitmapBits(bitmap, writeAccess);
+		}
 	}
 }

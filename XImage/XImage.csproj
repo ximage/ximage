@@ -58,10 +58,18 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Crops\Fill.cs" />
+    <Compile Include="Crops\Fit.cs" />
+    <Compile Include="Crops\None.cs" />
+    <Compile Include="Crops\Stretch.cs" />
     <Compile Include="Filters\Invert.cs" />
+    <Compile Include="IMeta.cs" />
+    <Compile Include="Meta\Colors.cs" />
+    <Compile Include="Meta\Dimensions.cs" />
     <Compile Include="Outputs\Gif.cs" />
     <Compile Include="Outputs\Jpg.cs" />
     <Compile Include="Outputs\Png.cs" />
+    <Compile Include="Utilities\BitmapBits.cs" />
     <Compile Include="Utilities\Extensions.cs" />
     <Compile Include="ICrop.cs" />
     <Compile Include="IFilter.cs" />
@@ -76,7 +84,6 @@
     <Compile Include="XImageResponse.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Crops\" />
     <Folder Include="Masks\" />
     <Folder Include="Texts\" />
   </ItemGroup>

@@ -13,19 +13,12 @@ using XImage.Utilities;
 
 namespace XImage
 {
-	public class Crops
-	{
-		public const string NONE = "none";
-		public const string FILL = "fill";
-		public const string STRETCH = "stretch";
-		public const string COLOR = "color";
-	}
-
 	public class XImageRequest : IDisposable
 	{
 		static readonly int MAX_SIZE = ConfigurationManager.AppSettings["XImage.MaxSize"].AsNullableInt() ?? 1000;
 		static readonly Dictionary<string, Type> _cropsLookup;
 		static readonly Dictionary<string, Type> _filtersLookup;
+		static readonly Dictionary<string, Type> _metasLookup;
 		static readonly Dictionary<string, Type> _masksLookup;
 		static readonly Dictionary<string, Type> _textsLookup;
 		static readonly Dictionary<string, Type> _outputsLookup;
@@ -34,9 +27,10 @@ namespace XImage
 		public int? Width { get; private set; }
 		public int? Height { get; private set; }
 		public bool AllowUpscaling { get; private set; }
-		public string Crop { get; private set; }
-		public Color? CropAsColor { get; private set; }
+		public ICrop Crop { get; private set; }
 		public List<IFilter> Filters { get; private set; }
+		public IMask Mask { get; private set; }
+		public List<IMeta> Metas { get; private set; }
 		public IOutput Output { get; private set; }
 		static XImageRequest()
 		{
@@ -45,6 +39,7 @@ namespace XImage
 			_cropsLookup = GetTypes<ICrop>(types).ToDictionary(k => k.Name.ToLower(), v => v);
 			_filtersLookup = GetTypes<IFilter>(types).ToDictionary(k => k.Name.ToLower(), v => v);
 			_masksLookup = GetTypes<IMask>(types).ToDictionary(k => k.Name.ToLower(), v => v);
+			_metasLookup = GetTypes<IMeta>(types).ToDictionary(k => k.Name.ToLower(), v => v);
 			_textsLookup = GetTypes<IText>(types).ToDictionary(k => k.Name.ToLower(), v => v);
 			_outputsLookup = GetTypes<IOutput>(types).ToDictionary(k => k.Name.ToLower(), v => v);
 
@@ -53,6 +48,7 @@ namespace XImage
 				{ typeof(ICrop), _cropsLookup },
 				{ typeof(IFilter), _filtersLookup },
 				{ typeof(IMask), _masksLookup },
+				{ typeof(IMeta), _metasLookup },
 				{ typeof(IText), _textsLookup },
 				{ typeof(IOutput), _outputsLookup },
 			};
@@ -75,9 +71,11 @@ namespace XImage
 			ParseWidthAndHeight(q);
 			ParseCrop(q);
 			ParseFilters(q);
+			ParseMetas(q);
+			ParseMask(q);
 			ParseOutput(httpContext, q);
-			ParseOrder(q);
 
+			AssertLogicalOrder(q);
 			httpContext.Response.ContentType = Output.ContentType;
 		}
 
@@ -124,35 +122,10 @@ namespace XImage
 		void ParseCrop(NameValueCollection q)
 		{
 			var c = q["c"];
-			if (c != null)
-			{
-				if (c == Crops.NONE)
-					throw new ArgumentException("It isn't necessary to spcify a crop of 'none'.  Just leave it off.  Enforcing this strictly helps optimize cache hit ratios.");
-				else if (c == Crops.FILL || c == Crops.STRETCH)
-					Crop = c;
-				else
-				{
-					if (c.Length != 6 && (c.Length != 8 || c.StartsWith("ff")))
-						throw new ArgumentException("When specifying a color for crop (c), it must be a valid 6 digit hex number (or an 8 digit hex number for translucency).  Enforcing this strictly helps optimize cache hit ratios.");
-					try
-					{
-						CropAsColor = ColorTranslator.FromHtml("#" + c);
-						Crop = Crops.COLOR;
-						if (c != c.ToLower())
-							throw new ArgumentException("When specifying a color for crop (c), do not use capital letters.");
-					}
-					catch
-					{
-						throw new ArgumentException("When specifying a color for crop (c), it must be a valid 6 digit hex number (or an 8 digit hex number for translucency).  Enforcing this strictly helps optimize cache hit ratios.");
-					}
-				}
-
-				if (Crop == null)
-					throw new ArgumentException("The only valid options for crop are (none), fill, stretch or a hex color.  See below for more details.");
-
-				if ((Width == null || Height == null) && Crop != null)
-					throw new ArgumentException("A cropping mode is only valid when both width and height are specified.");
-			}
+			if (c == null)
+				Crop = new XImage.Crops.None(); // Default to none, i.e. no crop.
+			else
+				Crop = ParseMethod<ICrop>(c);
 		}
 
 		void ParseFilters(NameValueCollection q)
@@ -163,19 +136,36 @@ namespace XImage
 			if (filterValues == null)
 				return;
 
-			var filters = filterValues.SplitClean(';');
-			if (filters.Length == 0)
+			var filterNames = filterValues.SplitClean(';');
+			if (filterNames.Length == 0)
 				throw new ArgumentException("The f parameter cannot be empty.  Exclude this parameters if no filters are needed.");
 
-			foreach (var filter in filters)
-				Filters.Add(ParseMethod<IFilter>(filter));
+			foreach (var filterName in filterNames)
+				Filters.Add(ParseMethod<IFilter>(filterName));
 
 			if (Filters.Count == 0)
 				throw new ArgumentException("No filters specified.  Use ?f={filter1};{filter2} or leave f out of the query string.");
 		}
 
+		void ParseMetas(NameValueCollection q)
+		{
+			Metas = new List<IMeta>();
+
+			// TODO: Use the query string somehow?
+
+			Metas.AddRange(_metasLookup.Select(m => Activator.CreateInstance(m.Value) as IMeta));
+		}
+
+		void ParseMask(NameValueCollection q)
+		{
+			var m = q["m"];
+			if (m != null)
+				Mask = ParseMethod<IMask>(m);
+		}
+
 		void ParseOutput(HttpContext httpContext, NameValueCollection q)
 		{
+			// If nothing is specified, default to the format of the original image.
 			var o = q["o"] ?? httpContext.Response.ContentType;
 			if (o == null)
 				throw new ArgumentException("No output format specified.  Use ?o={output} or ensure the Content-Type response header is set.");
@@ -233,7 +223,7 @@ namespace XImage
 			}
 		}
 
-		void ParseOrder(NameValueCollection q)
+		void AssertLogicalOrder(NameValueCollection q)
 		{
 			var requestedOrder = q.AllKeys.Where(k => XImager.XIMAGE_PARAMETERS.Contains(k)).ToArray();
 			var correctOrder = XImager.XIMAGE_PARAMETERS.Where(p => requestedOrder.Contains(p)).ToArray();

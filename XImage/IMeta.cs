@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace XImage
 {
-	public interface IMask
+	public interface IMeta
 	{
 		string Documentation { get; }
 

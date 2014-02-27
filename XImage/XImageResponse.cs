@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
@@ -14,7 +15,7 @@ namespace XImage
 	{
 		public Bitmap InputImage { get; private set; }
 
-		public Rectangle InputBounds { get; set; }
+		public Rectangle CropBox { get; set; }
 
 		public Size OutputSize { get; set; }
 
@@ -35,7 +36,10 @@ namespace XImage
 			get
 			{
 				if (_outputGraphics == null)
+				{
 					_outputGraphics = Graphics.FromImage(OutputImage);
+					//_outputGraphics.InterpolationMode = InterpolationMode.HighQualityBicubic; // TODO: Make this a setting.
+				}
 				return _outputGraphics;
 			}
 		}
@@ -47,6 +51,8 @@ namespace XImage
 		public XImageResponse(HttpContext httpContext)
 		{
 			InputImage = Bitmap.FromStream(httpContext.Response.Filter) as Bitmap;
+			CropBox = new Rectangle(Point.Empty, InputImage.Size);
+			OutputSize = InputImage.Size;
 			OutputStream = httpContext.Response.OutputStream;
 			Properties = httpContext.Response.Headers;
 		}
