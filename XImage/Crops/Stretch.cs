@@ -27,17 +27,17 @@ namespace XImage.Crops
 			Size scaled = original;
 
 			// If upscaling is not allowed (the default), cap those values.
-			var parametersWidth = request.Width;
-			if (parametersWidth != null && !request.AllowUpscaling)
-				parametersWidth = Math.Min(original.Width, parametersWidth.Value);
-			var parametersHeight = request.Height;
-			if (parametersHeight != null && !request.AllowUpscaling)
-				parametersHeight = Math.Min(original.Height, parametersHeight.Value);
+			var w = request.Width;
+			if (w != null && !request.AllowUpscaling)
+				w = Math.Min(original.Width, w.Value);
+			var h = request.Height;
+			if (h != null && !request.AllowUpscaling)
+				h = Math.Min(original.Height, h.Value);
 
 			// In the event that just one dimension was specified, i.e. just w or just h,
 			// then extrapolate the missing dimension.  This should only occur when fit is null.
-			scaled.Width = parametersWidth ?? Convert.ToInt32(original.Width * parametersHeight.Value / (float)original.Height);
-			scaled.Height = parametersHeight ?? Convert.ToInt32(original.Height * parametersWidth.Value / (float)original.Width);
+			scaled.Width = w ?? Convert.ToInt32(original.Width * h.Value / (float)original.Height);
+			scaled.Height = h ?? Convert.ToInt32(original.Height * w.Value / (float)original.Width);
 
 			return scaled;
 		}

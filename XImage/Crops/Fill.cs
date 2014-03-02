@@ -15,75 +15,54 @@ namespace XImage.Crops
 
 		public void SetSizeAndCrop(XImageRequest request, XImageResponse response)
 		{
-			var targetImageSize = GetTargetImageSize(request, response.InputImage.Size);
-			var targetIsWiderThanOutput = (float)request.Width.Value / (float)request.Height.Value < (float)targetImageSize.Width / (float)targetImageSize.Height;
-			response.OutputSize = GetOutputDimensions(request, targetImageSize, targetIsWiderThanOutput);
-			var origin = GetImageOrigin(request, targetImageSize, targetIsWiderThanOutput, response.OutputSize);
-			response.CropBox = new Rectangle(origin, response.OutputSize);
+			if (request.Width == null || request.Height == null)
+				throw new ArgumentException("Using a fill crop requires that both w and h be specified.");
+
+			response.OutputSize = GetOutputSize(request, response);
+			response.CropBox = GetCropBox(request, response);
 		}
 
-		static Size GetTargetImageSize(XImageRequest request, Size original)
+		static Size GetOutputSize(XImageRequest request, XImageResponse response)
 		{
-			if (request.Width == null && request.Height == null)
-				return original;
+			var outputSize = new Size(request.Width.Value, request.Height.Value);
+			var imageSize = response.InputImage.Size;
 
-			Size scaled = original;
-
-			// If upscaling is not allowed (the default), cap those values.
-			var parametersWidth = request.Width;
-			if (parametersWidth != null && !request.AllowUpscaling)
-				parametersWidth = Math.Min(original.Width, parametersWidth.Value);
-			var parametersHeight = request.Height;
-			if (parametersHeight != null && !request.AllowUpscaling)
-				parametersHeight = Math.Min(original.Height, parametersHeight.Value);
-
-			// In the event that just one dimension was specified, i.e. just w or just h,
-			// then extrapolate the missing dimension.  This should only occur when fit is null.
-			int w = parametersWidth ?? Convert.ToInt32(original.Width * parametersHeight.Value / (float)original.Height);
-			int h = parametersHeight ?? Convert.ToInt32(original.Height * parametersWidth.Value / (float)original.Width);
-
-			// Resize it such that the image fills up the entire crop's bounding box.  This means that 
-			// the resulting Width or Height will be exactly as specified but the image may be cropped.
-			if ((float)w / (float)h > (float)original.Width / (float)original.Height)
+			if (!request.AllowUpscaling && (outputSize.Width > imageSize.Width || outputSize.Height > imageSize.Height))
 			{
-				scaled.Width = w;
-				scaled.Height = Convert.ToInt32(original.Height * w / (float)original.Width);
+				var targetIsWiderThanOutput = (float)request.Width / (float)request.Height < (float)imageSize.Width / (float)imageSize.Height;
+				float scale = targetIsWiderThanOutput ? (float)response.InputImage.Height / (float)outputSize.Height : (float)response.InputImage.Width / (float)outputSize.Width;
+				if (targetIsWiderThanOutput)
+				{
+					outputSize.Width = Convert.ToInt32(outputSize.Width * scale);
+					outputSize.Height = imageSize.Height;
+				}
+				else
+				{
+					outputSize.Width = imageSize.Width;
+					outputSize.Height = Convert.ToInt32(request.Height * scale);
+				}
 			}
-			else
-			{
-				scaled.Height = h;
-				scaled.Width = Convert.ToInt32(original.Width * h / (float)original.Height);
-			}
-			return scaled;
+
+			return outputSize;
 		}
 
-		static Size GetOutputDimensions(XImageRequest request, Size targetImageSize, bool targetIsWiderThanOutput)
+		static Rectangle GetCropBox(XImageRequest request, XImageResponse response)
 		{
-			Size outputDimensions = targetImageSize;
-
-			outputDimensions.Width = request.Width.Value;
-			outputDimensions.Height = request.Height.Value;
-
-			if (!request.AllowUpscaling)
-			{
-				float scale = targetIsWiderThanOutput ? (float)targetImageSize.Height / (float)outputDimensions.Height : (float)targetImageSize.Width / (float)outputDimensions.Width;
-				outputDimensions.Height = Convert.ToInt32(request.Height * scale);
-				outputDimensions.Width = Convert.ToInt32(request.Width * scale);
-			}
-
-			return outputDimensions;
-		}
-
-		static Point GetImageOrigin(XImageRequest request, Size targetImageSize, bool targetIsWiderThanOutput, Size outputDimensions)
-		{
-			Point origin = Point.Empty;
-
+			var imageSize = response.InputImage.Size;
+			var cropBox = new Rectangle(Point.Empty, imageSize);
+			var outputAspectRatio = (float)response.OutputSize.Width / (float)response.OutputSize.Height;
+			var targetIsWiderThanOutput = (float)request.Width / (float)request.Height < (float)imageSize.Width / (float)imageSize.Height;
 			if (targetIsWiderThanOutput)
-				origin.X -= (targetImageSize.Width - outputDimensions.Width) / 2;
+			{
+				cropBox.Width = Convert.ToInt32((float)cropBox.Height * outputAspectRatio);
+				cropBox.X = (imageSize.Width - cropBox.Width) / 2;
+			}
 			else
-				origin.Y -= (targetImageSize.Height - outputDimensions.Height) / 2;
-
-			return origin;
+			{
+				cropBox.Height = Convert.ToInt32((float)cropBox.Width / outputAspectRatio);
+				cropBox.Y = (imageSize.Height - cropBox.Height) / 2;
+			}
+			return cropBox;
 		}
 	}
 }
