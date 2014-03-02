@@ -12,7 +12,7 @@ namespace XImage.Filters
 			get { return "Inverts the colors"; }
 		}
 
-		public void ProcessImage(byte[] data)
+		public void ProcessImage(XImageRequest request, XImageResponse response, byte[] data)
 		{
 			for (int i = 0; i < data.Length; i++)
 				if (i % 4 != 3) // ignore the alpha channel

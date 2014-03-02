@@ -14,9 +14,9 @@ namespace XImage.Outputs
 
 		public string ContentType { get { return "image/png"; } }
 
-		public void ProcessImage(Bitmap outputImage, Stream outputStream)
+		public void FormatImage(XImageRequest request, XImageResponse response)
 		{
-			outputImage.Save(outputStream, ImageFormat.Png);
+			response.OutputImage.Save(response.OutputStream, ImageFormat.Png);
 		}
 	}
 }

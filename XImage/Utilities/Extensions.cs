@@ -70,5 +70,32 @@ namespace XImage.Utilities
 		{
 			return new BitmapBits(bitmap, writeAccess);
 		}
+
+		public static void BlendLayer(this byte[] targetLayer, byte[] layerToBlend, BlendingModes blendingMode = BlendingModes.Normal)
+		{
+			if (targetLayer.Length != layerToBlend.Length)
+				throw new ArgumentException("The two layers must be the same size.");
+
+			var length = targetLayer.Length;
+			switch (blendingMode)
+			{
+				case BlendingModes.Mask:
+					for (int i = 3; i < length; i += 4)
+						targetLayer[i] = layerToBlend[i];
+						break;
+				case BlendingModes.Normal:
+				case BlendingModes.Multiply:
+				case BlendingModes.Screen:
+					throw new NotImplementedException();
+			}
+		}
+	}
+
+	public enum BlendingModes
+	{
+		Mask,
+		Normal,
+		Multiply,
+		Screen
 	}
 }

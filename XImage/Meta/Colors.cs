@@ -14,7 +14,7 @@ namespace XImage.Meta
 			get { return "Calculates several different color attributes such as accent, average, base, dominant and palette."; }
 		}
 
-		public void ProcessImage(XImageRequest request, XImageResponse response, byte[] data)
+		public void Calculate(XImageRequest request, XImageResponse response, byte[] data)
 		{
 			var byteCount = data.Length;
 			var pixelCount = byteCount / (Bitmap.GetPixelFormatSize(response.OutputImage.PixelFormat) / 8);

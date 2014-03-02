@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,6 +11,6 @@ namespace XImage
 	{
 		string Documentation { get; }
 
-		void ProcessImage(XImageRequest request, XImageResponse response, byte[] data);
+		void DrawMask(XImageRequest request, XImageResponse response, Graphics mask);
 	}
 }

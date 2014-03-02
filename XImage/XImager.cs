@@ -33,24 +33,39 @@ namespace XImage
 				srcRect: response.CropBox,
 				srcUnit: GraphicsUnit.Pixel);
 
-			bool writeAccess = request.Filters.Count > 0;
+			bool writeAccess = request.Filters.Count > 0 || request.Mask != null;
 			using (var bitmapBits = response.OutputImage.GetBitmapBits(writeAccess))
 			{
 				// --- FILTERS ---
 				foreach (var filter in request.Filters)
-					filter.ProcessImage(bitmapBits.Data);
+					filter.ProcessImage(request, response, bitmapBits.Data);
 
 				// --- MASK ---
 				if (request.Mask != null)
-					request.Mask.ProcessImage(request, response, bitmapBits.Data);
+				{
+					using (var maskBitmap = new Bitmap(response.OutputSize.Width, response.OutputSize.Height))
+					{
+						using (var maskGraphics = Graphics.FromImage(maskBitmap))
+						{
+							maskGraphics.SmoothingMode = SmoothingMode.HighQuality;
+
+							request.Mask.DrawMask(request, response, maskGraphics);
+
+							using (var maskData = maskBitmap.GetBitmapBits(false))
+							{
+								bitmapBits.Data.BlendLayer(maskData.Data, BlendingModes.Mask);
+							}
+						}
+					}
+				}
 
 				// --- METAS ---
 				foreach (var meta in request.Metas)
-					meta.ProcessImage(request, response, bitmapBits.Data);
+					meta.Calculate(request, response, bitmapBits.Data);
 			}
 
 			// --- OUTPUT ---
-			request.Output.ProcessImage(response.OutputImage, response.OutputStream);
+			request.Output.FormatImage(request, response);
 
 			response.Properties.Add("X-Image-Processing-Time", string.Format("{0:N2}ms", 1000D * (double)(_stopwatch.ElapsedTicks - timestamp) / (double)Stopwatch.Frequency));
 		}

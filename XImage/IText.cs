@@ -9,6 +9,6 @@ namespace XImage
 	{
 		string Documentation { get; }
 
-		void ProcessImage(XImageRequest request, XImageResponse response);
+		void DrawText(XImageRequest request, XImageResponse response);
 	}
 }

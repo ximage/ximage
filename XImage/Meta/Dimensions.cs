@@ -13,7 +13,7 @@ namespace XImage.Meta
 			get { return "Calculates several different size attributes widht and height for the original image and output image."; }
 		}
 
-		public void ProcessImage(XImageRequest request, XImageResponse response, byte[] data)
+		public void Calculate(XImageRequest request, XImageResponse response, byte[] data)
 		{
 			response.Properties["X-Image-Original-Format"] = "image/" + new ImageFormatConverter().ConvertToString(response.InputImage.RawFormat).ToLower();
 			response.Properties["X-Image-Original-Width"] = response.InputImage.Width.ToString();

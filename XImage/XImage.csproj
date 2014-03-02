@@ -64,6 +64,8 @@
     <Compile Include="Crops\Stretch.cs" />
     <Compile Include="Filters\Invert.cs" />
     <Compile Include="IMeta.cs" />
+    <Compile Include="Masks\Circle.cs" />
+    <Compile Include="Masks\RoundRect.cs" />
     <Compile Include="Meta\Colors.cs" />
     <Compile Include="Meta\Dimensions.cs" />
     <Compile Include="Outputs\Gif.cs" />
@@ -84,7 +86,6 @@
     <Compile Include="XImageResponse.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Masks\" />
     <Folder Include="Texts\" />
   </ItemGroup>
   <PropertyGroup>

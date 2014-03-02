@@ -10,6 +10,6 @@ namespace XImage
 	{
 		string Documentation { get; }
 
-		void ProcessImage(XImageRequest request, XImageResponse response, byte[] data);
+		void Calculate(XImageRequest request, XImageResponse response, byte[] data);
 	}
 }

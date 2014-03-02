@@ -14,6 +14,6 @@ namespace XImage
 
 		string ContentType { get; }
 
-		void ProcessImage(Bitmap outputImage, Stream outputStream);
+		void FormatImage(XImageRequest request, XImageResponse response);
 	}
 }

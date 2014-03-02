@@ -14,9 +14,9 @@ namespace XImage.Outputs
 
 		public string ContentType { get { return "image/gif"; } }
 
-		public void ProcessImage(Bitmap outputImage, Stream outputStream)
+		public void FormatImage(XImageRequest request, XImageResponse response)
 		{
-			outputImage.Save(outputStream, ImageFormat.Gif);
+			response.OutputImage.Save(response.OutputStream, ImageFormat.Gif);
 		}
 	}
 }
