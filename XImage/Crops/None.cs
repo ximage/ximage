@@ -24,8 +24,6 @@ namespace XImage.Crops
 			if (request.Width == null && request.Height == null)
 				return original;
 
-			Size scaled = original;
-
 			// If upscaling is not allowed (the default), cap those values.
 			var w = request.Width;
 			if (w != null && !request.AllowUpscaling)
@@ -36,20 +34,25 @@ namespace XImage.Crops
 
 			// In the event that just one dimension was specified, i.e. just w or just h,
 			// then extrapolate the missing dimension.  This should only occur when fit is null.
-			w = w ?? Convert.ToInt32(original.Width * h.Value / (float)original.Height);
-			h = h ?? Convert.ToInt32(original.Height * w.Value / (float)original.Width);
+			w = w ?? Convert.ToInt32(original.Width * h / (float)original.Height);
+			h = h ?? Convert.ToInt32(original.Height * w / (float)original.Width);
 
-			// Resize it such that the image fits within the crop's bounding box.  This does mean that 
-			// the resulting Width or Height might end up smaller than the requested value.
-			if ((float)w / (float)h < (float)original.Width / (float)original.Height)
+			var scaled = new Size(w.Value, h.Value);
+
+			if (request.Width != null && request.Height != null)
 			{
-				scaled.Width = w.Value;
-				scaled.Height = Convert.ToInt32(original.Height * w / (float)original.Width);
-			}
-			else
-			{
-				scaled.Height = h.Value;
-				scaled.Width = Convert.ToInt32(original.Width * h / (float)original.Height);
+				// Resize it such that the image fits within the crop's bounding box.  This does mean that 
+				// the resulting Width or Height might end up smaller than the requested value.
+				if ((float)w / (float)h < (float)original.Width / (float)original.Height)
+				{
+					scaled.Width = w.Value;
+					scaled.Height = Convert.ToInt32(original.Height * w / (float)original.Width);
+				}
+				else
+				{
+					scaled.Height = h.Value;
+					scaled.Width = Convert.ToInt32(original.Width * h / (float)original.Height);
+				}
 			}
 			return scaled;
 		}
