@@ -62,6 +62,7 @@
     <Compile Include="Crops\Fit.cs" />
     <Compile Include="Crops\None.cs" />
     <Compile Include="Crops\Stretch.cs" />
+    <Compile Include="Filters\Grayscale.cs" />
     <Compile Include="Filters\Invert.cs" />
     <Compile Include="IMeta.cs" />
     <Compile Include="Masks\Circle.cs" />
