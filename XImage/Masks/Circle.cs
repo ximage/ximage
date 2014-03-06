@@ -19,7 +19,7 @@ namespace XImage.Masks
 
 			var origin = Point.Empty;
 			if (size.Width < size.Height)
-				origin.Y = (size.Width - size.Height) / 2;
+				origin.Y = (size.Height - size.Width) / 2;
 			else
 				origin.X = (size.Width - size.Height) / 2;
 
