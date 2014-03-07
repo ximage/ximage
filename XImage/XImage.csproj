@@ -71,6 +71,7 @@
     <Compile Include="Meta\Dimensions.cs" />
     <Compile Include="Outputs\Gif.cs" />
     <Compile Include="Outputs\Jpg.cs" />
+    <Compile Include="Outputs\Json.cs" />
     <Compile Include="Outputs\Png.cs" />
     <Compile Include="Utilities\BitmapBits.cs" />
     <Compile Include="Utilities\Extensions.cs" />
