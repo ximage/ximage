@@ -17,7 +17,8 @@ namespace XImage.Crops
 
 		public Fit()
 		{
-			Color = Color.Transparent;
+			// Fully transparent white.
+			Color = Color.FromArgb(0, Color.White);
 		}
 
 		public Fit(int color)
@@ -89,6 +90,10 @@ namespace XImage.Crops
 			// Set the values.
 			response.OutputSize = outputSize;
 			response.CropBox = cropBox;
+
+			// Quirk in GDI where it treats fully transparent as black instead of the RGB component.
+			if (request.Output.ContentType == "image/jpg")
+				Color = Color.FromArgb(255, Color);
 
 			response.OutputGraphics.Clear(Color);
 		}
