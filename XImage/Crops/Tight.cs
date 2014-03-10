@@ -138,10 +138,10 @@ namespace XImage.Crops
 			response.OutputGraphics.Clear(Color.White);
 		}
 
-		static Size GetOutputSize(XImageRequest request, Size original)
+		Size GetOutputSize(XImageRequest request, Size original)
 		{
 			if (request.Width == null && request.Height == null)
-				return original;
+				return new Size(original.Width + _left + _right, original.Height + _top + _bottom);
 
 			var w = request.Width;
 			var h = request.Height;

@@ -38,7 +38,7 @@ namespace XImage
 				if (_outputGraphics == null)
 				{
 					_outputGraphics = Graphics.FromImage(OutputImage);
-					//_outputGraphics.InterpolationMode = InterpolationMode.HighQualityBicubic; // TODO: Make this a setting.
+					_outputGraphics.InterpolationMode = InterpolationMode.HighQualityBicubic; // TODO: Make this a setting.
 				}
 				return _outputGraphics;
 			}
