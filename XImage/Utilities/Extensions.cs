@@ -92,7 +92,17 @@ namespace XImage.Utilities
 				case BlendingModes.Mask:
 					for (int i = 3; i < length; i += 4)
 						targetLayer[i] = layerToBlend[i];
-						break;
+					break;
+				case BlendingModes.OpaqueMask:
+					for (int i = 0; i < length; i += 4)
+					{
+						targetLayer[i + 3] = layerToBlend[i + 3];
+						var p = (float)(255 - layerToBlend[i + 3]) / 255F;
+						targetLayer[i] += Convert.ToByte((float)(255 - targetLayer[i]) * p);
+						targetLayer[i + 1] += Convert.ToByte((float)(255 - targetLayer[i + 1]) * p);
+						targetLayer[i + 2] += Convert.ToByte((float)(255 - targetLayer[i + 2]) * p);
+					}
+					break;
 				case BlendingModes.Normal:
 				case BlendingModes.Multiply:
 				case BlendingModes.Screen:
@@ -104,6 +114,7 @@ namespace XImage.Utilities
 	public enum BlendingModes
 	{
 		Mask,
+		OpaqueMask,
 		Normal,
 		Multiply,
 		Screen
