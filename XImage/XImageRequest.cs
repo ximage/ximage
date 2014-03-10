@@ -81,14 +81,14 @@ namespace XImage
 
 		void ParseHelp(HttpContext httpContext)
 		{
-			if (httpContext.Request.RawUrl.EndsWith("?help"))
+			if (httpContext.Request.RawUrl.EndsWith("?h") || httpContext.Request.RawUrl.EndsWith("?help"))
 				throw new ArgumentException(string.Empty);
 		}
 
 		void ParseWidthAndHeight(NameValueCollection q)
 		{
 			bool allowWUpscaling = false, allowHUpscaling = false;
-			var w = q["w"];
+			var w = q["w"] ?? q["width"];
 			if (w != null)
 			{
 				allowWUpscaling = w.EndsWith("!");
@@ -101,7 +101,7 @@ namespace XImage
 					throw new ArgumentException(string.Format("Cannot request a width larger than the max configured value of {0}.", MAX_SIZE));
 			}
 
-			var h = q["h"];
+			var h = q["h"] ?? q["height"];
 			if (h != null)
 			{
 				allowHUpscaling = h.EndsWith("!");
@@ -121,7 +121,7 @@ namespace XImage
 
 		void ParseCrop(NameValueCollection q)
 		{
-			var c = q["c"];
+			var c = q["c"] ?? q["crop"];
 			if (c == null)
 				Crop = new XImage.Crops.None(); // Default to none, i.e. no crop.
 			else
@@ -132,7 +132,7 @@ namespace XImage
 		{
 			Filters = new List<IFilter>();
 
-			var filterValues = q["f"];
+			var filterValues = q["f"] ?? q["filter"] ?? q["filters"];
 			if (filterValues == null)
 				return;
 
@@ -158,7 +158,7 @@ namespace XImage
 
 		void ParseMask(NameValueCollection q)
 		{
-			var m = q["m"];
+			var m = q["m"] ?? q["mask"];
 			if (m != null)
 				Mask = ParseMethod<IMask>(m);
 		}
@@ -166,7 +166,7 @@ namespace XImage
 		void ParseOutput(HttpContext httpContext, NameValueCollection q)
 		{
 			// If nothing is specified, default to the format of the original image.
-			var o = q["o"] ?? httpContext.Response.ContentType;
+			var o = q["o"] ?? q["output"] ?? httpContext.Response.ContentType;
 			if (o == null)
 				throw new ArgumentException("No output format specified.  Use ?o={output} or ensure the Content-Type response header is set.");
 
