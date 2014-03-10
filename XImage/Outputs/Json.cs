@@ -23,15 +23,18 @@ namespace XImage.Outputs
 			// Super simple JSON output.  No JSON lib necessary, reduces dependencies.
 			// Everything is a string?  What about numbers and arrays?
 
+			var keys = response.Properties.AllKeys.Where(k => k.StartsWith("X-Image")).ToList();
 			var sb = new StringBuilder();
 			sb.AppendLine("{");
-			foreach (var key in response.Properties.AllKeys.Where(k => k.StartsWith("X-Image")))
+			foreach (var key in keys)
 			{
 				sb.Append("  \"");
 				sb.Append(key);
 				sb.Append("\": \"");
 				sb.Append(response.Properties[key]);
 				sb.Append("\"");
+				if (key != keys.Last())
+					sb.Append(',');
 				sb.AppendLine();
 			}
 			sb.AppendLine("}");
