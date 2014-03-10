@@ -9,62 +9,62 @@ interface for performing common image operations such as resizing, cropping, com
 In addition, it describes how to add extended functionality that might be custom for your use case in a manner 
 that is discoverable and reusable.  
 
-The X image operates at the server level it can be made to operate at application level if desired
-Developing for multiple 
-The goal of the XImage interface is to simplify the development of of apps
-that span across devices with a wide range of screen depths and sizes and varyingly 
-Many advanced frameworks are needing a standard way to request images with particular attributes 
-
 QUERY STRING
 ------------
 To maximize CDN and browser cache hit ratios, the following arguments are designed to have a strict set of rules.  
 Therefore, capitalization and parameter order are important and superfluous parameters will be treated as errors. 
 
-  help       Shows this help screen.  Each implementation of XImage must show this help screen which is primarily 
-             used to show which features it supports.  
-  w          Width of the image.  If h is not supplied, it will be inferred proportionally.
-             By default, it will not be resized larger than its original dimensions.  To override , append '!'.
-             e.g. <a href="{0}?w=100">{0}?w=100</a> or <a href="{0}?w=1000!">{0}?w=1000!</a>
-  h          Height of the image.  If w is not supplied, it will be inferred proportionally.
-             By default, it will not be resized larger than its original dimensions.  To override , append '!'.
-             e.g. <a href="{0}?h=100">{0}?h=100</a> or <a href="{0}?h=1000!">{0}?h=1000!</a>
-  c          Cropping mode.  This is only valid when both w and h are specified.  Available options are:
-                (none)       Don't actually supply 'none', just leave it off.  No parts of the image will be cropped.
-                             It will be resized proportionally until it fits completely within the w x h boundaries.
-                             This will likely result in either width or height being smaller than the requested value.
-                             e.g. <a href="{0}?w=200&h=200">{0}?w=200&h=200</a>
-                fill         The image will be resized proportionally until it completely fills the w x h boundaries.
-                             This will likely result in cropping off either top/bottom edges or left/right edges
-                             but the resulting dimensions will be exactly w x h.
-                             e.g. <a href="{0}?w=200&h=100&c=fill">{0}?w=200&h=100&c=fill</a>
-                stretch      Each edge will be resized disproportionally until it reaches its w x h boundaries.
-                             Results are exactly w x h and no edges are cropped but the image will appear distorted.
-                             e.g. <a href="{0}?w=200&h=100&c=stretch">{0}?w=200&h=100&c=stretch</a>
-                (color)      It will be resized proportionally until it fits completely within the w x h boundaries.
-                             This will likely result in void space on the left/right or top/bottom which will be 
-                             filled with the supplied color.  Must be a 6 or 8 digit lower case hex, don't use #.
-                             e.g. <a href="{0}?w=200&h=100&c=3b5999">{0}?w=200&h=100&c=3b5999</a>
-  f          Filter.  This list is loosely based on CSS3 filters.
-                blur(r)      Applies a gaussian blur with a radius of r.
-                             e.g. <a href="{0}?blur(10)">{0}?blur(10)</a>
-                tint(c,p)    Applies a tint with a color of c and by a percentage of p.
-                             e.g. <a href="{0}?tint(ff0000,50)">{0}?tint(ff0000,50)</a>
-  m          Mask.  Certain shapes can be applied making the outside either transparent or the background color.
-                circle       Applies a circle-shaped mask in the center with a diameter of the shortest edge.
-                             e.g. <a href="{0}?w=200&m=circle">{0}?w=200&m=circle</a>
-                roundrect(n) Rounds the corners with a radius of n.  
-                             e.g. <a href="{0}?w=200&m=roundrect(10)">{0}?w=200&m=roundrect(10)</a>
-  t          Text.  Write text over the image.
-                footer(t)    Centers text at the bottom of the image.
-                             e.g. <a href="{0}?footer('Hello world!')">{0}?footer('Hello world!')</a>
-                header(t)    Centers text at the top of the image.
-                             e.g. <a href="{0}?header('Hello world!')">{0}?header('Hello world!')</a>
-  q          Quality of the image.  Values, as percentages, must be an integer between 1 - 100.  
-             Alternatively, you can specify a max content size (in kilobytes) by appending 'kb', e.g. q=150kb.
-             However some file sizes are impossibly small for some formats which will result in a best effort size.
-             e.g. <a href="{0}?q=5">{0}?q=5</a> or  <a href="{0}?q=5kb">{0}?q=5kb</a>
-  o          Output format of the image.  Supported values are jpg, gif, png.
-             e.g. <a href="{0}?w=200&f=gif">{0}?w=200&f=gif</a>             
+  help        Shows this help screen.  Each implementation of XImage must show this help screen which is primarily 
+              used to show which features it supports.  
+  width (w)   Width of the image.  If h is not supplied, it will be inferred proportionally.
+              By default, it will not be resized larger than its original dimensions.  To override , append '!'.
+              e.g. <a href="{0}?w=100">{0}?w=100</a> or <a href="{0}?w=1000!">{0}?w=1000!</a>
+  height (h)  Height of the image.  If w is not supplied, it will be inferred proportionally.
+              By default, it will not be resized larger than its original dimensions.  To override , append '!'.
+              e.g. <a href="{0}?h=100">{0}?h=100</a> or <a href="{0}?h=1000!">{0}?h=1000!</a>
+  crop (c)    Crop will help you control the output dimensions and resizing/zooming approach.
+                 (none)         By default.  No parts of the image will be cropped. It will be resized proportionally 
+                                until it fits completely within the w x h boundaries.  This will likely result in 
+                                either width or height being smaller than the requested value.
+                                e.g. <a href="{0}?w=200&h=200">{0}?w=200&h=200</a>
+                 fill           The image will be resized proportionally until it completely fills the w x h boundaries.
+                                This will likely result in cropping off either top/bottom edges or left/right edges
+                                but the resulting dimensions will be exactly w x h.
+                                e.g. <a href="{0}?w=200&h=100&c=fill">{0}?w=200&h=100&c=fill</a>
+                 fit(c)         It will be resized proportionally until it fits completely within the w x h boundaries.
+                                The output dimensions will be exactly w x h.  This will likely result in void space on 
+                                the left/right or top/bottom which will be filled with the supplied color (default white).  
+                                The color can be the english name (red) or hex value (but don't include #).
+                                e.g. <a href="{0}?w=200&h=100&c=fit(red)">{0}?w=200&h=100&c=fit(red)</a>
+                 stretch        Each edge will be resized disproportionally until it reaches its w x h boundaries.
+                                Results are exactly w x h and no edges are cropped but the image will appear distorted.
+                                e.g. <a href="{0}?w=200&h=100&c=stretch">{0}?w=200&h=100&c=stretch</a>
+                 tight(p)       If there is whitespace surrounding the image (like a basketball on a white background) 
+                                this will crop it out.  The output dimensions will be exactly w x h.
+                                Control the amount of padding used with the (p) arg.
+                                e.g. <a href="{0}?c=tight">{0}?c=tight</a>
+  filter (f)  This list is loosely based on CSS3 filters.
+                 grayscale(a)   Desaturates the image on a scale of 0 - 1.  The arg (a) is optional.  Default is 1.
+                                e.g. <a href="{0}?f=grayscale">{0}?f=grayscale</a>
+                 invert         Inverts the image.
+                                e.g. <a href="{0}?f=invert">{0}?f=invert</a>
+  mask (m)    Certain shapes can be applied making the outside either transparent or the background color.
+                 circle         Applies a circle-shaped mask in the center with a diameter of the shortest edge.
+                                If your image is not square, feel free to use the fill crop to elimiate uwanted padding.
+                                e.g. <a href="{0}?w=200&h=200&c=fill&m=circle&o=png">{0}?w=200&h=200&c=fill&m=circle&o=png</a>
+                 roundrect(n)   Rounds the corners with a radius of n.  
+                                e.g. <a href="{0}?w=200&m=roundrect(20)&o=png">{0}?w=200&m=roundrect(20)&o=png</a>
+  output (o)  Output format of the image.
+                 jpg(q)         Jpeg format.  The quality (q) is optional.  Values, as percentages, must be an integer 
+                                between 1 - 100.  Alternatively, you can specify a max content size (in kilobytes) 
+                                by appending 'kb'.
+                                e.g. <a href="{0}?o=jpg(5)">{0}?o=jpg(5)</a> or <a href="{0}?o=jpg(15kb)">{0}?o=jpg(15kb)</a>
+                 gif            GIF format.  (Doesn't yet support transparency or palette size.  Coming soon.)
+                                e.g. <a href="{0}?o=gif">{0}?o=gif</a>
+                 png            PNG format.  Supports transparency, go nuts with various 'mask' options above.
+                                e.g. <a href="{0}?o=png">{0}?o=png</a>
+                 json           JSON format.  This makes it easier for some clients to read the meta properties.
+                                e.g. <a href="{0}?o=json">{0}?o=json</a>
 
 RESPONSE HEADERS
 ----------------

@@ -81,7 +81,7 @@ namespace XImage
 
 		void ParseHelp(HttpContext httpContext)
 		{
-			if (httpContext.Request.RawUrl.EndsWith("?h") || httpContext.Request.RawUrl.EndsWith("?help"))
+			if (httpContext.Request.RawUrl.EndsWith("?help"))
 				throw new ArgumentException(string.Empty);
 		}
 
