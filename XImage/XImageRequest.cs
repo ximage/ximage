@@ -15,7 +15,7 @@ namespace XImage
 {
 	public class XImageRequest : IDisposable
 	{
-		static readonly int MAX_SIZE = ConfigurationManager.AppSettings["XImage.MaxSize"].AsNullableInt() ?? 1000;
+		public static readonly int MAX_SIZE = ConfigurationManager.AppSettings["XImage.MaxSize"].AsNullableInt() ?? 1000;
 		static readonly Dictionary<string, Type> _cropsLookup;
 		static readonly Dictionary<string, Type> _filtersLookup;
 		static readonly Dictionary<string, Type> _metasLookup;

@@ -11,33 +11,33 @@ namespace XImage.Utilities
 	public class BitmapBits : IDisposable
 	{
 		Bitmap _bitmap;
-		BitmapData _bitmapData;
 		bool _writeAccess;
 
 		public byte[] Data { get; private set; }
+		public BitmapData BitmapData { get; private set; }
 
 		public BitmapBits(Bitmap bitmap, bool writeAccess = false)
 		{
 			_writeAccess = writeAccess;
 			_bitmap = bitmap;
-			_bitmapData = _bitmap.LockBits(
+			BitmapData = _bitmap.LockBits(
 				rect: new Rectangle(Point.Empty, _bitmap.Size), 
 				flags: _writeAccess ? ImageLockMode.ReadWrite : ImageLockMode.ReadOnly,
 				format:_bitmap.PixelFormat);
-			Data = new byte[_bitmapData.Stride * _bitmap.Height];
-			Marshal.Copy(_bitmapData.Scan0, Data, 0, Data.Length);
+			Data = new byte[BitmapData.Stride * _bitmap.Height];
+			Marshal.Copy(BitmapData.Scan0, Data, 0, Data.Length);
 		}
 
 		public void Dispose()
 		{
-			if (_bitmapData != null && _bitmap != null)
+			if (BitmapData != null && _bitmap != null)
 			{
 				if (_writeAccess)
-					Marshal.Copy(Data, 0, _bitmapData.Scan0, Data.Length);
+					Marshal.Copy(Data, 0, BitmapData.Scan0, Data.Length);
 
-				_bitmap.UnlockBits(_bitmapData);
+				_bitmap.UnlockBits(BitmapData);
 			}
-			_bitmapData = null;
+			BitmapData = null;
 			_bitmap = null;
 			Data = null;
 		}

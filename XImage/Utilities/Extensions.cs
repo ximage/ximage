@@ -55,6 +55,16 @@ namespace XImage.Utilities
 			return value.Split(separator, StringSplitOptions.RemoveEmptyEntries);
 		}
 
+		public static Size ScaleToWidth(this Size size, int width)
+		{
+			return new Size(width, Convert.ToInt32((float)size.Height / (float)size.Width * (float)width));
+		}
+
+		public static Size ScaleToHeight(this Size size, int height)
+		{
+			return new Size(Convert.ToInt32((float)size.Width / (float)size.Height * (float)height), height);
+		}
+
 		public static bool ContainsAnyKeys(this NameValueCollection collection, IEnumerable<string> keys)
 		{
 			// It seems that when the querystring has a key but no value, e.g. '?help' NVC reports 'help'
