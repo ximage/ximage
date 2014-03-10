@@ -55,6 +55,7 @@ namespace XImage.Crops
 
 					for (int x = 0; x < halfWidth; x++)
 					{
+						// TODO: This does not account for other goodness like RGB565.
 						r = data[i + 2];
 						g = data[i + 1];
 						b = data[i];
@@ -74,6 +75,7 @@ namespace XImage.Crops
 
 					for (int x = response.InputImage.Width; x > halfWidth; x--)
 					{
+						// TODO: This does not account for other goodness like RGB565.
 						r = data[i + 2];
 						g = data[i + 1];
 						b = data[i];
@@ -127,11 +129,8 @@ namespace XImage.Crops
 					cropBox.Y,
 					Convert.ToInt32((float)cropBox.Width / scale),
 					Convert.ToInt32((float)cropBox.Height / scale));
-
-				var translationScaleX = (float)_left / (float)response.OutputSize.Width;
-				cropBox.X -= Convert.ToInt32(cropBox.Width * translationScaleX);
-				var translationScaleY = (float)_top / (float)response.OutputSize.Height;
-				cropBox.Y -= Convert.ToInt32(cropBox.Height * translationScaleY);
+				cropBox.X -= Convert.ToInt32((float)_left / (float)response.OutputSize.Width * (float)cropBox.Width);
+				cropBox.Y -= Convert.ToInt32((float)_top / (float)response.OutputSize.Height * (float)cropBox.Height);
 			}
 
 			response.CropBox = cropBox;
