@@ -59,8 +59,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Crops\Depricated\Ffffff.cs" />
-    <Compile Include="Crops\Fill.cs" />
-    <Compile Include="Crops\Fit.cs" />
+    <Compile Include="Crops\Depricated\Fill.cs" />
+    <Compile Include="Crops\Depricated\Fit.cs" />
+    <Compile Include="Crops\Zoom.cs" />
     <Compile Include="Crops\None.cs" />
     <Compile Include="Crops\Stretch.cs" />
     <Compile Include="Crops\Depricated\Tight.cs" />

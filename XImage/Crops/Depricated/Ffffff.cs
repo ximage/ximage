@@ -10,7 +10,7 @@ namespace XImage.Crops
 	/// Provides backwards compatibility where you could specify the color arg without a function name.
 	/// </summary>
 	[Obsolete]
-	public class Ffffff : Fit
+	public class Ffffff : Zoom
 	{
 		public Ffffff()
 		{
