@@ -28,6 +28,7 @@ namespace XImage
 		public int? Height { get; private set; }
 		public bool AllowUpscaling { get; private set; }
 		public ICrop Crop { get; private set; }
+		public bool AllowClipping { get; private set; }
 		public List<IFilter> Filters { get; private set; }
 		public IMask Mask { get; private set; }
 		public List<IMeta> Metas { get; private set; }
@@ -92,7 +93,7 @@ namespace XImage
 			if (w != null)
 			{
 				allowWUpscaling = w.EndsWith("!");
-				if (allowWUpscaling == true)
+				if (allowWUpscaling)
 					w = w.Substring(0, w.Length - 1);
 				Width = w.AsNullableInt();
 				if (Width == null || Width <= 0)
@@ -105,7 +106,7 @@ namespace XImage
 			if (h != null)
 			{
 				allowHUpscaling = h.EndsWith("!");
-				if (allowHUpscaling == true)
+				if (allowHUpscaling)
 					h = h.Substring(0, h.Length - 1);
 				Height = h.AsNullableInt();
 				if (Height == null || Height <= 0)
@@ -123,9 +124,16 @@ namespace XImage
 		{
 			var c = q["c"] ?? q["crop"];
 			if (c == null)
+			{
 				Crop = new XImage.Crops.None(); // Default to none, i.e. no crop.
+			}
 			else
+			{
+				AllowClipping = c.EndsWith("!");
+				if (AllowClipping)
+					c = c.Substring(0, c.Length - 1);
 				Crop = ParseMethod<ICrop>(c);
+			}
 		}
 
 		void ParseFilters(NameValueCollection q)

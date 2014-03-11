@@ -76,15 +76,33 @@ namespace XImage.Crops
 			var outputAspectRatio = (float)outputSize.Width / (float)outputSize.Height;
 			if (targetIsWiderThanOutput)
 			{
-				// Don't change the width, but grow the height to be proportional to the output size and scoot it up some.
-				cropBox.Height = Convert.ToInt32((float)cropBox.Width / outputAspectRatio);
-				cropBox.Y = (imageSize.Height - cropBox.Height) / 2;
+				if (request.AllowClipping)
+				{
+					// Don't change the height, but shrink the width to be proportional to the output size and scoot it over some.
+					cropBox.Width = Convert.ToInt32((float)cropBox.Height * outputAspectRatio);
+					cropBox.X = (imageSize.Width - cropBox.Width) / 2;
+				}
+				else
+				{
+					// Don't change the width, but grow the height to be proportional to the output size and scoot it up some.
+					cropBox.Height = Convert.ToInt32((float)cropBox.Width / outputAspectRatio);
+					cropBox.Y = (imageSize.Height - cropBox.Height) / 2;
+				}
 			}
 			else
 			{
-				// Don't change the height, but grow the width to be proportional to the output size and scoot it left some.
-				cropBox.Width = Convert.ToInt32((float)cropBox.Height * outputAspectRatio);
-				cropBox.X = (imageSize.Width - cropBox.Width) / 2;
+				if (request.AllowClipping)
+				{
+					// Don't change the width, but shrink the height to be proportional to the output size and scoot it down some.
+					cropBox.Height = Convert.ToInt32((float)cropBox.Width / outputAspectRatio);
+					cropBox.Y = (imageSize.Height - cropBox.Height) / 2;
+				}
+				else
+				{
+					// Don't change the height, but grow the width to be proportional to the output size and scoot it left some.
+					cropBox.Width = Convert.ToInt32((float)cropBox.Height * outputAspectRatio);
+					cropBox.X = (imageSize.Width - cropBox.Width) / 2;
+				}
 			}
 
 			// Set the values.
