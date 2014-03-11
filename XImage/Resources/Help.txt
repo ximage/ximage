@@ -39,7 +39,7 @@ Therefore, capitalization and parameter order are important and superfluous para
                  stretch        Each edge will be resized disproportionally until it reaches its w x h boundaries.
                                 Results are exactly w x h and no edges are cropped but the image will appear distorted.
                                 e.g. <a href="{0}?w=200&h=100&c=stretch">{0}?w=200&h=100&c=stretch</a>
-                 tight(p)       If there is whitespace surrounding the image (like a basketball on a white background) 
+                 whitespace(p)  If there is whitespace surrounding the image (like a basketball on a white background) 
                                 this will crop it out.  The output dimensions will be exactly w x h.
                                 Control the amount of padding used with the (p) arg.
                                 e.g. <a href="{0}?c=tight">{0}?c=tight</a>

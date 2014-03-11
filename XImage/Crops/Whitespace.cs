@@ -7,7 +7,7 @@ using XImage.Utilities;
 
 namespace XImage.Crops
 {
-	public class Tight : ICrop
+	public class Whitespace : ICrop
 	{
 		const byte WHITE_ENOUGH = 252;
 		int _top;
@@ -20,15 +20,15 @@ namespace XImage.Crops
 			get { return "Removes any padding added to images."; }
 		}
 
-		public Tight() : this(0) { }
+		public Whitespace() : this(0) { }
 
-		public Tight(int padding) : this(padding, padding, padding, padding) { }
+		public Whitespace(int padding) : this(padding, padding, padding, padding) { }
 
-		public Tight(int topBottom, int leftRight) : this(topBottom, leftRight, topBottom, leftRight) { }
+		public Whitespace(int topBottom, int leftRight) : this(topBottom, leftRight, topBottom, leftRight) { }
 
-		public Tight(int top, int leftRight, int bottom) : this(top, leftRight, bottom, leftRight) { }
+		public Whitespace(int top, int leftRight, int bottom) : this(top, leftRight, bottom, leftRight) { }
 
-		public Tight(int top, int right, int bottom, int left)
+		public Whitespace(int top, int right, int bottom, int left)
 		{
 			_top = top;
 			_right = right;

@@ -58,12 +58,13 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Crops\Ffffff.cs" />
+    <Compile Include="Crops\Depricated\Ffffff.cs" />
     <Compile Include="Crops\Fill.cs" />
     <Compile Include="Crops\Fit.cs" />
     <Compile Include="Crops\None.cs" />
     <Compile Include="Crops\Stretch.cs" />
-    <Compile Include="Crops\Tight.cs" />
+    <Compile Include="Crops\Depricated\Tight.cs" />
+    <Compile Include="Crops\Whitespace.cs" />
     <Compile Include="Filters\Grayscale.cs" />
     <Compile Include="Filters\Invert.cs" />
     <Compile Include="IMeta.cs" />
