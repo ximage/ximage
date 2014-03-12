@@ -76,7 +76,6 @@ namespace XImage
 			ParseMask(q);
 			ParseOutput(httpContext, q);
 
-			AssertLogicalOrder(q);
 			httpContext.Response.ContentType = Output.ContentType;
 		}
 
@@ -229,14 +228,6 @@ namespace XImage
 			{
 				throw new ArgumentException(string.Format("Unrecognized type: {0}.", methodName));
 			}
-		}
-
-		void AssertLogicalOrder(NameValueCollection q)
-		{
-			var requestedOrder = q.AllKeys.Where(k => XImager.XIMAGE_PARAMETERS.Contains(k)).ToArray();
-			var correctOrder = XImager.XIMAGE_PARAMETERS.Where(p => requestedOrder.Contains(p)).ToArray();
-			if (string.Concat(requestedOrder) != string.Concat(correctOrder))
-				throw new ArgumentException("Each parameter is optional.  But they must appear in the order of w, h, c, f, m, t, o. Enforcing this strictly helps optimize cache hit ratios.");
 		}
 
 		public void Dispose()
