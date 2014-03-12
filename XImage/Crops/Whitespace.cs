@@ -102,16 +102,32 @@ namespace XImage.Crops
 			// Readjust the cropbox's width or height so there is no stretching.
 			if (request.Width != null && request.Height != null)
 			{
-				var targetIsWiderThanOutput = (float)response.CropBox.Width / (float)response.CropBox.Height > (float)response.OutputSize.Width / (float)response.OutputSize.Height;
+				var targetIsWiderThanOutput = (float)cropBox.Width / (float)cropBox.Height > (float)response.OutputSize.Width / (float)response.OutputSize.Height;
 				if (targetIsWiderThanOutput)
 				{
-					var size = response.OutputSize.ScaleToWidth(response.CropBox.Width);
-					cropBox.Inflate(0, Convert.ToInt32((float)(size.Height - cropBox.Height) / 2F));
+					if (request.AllowClipping)
+					{
+						var size = response.OutputSize.ScaleToHeight(cropBox.Height);
+						cropBox.Inflate(Convert.ToInt32((float)(size.Width - cropBox.Width) / 2F), 0);
+					}
+					else
+					{
+						var size = response.OutputSize.ScaleToWidth(cropBox.Width);
+						cropBox.Inflate(0, Convert.ToInt32((float)(size.Height - cropBox.Height) / 2F));
+					}
 				}
 				else
 				{
-					var size = response.OutputSize.ScaleToHeight(response.CropBox.Height);
-					cropBox.Inflate(Convert.ToInt32((float)(size.Width - response.CropBox.Width) / 2F), 0);
+					if (request.AllowClipping)
+					{
+						var size = response.OutputSize.ScaleToWidth(cropBox.Width);
+						cropBox.Inflate(0, Convert.ToInt32((float)(size.Height - cropBox.Height) / 2F));
+					}
+					else
+					{
+						var size = response.OutputSize.ScaleToHeight(cropBox.Height);
+						cropBox.Inflate(Convert.ToInt32((float)(size.Width - cropBox.Width) / 2F), 0);
+					}
 				}
 			}
 
@@ -159,13 +175,29 @@ namespace XImage.Crops
 				var targetIsWiderThanOutput = (float)original.Width / (float)original.Height > (float)size.Width / (float)size.Height;
 				if (targetIsWiderThanOutput)
 				{
-					if (original.Width <= size.Width)
-						size = size.ScaleToWidth(original.Width);
+					if (request.AllowClipping)
+					{
+						if (original.Height <= size.Height)
+							size = size.ScaleToHeight(original.Height);
+					}
+					else
+					{
+						if (original.Width <= size.Width)
+							size = size.ScaleToWidth(original.Width);
+					}
 				}
 				else
 				{
-					if (original.Height <= size.Height)
-						size = size.ScaleToHeight(original.Height);
+					if (request.AllowClipping)
+					{
+						if (original.Width <= size.Width)
+							size = size.ScaleToWidth(original.Width);
+					}
+					else
+					{
+						if (original.Height <= size.Height)
+							size = size.ScaleToHeight(original.Height);
+					}
 				}
 			}
 
