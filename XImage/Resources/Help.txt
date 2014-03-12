@@ -35,9 +35,11 @@ Therefore, capitalization and parameter order are important and superfluous para
                                 Results are exactly w x h and no edges are cropped but the image will appear distorted.
                                 e.g. <a href="{0}?w=200&h=100&c=stretch">{0}?w=200&h=100&c=stretch</a>
                  whitespace(p)  If there is whitespace surrounding the image (like a basketball on a white background) 
-                                this will crop it out.  The output dimensions will be exactly w x h.
+                                this will crop it out.  To ensure the dimensions are exactly w x h,
+                                padding will be applied to the top/bottom or left/right unless you include '!' at the end,
+                                which indicates that clipping the top/bottom or left/right should be used instead.
                                 Control the amount of padding used with the (p) arg.
-                                e.g. <a href="{0}?c=tight">{0}?c=tight</a>
+                                e.g. <a href="{0}?c=whitespace">{0}?c=whitespace</a> or <a href="{0}?w=200&h=200&c=whitespace!">{0}?w=200&h=200&c=whitespace!</a>
   filter (f)  This list is loosely based on CSS3 filters.
                  grayscale(a)   Desaturates the image on a scale of 0 - 1.  The arg (a) is optional.  Default is 1.
                                 e.g. <a href="{0}?f=grayscale">{0}?f=grayscale</a>
