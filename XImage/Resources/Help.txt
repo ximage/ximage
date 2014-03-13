@@ -27,9 +27,10 @@ Therefore, capitalization and parameter order are important and superfluous para
                                 until it fits completely within the w x h boundaries.  This will likely result in 
                                 either width or height being smaller than the requested value.
                                 e.g. <a href="{0}?w=200&h=200">{0}?w=200&h=200</a>
-                 zoom           The image will be resized proportionally.  To ensure the dimensions are exactly w x h,
+                 zoom(c)        The image will be resized proportionally.  To ensure the dimensions are exactly w x h,
                                 padding will be applied to the top/bottom or left/right unless you include '!' at the end,
                                 which indicates that clipping the top/bottom or left/right should be used instead.
+                                Optionally supply a color to use as the padding color.
                                 e.g. <a href="{0}?w=400&h=100&c=zoom">{0}?w=400&h=100&c=zoom</a> or <a href="{0}?w=400&h=100&c=zoom!">{0}?w=400&h=100&c=zoom!</a>
                  stretch        Each edge will be resized disproportionally until it reaches its w x h boundaries.
                                 Results are exactly w x h and no edges are cropped but the image will appear distorted.
