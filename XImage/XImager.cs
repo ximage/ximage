@@ -68,7 +68,7 @@ namespace XImage
 
 						using (var maskData = maskBitmap.GetBitmapBits(false))
 						{
-							if (request.Output.ContentType.Contains("jpg") || request.Output.ContentType.Contains("gif"))
+							if (request.Output.ContentType.Contains("jpeg") || request.Output.ContentType.Contains("gif"))
 								bitmapBits.Data.BlendLayer(maskData.Data, BlendingModes.OpaqueMask);
 							else
 								bitmapBits.Data.BlendLayer(maskData.Data, BlendingModes.Mask);

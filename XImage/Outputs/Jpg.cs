@@ -23,7 +23,7 @@ namespace XImage.Outputs
 			get { return string.Format("Uses a jpg encoder.  Optionally supply quality as a percentage, an integer between 1-100 (default {0}).", DEFAULT_QUALITY); }
 		}
 		
-		public string ContentType { get { return "image/jpg"; } }
+		public string ContentType { get { return "image/jpeg"; } }
 
 		public Jpg()
 		{

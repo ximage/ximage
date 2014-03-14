@@ -110,7 +110,7 @@ namespace XImage.Crops
 			response.CropBox = cropBox;
 
 			// Quirk in GDI where it treats fully transparent as black instead of the RGB component.
-			if (request.Output.ContentType == "image/jpg")
+			if (request.Output.ContentType == "image/jpeg")
 				Color = Color.FromArgb(255, Color);
 
 			response.OutputGraphics.Clear(Color);
