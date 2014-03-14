@@ -11,9 +11,6 @@ that is discoverable and reusable.
 
 QUERY STRING
 ------------
-To maximize CDN and browser cache hit ratios, the following arguments are designed to have a strict set of rules.  
-Therefore, capitalization and parameter order are important and superfluous parameters will be treated as errors. 
-
   help        Shows this help screen.  Each implementation of XImage must show this help screen which is primarily 
               used to show which features it supports.  
   width (w)   Width of the image.  If h is not supplied, it will be inferred proportionally.
