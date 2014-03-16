@@ -66,6 +66,7 @@
     <Compile Include="Crops\Stretch.cs" />
     <Compile Include="Crops\Depricated\Tight.cs" />
     <Compile Include="Crops\Whitespace.cs" />
+    <Compile Include="Filters\Blur.cs" />
     <Compile Include="Filters\Grayscale.cs" />
     <Compile Include="Filters\Invert.cs" />
     <Compile Include="IMeta.cs" />
