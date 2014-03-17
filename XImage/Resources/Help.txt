@@ -20,46 +20,46 @@ QUERY STRING
               By default, it will not be resized larger than its original dimensions.  To override , append '!'.
               e.g. <a href="{0}?h=100">{0}?h=100</a> or <a href="{0}?h=1000!">{0}?h=1000!</a>
   crop (c)    Crop will help you control the output dimensions and resizing/zooming approach.
-                 (none)         By default.  No parts of the image will be cropped. It will be resized proportionally 
-                                until it fits completely within the w x h boundaries.  This will likely result in 
-                                either width or height being smaller than the requested value.
-                                e.g. <a href="{0}?w=200&h=200">{0}?w=200&h=200</a>
-                 zoom(c)        The image will be resized proportionally.  To ensure the dimensions are exactly w x h,
-                                padding will be applied to the top/bottom or left/right unless you include '!' at the end,
-                                which indicates that clipping the top/bottom or left/right should be used instead.
-                                Optionally supply a color to use as the padding color.
-                                e.g. <a href="{0}?w=400&h=100&c=zoom">{0}?w=400&h=100&c=zoom</a> or <a href="{0}?w=400&h=100&c=zoom!">{0}?w=400&h=100&c=zoom!</a>
-                 stretch        Each edge will be resized disproportionally until it reaches its w x h boundaries.
-                                Results are exactly w x h and no edges are cropped but the image will appear distorted.
-                                e.g. <a href="{0}?w=200&h=100&c=stretch">{0}?w=200&h=100&c=stretch</a>
-                 whitespace(p)  If there is whitespace surrounding the image (like a basketball on a white background) 
-                                this will crop it out.  To ensure the dimensions are exactly w x h,
-                                padding will be applied to the top/bottom or left/right unless you include '!' at the end,
-                                which indicates that clipping the top/bottom or left/right should be used instead.
-                                Control the amount of padding used with the (p) arg.
-                                e.g. <a href="{0}?c=whitespace">{0}?c=whitespace</a> or <a href="{0}?w=200&h=200&c=whitespace!">{0}?w=200&h=200&c=whitespace!</a>
+                 (none)            By default.  No parts of the image will be cropped. It will be resized proportionally 
+                                   until it fits completely within the w x h boundaries.  This will likely result in 
+                                   either width or height being smaller than the requested value.
+                                   e.g. <a href="{0}?w=200&h=200">{0}?w=200&h=200</a>
+                 zoom(c)           The image will be resized proportionally.  To ensure the dimensions are exactly w x h,
+                                   padding will be applied to the top/bottom or left/right unless you include '!' at the end,
+                                   which indicates that clipping the top/bottom or left/right should be used instead.
+                                   Optionally supply a color to use as the padding color.
+                                   e.g. <a href="{0}?w=400&h=100&c=zoom">{0}?w=400&h=100&c=zoom</a> or <a href="{0}?w=400&h=100&c=zoom!">{0}?w=400&h=100&c=zoom!</a>
+                 stretch           Each edge will be resized disproportionally until it reaches its w x h boundaries.
+                                   Results are exactly w x h and no edges are cropped but the image will appear distorted.
+                                   e.g. <a href="{0}?w=200&h=100&c=stretch">{0}?w=200&h=100&c=stretch</a>
+                 whitespace(p)     If there is whitespace surrounding the image (like a basketball on a white background) 
+                                   this will crop it out.  To ensure the dimensions are exactly w x h,
+                                   padding will be applied to the top/bottom or left/right unless you include '!' at the end,
+                                   which indicates that clipping the top/bottom or left/right should be used instead.
+                                   Control the amount of padding used with the (p) arg.
+                                   e.g. <a href="{0}?c=whitespace">{0}?c=whitespace</a> or <a href="{0}?w=200&h=200&c=whitespace!">{0}?w=200&h=200&c=whitespace!</a>
   filter (f)  This list is loosely based on CSS3 filters.
-                 grayscale(a)   Desaturates the image on a scale of 0 - 1.  The arg (a) is optional.  Default is 1.
-                                e.g. <a href="{0}?f=grayscale">{0}?f=grayscale</a>
-                 invert         Inverts the image.
-                                e.g. <a href="{0}?f=invert">{0}?f=invert</a>
+                 grayscale(a)      Desaturates the image on a scale of 0 - 1.  The arg (a) is optional.  Default is 1.
+                                   e.g. <a href="{0}?f=grayscale">{0}?f=grayscale</a>
+                 invert            Inverts the image.
+                                   e.g. <a href="{0}?f=invert">{0}?f=invert</a>
   mask (m)    Certain shapes can be applied making the outside either transparent or the background color.
-                 circle         Applies a circle-shaped mask in the center with a diameter of the shortest edge.
-                                If your image is not square, feel free to use the fill crop to elimiate uwanted padding.
-                                e.g. <a href="{0}?w=200&h=200&c=fill&m=circle&o=png">{0}?w=200&h=200&c=fill&m=circle&o=png</a>
-                 roundrect(n)   Rounds the corners with a radius of n.  
-                                e.g. <a href="{0}?w=200&m=roundrect(20)&o=png">{0}?w=200&m=roundrect(20)&o=png</a>
+                 circle            Applies a circle-shaped mask in the center with a diameter of the shortest edge.
+                                   If your image is not square, feel free to use the fill crop to elimiate uwanted padding.
+                                   e.g. <a href="{0}?w=200&h=200&c=fill&m=circle&o=png">{0}?w=200&h=200&c=fill&m=circle&o=png</a>
+                 borderradius(n)   Rounds the corners with a radius of n.  
+                                   e.g. <a href="{0}?w=200&m=borderradius(20)&o=png">{0}?w=200&m=borderradius(20)&o=png</a>
   output (o)  Output format of the image.
-                 jpg(q)         Jpeg format.  The quality (q) is optional.  Values, as percentages, must be an integer 
-                                between 1 - 100.  Alternatively, you can specify a max content size (in kilobytes) 
-                                by appending 'kb'.
-                                e.g. <a href="{0}?o=jpg(5)">{0}?o=jpg(5)</a> or <a href="{0}?o=jpg(15kb)">{0}?o=jpg(15kb)</a>
-                 gif            GIF format.  (Doesn't yet support transparency or palette size.  Coming soon.)
-                                e.g. <a href="{0}?o=gif">{0}?o=gif</a>
-                 png            PNG format.  Supports transparency, go nuts with various 'mask' options above.
-                                e.g. <a href="{0}?o=png">{0}?o=png</a>
-                 json           JSON format.  This makes it easier for some clients to read the meta properties.
-                                e.g. <a href="{0}?o=json">{0}?o=json</a>
+                 jpg(q)            Jpeg format.  The quality (q) is optional.  Values, as percentages, must be an integer 
+                                   between 1 - 100.  Alternatively, you can specify a max content size (in kilobytes) 
+                                   by appending 'kb'.
+                                   e.g. <a href="{0}?o=jpg(5)">{0}?o=jpg(5)</a> or <a href="{0}?o=jpg(15kb)">{0}?o=jpg(15kb)</a>
+                 gif               GIF format.  (Doesn't yet support transparency or palette size.  Coming soon.)
+                                   e.g. <a href="{0}?o=gif">{0}?o=gif</a>
+                 png               PNG format.  Supports transparency, go nuts with various 'mask' options above.
+                                   e.g. <a href="{0}?o=png">{0}?o=png</a>
+                 json              JSON format.  This makes it easier for some clients to read the meta properties.
+                                   e.g. <a href="{0}?o=json">{0}?o=json</a>
 
 RESPONSE HEADERS
 ----------------

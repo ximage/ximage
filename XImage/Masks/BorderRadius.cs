@@ -7,7 +7,7 @@ using System.Web;
 
 namespace XImage.Masks
 {
-	public class RoundRect : IMask
+	public class BorderRadius : IMask
 	{
 		int _radius = 10;
 
@@ -16,11 +16,11 @@ namespace XImage.Masks
 			get { return "Rounds the corners with by a specified radius."; }
 		}
 
-		public RoundRect()
+		public BorderRadius()
 		{
 		}
 
-		public RoundRect(int radius)
+		public BorderRadius(int radius)
 		{
 			_radius = radius;
 		}

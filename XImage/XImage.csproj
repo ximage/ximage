@@ -71,7 +71,7 @@
     <Compile Include="Filters\Invert.cs" />
     <Compile Include="IMeta.cs" />
     <Compile Include="Masks\Circle.cs" />
-    <Compile Include="Masks\RoundRect.cs" />
+    <Compile Include="Masks\BorderRadius.cs" />
     <Compile Include="Meta\Colors.cs" />
     <Compile Include="Meta\Dimensions.cs" />
     <Compile Include="Outputs\Gif.cs" />
