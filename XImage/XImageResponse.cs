@@ -39,6 +39,9 @@ namespace XImage
 				{
 					_outputGraphics = Graphics.FromImage(OutputImage);
 					_outputGraphics.InterpolationMode = InterpolationMode.HighQualityBicubic; // TODO: Make this a setting.
+					_outputGraphics.SmoothingMode = SmoothingMode.HighQuality;
+					_outputGraphics.CompositingQuality = CompositingQuality.HighQuality;
+					_outputGraphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 				}
 				return _outputGraphics;
 			}
