@@ -58,13 +58,9 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Crops\Depricated\Ffffff.cs" />
-    <Compile Include="Crops\Depricated\Fill.cs" />
-    <Compile Include="Crops\Depricated\Fit.cs" />
     <Compile Include="Crops\Zoom.cs" />
     <Compile Include="Crops\None.cs" />
     <Compile Include="Crops\Stretch.cs" />
-    <Compile Include="Crops\Depricated\Tight.cs" />
     <Compile Include="Crops\Whitespace.cs" />
     <Compile Include="Filters\Blur.cs" />
     <Compile Include="Filters\Grayscale.cs" />
