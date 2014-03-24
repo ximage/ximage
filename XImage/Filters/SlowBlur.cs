@@ -5,6 +5,7 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Web;
+using XImage.Utilities;
 
 namespace XImage.Filters
 {
@@ -24,11 +25,14 @@ namespace XImage.Filters
 			Radius = radius / 2 * 2 + 1;
 		}
 
-		public void ProcessImage(XImageRequest request, XImageResponse response, byte[] data)
+		public void ProcessImage(XImageRequest request, XImageResponse response)
 		{
-			var filterMatrix = CalculateFilterMatrix(Radius, Radius);
+			using (var bitmapBits = response.OutputImage.GetBitmapBits(true))
+			{
+				var filterMatrix = CalculateFilterMatrix(Radius, Radius);
 
-			ConvolutionFilter(request, response, data, filterMatrix);
+				ConvolutionFilter(request, response, bitmapBits.Data, filterMatrix);
+			}
 		}
 
 		static float[,] CalculateFilterMatrix(int length, float weight) 

@@ -63,6 +63,9 @@
     <Compile Include="Crops\Stretch.cs" />
     <Compile Include="Crops\Whitespace.cs" />
     <Compile Include="Filters\Blur.cs" />
+    <Compile Include="Filters\Grayscale.cs" />
+    <Compile Include="Filters\Invert.cs" />
+    <Compile Include="Filters\SlowBlur.cs" />
     <Compile Include="Filters\Tint.cs" />
     <Compile Include="GdiPlus\GdiPlusParams.cs" />
     <Compile Include="IMeta.cs" />

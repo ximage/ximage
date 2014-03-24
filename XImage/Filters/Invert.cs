@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using XImage.Utilities;
 
 namespace XImage.Filters
 {
@@ -12,11 +13,16 @@ namespace XImage.Filters
 			get { return "Inverts the colors"; }
 		}
 
-		public void ProcessImage(XImageRequest request, XImageResponse response, byte[] data)
+		public void ProcessImage(XImageRequest request, XImageResponse response)
 		{
-			for (int i = 0; i < data.Length; i++)
-				if (i % 4 != 3) // ignore the alpha channel
-					data[i] = (byte)(255 - data[i]);
+			using (var bitmapBits = response.OutputImage.GetBitmapBits(true))
+			{
+				var data = bitmapBits.Data;
+
+				for (int i = 0; i < data.Length; i++)
+					if (i % 4 != 3) // ignore the alpha channel
+						data[i] = (byte)(255 - data[i]);
+			}
 		}
 	}
 }
