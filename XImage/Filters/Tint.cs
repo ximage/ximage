@@ -1,0 +1,34 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using System.Web;
+
+namespace XImage.Filters
+{
+	public class Tint : IFilter
+	{
+		Color _hue;
+		decimal _amount;
+
+		public string Documentation
+		{
+			get { return "Applies a tint."; }
+		}
+
+		public Tint() : this(Color.Red, .5M) { }
+
+		public Tint(Color color) : this(color, .5M) { }
+
+		public Tint(Color color, decimal amount)
+		{
+			_hue = color;
+			_amount = amount;
+		}
+
+		public void ProcessImage(XImageRequest request, XImageResponse response, byte[] data)
+		{
+			response.OutputImage.ApplyTint(_hue, (int)(_amount * 100M));
+		}
+	}
+}

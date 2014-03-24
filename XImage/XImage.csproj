@@ -63,8 +63,11 @@
     <Compile Include="Crops\Stretch.cs" />
     <Compile Include="Crops\Whitespace.cs" />
     <Compile Include="Filters\Blur.cs" />
+    <Compile Include="Filters\SlowBlur.cs" />
     <Compile Include="Filters\Grayscale.cs" />
     <Compile Include="Filters\Invert.cs" />
+    <Compile Include="Filters\Tint.cs" />
+    <Compile Include="GdiPlus\GdiPlusParams.cs" />
     <Compile Include="IMeta.cs" />
     <Compile Include="Masks\Circle.cs" />
     <Compile Include="Masks\BorderRadius.cs" />
@@ -74,6 +77,9 @@
     <Compile Include="Outputs\Jpg.cs" />
     <Compile Include="Outputs\Json.cs" />
     <Compile Include="Outputs\Png.cs" />
+    <Compile Include="GdiPlus\GdiPlusEffect.cs" />
+    <Compile Include="GdiPlus\BitmapExtensions.cs" />
+    <Compile Include="GdiPlus\GdiPlusInterop.cs" />
     <Compile Include="Utilities\BitmapBits.cs" />
     <Compile Include="Utilities\Extensions.cs" />
     <Compile Include="ICrop.cs" />

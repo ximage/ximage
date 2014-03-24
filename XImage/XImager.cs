@@ -33,20 +33,23 @@ namespace XImage
 				srcRect: response.CropBox,
 				srcUnit: GraphicsUnit.Pixel);
 
-			bool writeAccess = request.Filters.Count > 0 || request.Mask != null;
-			using (var bitmapBits = response.OutputImage.GetBitmapBits(writeAccess))
-			{
-				// --- FILTERS ---
-				foreach (var filter in request.Filters)
-					filter.ProcessImage(request, response, bitmapBits.Data);
+			foreach (var filter in request.Filters)
+				filter.ProcessImage(request, response, null);//bitmapBits.Data);
 
-				// --- MASK ---
-				ApplyMask(request, response, bitmapBits);
+			//bool writeAccess = request.Filters.Count > 0 || request.Mask != null;
+			//using (var bitmapBits = response.OutputImage.GetBitmapBits(writeAccess))
+			//{
+			//	// --- FILTERS ---
+			//	foreach (var filter in request.Filters)
+			//		filter.ProcessImage(request, response, bitmapBits.Data);
 
-				// --- METAS ---
-				foreach (var meta in request.Metas)
-					meta.Calculate(request, response, bitmapBits.Data);
-			}
+			//	// --- MASK ---
+			//	ApplyMask(request, response, bitmapBits);
+
+			//	// --- METAS ---
+			//	foreach (var meta in request.Metas)
+			//		meta.Calculate(request, response, bitmapBits.Data);
+			//}
 
 			// --- OUTPUT ---
 			request.Output.FormatImage(request, response);
