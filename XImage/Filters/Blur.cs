@@ -22,7 +22,7 @@ namespace XImage.Filters
 			_radius = radius;
 		}
 
-		public void ProcessImage(XImageRequest request, XImageResponse response, byte[] data)
+		public void ProcessImage(XImageRequest request, XImageResponse response)
 		{
 			response.OutputImage.ApplyBlur(_radius, false);
 		}

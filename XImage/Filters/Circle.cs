@@ -1,19 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Web;
+using XImage.Utilities;
 
-namespace XImage.Masks
+namespace XImage.Filter
 {
-	public class Circle : IMask
+	public class Circle : IFilter
 	{
 		public string Documentation
 		{
 			get { return "Applies a mask in the shape of a circle with a diameter of either w or h, whichever is shortest."; }
 		}
 
-		public void DrawMask(XImageRequest request, XImageResponse response, Graphics mask)
+		public void ProcessImage(XImageRequest request, XImageResponse response)
 		{
 			var size = response.OutputSize;
 
@@ -26,7 +28,12 @@ namespace XImage.Masks
 			var d = Math.Min(size.Width - 1, size.Height - 1);
 			size = new Size(d, d);
 
-			mask.FillEllipse(Brushes.White, new Rectangle(origin, size));
+			var path = new GraphicsPath();
+			path.AddEllipse(new Rectangle(origin, size));
+
+			var opaqueMask = request.Output.ContentType.Contains("jpeg") || request.Output.ContentType.Contains("gif");
+
+			response.OutputImage.ApplyMask(path, Brushes.White, opaqueMask);
 		}
 	}
 }

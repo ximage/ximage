@@ -33,8 +33,9 @@ namespace XImage
 				srcRect: response.CropBox,
 				srcUnit: GraphicsUnit.Pixel);
 
+			// --- FILTERS ---
 			foreach (var filter in request.Filters)
-				filter.ProcessImage(request, response, null);//bitmapBits.Data);
+				filter.ProcessImage(request, response);
 
 			//bool writeAccess = request.Filters.Count > 0 || request.Mask != null;
 			//using (var bitmapBits = response.OutputImage.GetBitmapBits(writeAccess))
@@ -55,30 +56,6 @@ namespace XImage
 			request.Output.FormatImage(request, response);
 
 			response.Properties.Add("X-Image-Processing-Time", string.Format("{0:N2}ms", 1000D * (double)(_stopwatch.ElapsedTicks - timestamp) / (double)Stopwatch.Frequency));
-		}
-
-		private static void ApplyMask(XImageRequest request, XImageResponse response, BitmapBits bitmapBits)
-		{
-			if (request.Mask != null)
-			{
-				using (var maskBitmap = new Bitmap(response.OutputSize.Width, response.OutputSize.Height))
-				{
-					using (var maskGraphics = Graphics.FromImage(maskBitmap))
-					{
-						maskGraphics.SmoothingMode = SmoothingMode.HighQuality;
-
-						request.Mask.DrawMask(request, response, maskGraphics);
-
-						using (var maskData = maskBitmap.GetBitmapBits(false))
-						{
-							if (request.Output.ContentType.Contains("jpeg") || request.Output.ContentType.Contains("gif"))
-								bitmapBits.Data.BlendLayer(maskData.Data, BlendingModes.OpaqueMask);
-							else
-								bitmapBits.Data.BlendLayer(maskData.Data, BlendingModes.Mask);
-						}
-					}
-				}
-			}
 		}
 	}
 }

@@ -4,10 +4,11 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Web;
+using XImage.Utilities;
 
-namespace XImage.Masks
+namespace XImage.Filters
 {
-	public class BorderRadius : IMask
+	public class BorderRadius : IFilter
 	{
 		int _radius = 10;
 
@@ -25,7 +26,7 @@ namespace XImage.Masks
 			_radius = radius;
 		}
 
-		public void DrawMask(XImageRequest request, XImageResponse response, Graphics mask)
+		public void ProcessImage(XImageRequest request, XImageResponse response)
 		{
 			int w = response.OutputSize.Width - 1, h = response.OutputSize.Height - 1;
 			var diameter = Math.Min(_radius * 2, Math.Min(w, h));
@@ -37,7 +38,9 @@ namespace XImage.Masks
 			path.AddArc(0, h - diameter, diameter, diameter, 90, 90);
 			path.CloseAllFigures();
 
-			mask.FillPath(Brushes.White, path);
+			var opaqueMask = request.Output.ContentType.Contains("jpeg") || request.Output.ContentType.Contains("gif");
+
+			response.OutputImage.ApplyMask(path, Brushes.White, opaqueMask);
 		}
 	}
 }

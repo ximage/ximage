@@ -26,7 +26,7 @@ namespace XImage.Filters
 			_amount = amount;
 		}
 
-		public void ProcessImage(XImageRequest request, XImageResponse response, byte[] data)
+		public void ProcessImage(XImageRequest request, XImageResponse response)
 		{
 			response.OutputImage.ApplyTint(_hue, (int)(_amount * 100M));
 		}

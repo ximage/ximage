@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Web;
 
@@ -74,6 +75,31 @@ namespace XImage.Utilities
 				.Range(0, collection.AllKeys.Length)
 				.Select(i => collection.AllKeys[i] ?? collection.Get(i))
 				.Any(i => keys.Contains(i));
+		}
+
+		public static void ApplyMask(this Bitmap bitmap, GraphicsPath path, Brush brush, bool opaqueMask = false)
+		{
+			// TODO: This next line needs to be batch-able so we're not copying bytes over and over.  (Maybe use unsafe?)
+			using (var bitmapBits = bitmap.GetBitmapBits(true))
+			{
+				using (var maskBitmap = new Bitmap(bitmap.Width, bitmap.Height))
+				{
+					using (var maskGraphics = Graphics.FromImage(maskBitmap))
+					{
+						maskGraphics.SmoothingMode = SmoothingMode.HighQuality;
+
+						maskGraphics.FillPath(brush, path);
+
+						using (var maskData = maskBitmap.GetBitmapBits(false))
+						{
+							if (opaqueMask)
+								bitmapBits.Data.BlendLayer(maskData.Data, BlendingModes.OpaqueMask);
+							else
+								bitmapBits.Data.BlendLayer(maskData.Data, BlendingModes.Mask);
+						}
+					}
+				}
+			}
 		}
 
 		public static BitmapBits GetBitmapBits(this Bitmap bitmap, bool writeAccess = false)

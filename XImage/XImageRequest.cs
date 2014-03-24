@@ -30,7 +30,6 @@ namespace XImage
 		public ICrop Crop { get; private set; }
 		public bool AllowClipping { get; private set; }
 		public List<IFilter> Filters { get; private set; }
-		public IMask Mask { get; private set; }
 		public List<IMeta> Metas { get; private set; }
 		public IOutput Output { get; private set; }
 		static XImageRequest()
@@ -39,18 +38,14 @@ namespace XImage
 
 			_cropsLookup = GetTypes<ICrop>(types).ToDictionary(k => k.Name.ToLower(), v => v);
 			_filtersLookup = GetTypes<IFilter>(types).ToDictionary(k => k.Name.ToLower(), v => v);
-			_masksLookup = GetTypes<IMask>(types).ToDictionary(k => k.Name.ToLower(), v => v);
 			_metasLookup = GetTypes<IMeta>(types).ToDictionary(k => k.Name.ToLower(), v => v);
-			_textsLookup = GetTypes<IText>(types).ToDictionary(k => k.Name.ToLower(), v => v);
 			_outputsLookup = GetTypes<IOutput>(types).ToDictionary(k => k.Name.ToLower(), v => v);
 
 			_lookupLookup = new Dictionary<Type, Dictionary<string, Type>>()
 			{
 				{ typeof(ICrop), _cropsLookup },
 				{ typeof(IFilter), _filtersLookup },
-				{ typeof(IMask), _masksLookup },
 				{ typeof(IMeta), _metasLookup },
-				{ typeof(IText), _textsLookup },
 				{ typeof(IOutput), _outputsLookup },
 			};
 		}
@@ -73,7 +68,6 @@ namespace XImage
 			ParseCrop(q);
 			ParseFilters(q);
 			ParseMetas(q);
-			ParseMask(q);
 			ParseOutput(httpContext, q);
 
 			httpContext.Response.ContentType = Output.ContentType;
@@ -161,13 +155,6 @@ namespace XImage
 			// TODO: Use the query string somehow?
 
 			Metas.AddRange(_metasLookup.Select(m => Activator.CreateInstance(m.Value) as IMeta));
-		}
-
-		void ParseMask(NameValueCollection q)
-		{
-			var m = q["m"] ?? q["mask"];
-			if (m != null)
-				Mask = ParseMethod<IMask>(m);
 		}
 
 		void ParseOutput(HttpContext httpContext, NameValueCollection q)
