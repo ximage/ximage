@@ -24,9 +24,6 @@ namespace XImage
 		{
 			var timestamp = _stopwatch.ElapsedTicks;
 
-			// --- CROP ---
-			request.Crop.SetSizeAndCrop(request, response);
-
 			response.OutputGraphics.DrawImage(
 				image: response.InputImage,
 				destRect: new Rectangle(Point.Empty, response.OutputSize),

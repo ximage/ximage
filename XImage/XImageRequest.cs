@@ -16,19 +16,13 @@ namespace XImage
 	public class XImageRequest : IDisposable
 	{
 		public static readonly int MAX_SIZE = ConfigurationManager.AppSettings["XImage.MaxSize"].AsNullableInt() ?? 1000;
-		static readonly Dictionary<string, Type> _cropsLookup;
 		static readonly Dictionary<string, Type> _filtersLookup;
 		static readonly Dictionary<string, Type> _metasLookup;
-		static readonly Dictionary<string, Type> _masksLookup;
-		static readonly Dictionary<string, Type> _textsLookup;
 		static readonly Dictionary<string, Type> _outputsLookup;
 		static readonly Dictionary<Type, Dictionary<string, Type>> _lookupLookup;
 
 		public int? Width { get; private set; }
 		public int? Height { get; private set; }
-		public bool AllowUpscaling { get; private set; }
-		public ICrop Crop { get; private set; }
-		public bool AllowClipping { get; private set; }
 		public List<IFilter> Filters { get; private set; }
 		public List<IMeta> Metas { get; private set; }
 		public IOutput Output { get; private set; }
@@ -36,14 +30,12 @@ namespace XImage
 		{
 			var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(a => a.GetTypes()).ToList();
 
-			_cropsLookup = GetTypes<ICrop>(types).ToDictionary(k => k.Name.ToLower(), v => v);
 			_filtersLookup = GetTypes<IFilter>(types).ToDictionary(k => k.Name.ToLower(), v => v);
 			_metasLookup = GetTypes<IMeta>(types).ToDictionary(k => k.Name.ToLower(), v => v);
 			_outputsLookup = GetTypes<IOutput>(types).ToDictionary(k => k.Name.ToLower(), v => v);
 
 			_lookupLookup = new Dictionary<Type, Dictionary<string, Type>>()
 			{
-				{ typeof(ICrop), _cropsLookup },
 				{ typeof(IFilter), _filtersLookup },
 				{ typeof(IMeta), _metasLookup },
 				{ typeof(IOutput), _outputsLookup },
@@ -65,7 +57,6 @@ namespace XImage
 
 			ParseHelp(httpContext);
 			ParseWidthAndHeight(q);
-			ParseCrop(q);
 			ParseFilters(q);
 			ParseMetas(q);
 			ParseOutput(httpContext, q);
@@ -81,13 +72,9 @@ namespace XImage
 
 		void ParseWidthAndHeight(NameValueCollection q)
 		{
-			bool allowWUpscaling = false, allowHUpscaling = false;
 			var w = q["w"] ?? q["width"];
 			if (w != null)
 			{
-				allowWUpscaling = w.EndsWith("!");
-				if (allowWUpscaling)
-					w = w.Substring(0, w.Length - 1);
 				Width = w.AsNullableInt();
 				if (Width == null || Width <= 0)
 					throw new ArgumentException("Width must be a positive integer.");
@@ -98,34 +85,11 @@ namespace XImage
 			var h = q["h"] ?? q["height"];
 			if (h != null)
 			{
-				allowHUpscaling = h.EndsWith("!");
-				if (allowHUpscaling)
-					h = h.Substring(0, h.Length - 1);
 				Height = h.AsNullableInt();
 				if (Height == null || Height <= 0)
 					throw new ArgumentException("Height must be a positive integer.");
 				if (Height > MAX_SIZE)
 					throw new ArgumentException(string.Format("Cannot request a height larger than max configured value of {0}.", MAX_SIZE));
-			}
-
-			if (Width != null && Height != null && allowWUpscaling != allowHUpscaling)
-				throw new ArgumentException("If upscaling '!' is enabled and both w and h are specified, the '!' must be used on both.  Enforcing this strictly helps optimize cache hit ratios.");
-			AllowUpscaling = allowWUpscaling || allowHUpscaling;
-		}
-
-		void ParseCrop(NameValueCollection q)
-		{
-			var c = q["c"] ?? q["crop"];
-			if (c == null)
-			{
-				Crop = new XImage.Crops.None(); // Default to none, i.e. no crop.
-			}
-			else
-			{
-				AllowClipping = c.EndsWith("!");
-				if (AllowClipping)
-					c = c.Substring(0, c.Length - 1);
-				Crop = ParseMethod<ICrop>(c);
 			}
 		}
 
