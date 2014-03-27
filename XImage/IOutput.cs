@@ -14,6 +14,8 @@ namespace XImage
 
 		string ContentType { get; }
 
+		bool SupportsTransparency { get; }
+
 		void FormatImage(XImageRequest request, XImageResponse response);
 	}
 }

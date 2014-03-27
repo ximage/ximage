@@ -18,6 +18,8 @@ namespace XImage.Outputs
 			get { return "application/json"; }
 		}
 
+		public bool SupportsTransparency { get { return false; } }
+
 		public void FormatImage(XImageRequest request, XImageResponse response)
 		{
 			// Super simple JSON output.  No JSON lib necessary, reduces dependencies.

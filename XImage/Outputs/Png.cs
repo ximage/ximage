@@ -14,6 +14,8 @@ namespace XImage.Outputs
 
 		public string ContentType { get { return "image/png"; } }
 
+		public bool SupportsTransparency { get { return true; } }
+
 		public void FormatImage(XImageRequest request, XImageResponse response)
 		{
 			response.OutputImage.Save(response.OutputStream, ImageFormat.Png);

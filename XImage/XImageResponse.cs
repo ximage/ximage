@@ -17,7 +17,9 @@ namespace XImage
 
 		public Rectangle CropBox { get; set; }
 
-		public Size OutputSize { get; set; }
+		public Rectangle ContentArea { get; set; }
+
+		public Size CanvasSize { get; set; }
 
 		private Bitmap _outputImage = null;
 		public Bitmap OutputImage
@@ -25,7 +27,7 @@ namespace XImage
 			get
 			{
 				if (_outputImage == null)
-					_outputImage = new Bitmap(OutputSize.Width, OutputSize.Height, PixelFormat.Format32bppArgb);
+					_outputImage = new Bitmap(CanvasSize.Width, CanvasSize.Height, PixelFormat.Format32bppArgb);
 				return _outputImage;
 			}
 		}
@@ -47,6 +49,8 @@ namespace XImage
 			}
 		}
 
+		public ImageAttributes ImageAttributes { get; private set; }
+
 		public Stream OutputStream { get; private set; }
 
 		public NameValueCollection Properties { get; private set; }
@@ -55,7 +59,9 @@ namespace XImage
 		{
 			InputImage = Bitmap.FromStream(httpContext.Response.Filter) as Bitmap;
 			CropBox = new Rectangle(Point.Empty, InputImage.Size);
-			OutputSize = InputImage.Size;
+			CanvasSize = InputImage.Size;
+			ContentArea = new Rectangle(Point.Empty, CanvasSize);
+			ImageAttributes = new ImageAttributes();
 			OutputStream = httpContext.Response.OutputStream;
 			Properties = httpContext.Response.Headers;
 		}

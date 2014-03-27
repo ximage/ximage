@@ -7,40 +7,40 @@ using XImage.Utilities;
 
 namespace XImage.Filters
 {
-	public class Grayscale : IFilter
+	public class Saturate : IFilter
 	{
 		// Luminance vector for linear RGB
 		const float rwgt = 0.3086f;
 		const float gwgt = 0.6094f;
-		const float bwgt = 0.0820f; 
-		
+		const float bwgt = 0.0820f;
+
 		decimal _amount;
 
 		public string Documentation
 		{
-			get { return "Desaturates the colors"; }
+			get { return "Saturates the colors"; }
 		}
 
-		public Grayscale() : this(1) { }
+		public Saturate() : this(5) { }
 
-		public Grayscale(int amount)
+		public Saturate(int amount)
 			: this((decimal)amount)
 		{
 		}
 
-		public Grayscale(decimal amount)
+		public Saturate(decimal amount)
 		{
 			_amount = amount;
 
-			if (_amount > 1 || _amount < 0)
-				throw new ArgumentException("The grayscale amount must be between 0 and 1.");
+			if (_amount > 10 || _amount < 0)
+				throw new ArgumentException("The grayscale amount must be between 0 and 10.");
 		}
 
 		public void ProcessImage(XImageRequest request, XImageResponse response)
 		{
 			var matrix = new ColorMatrix();
 
-			float baseSaturation = (float)_amount;
+			float baseSaturation = 1F - (float)_amount;
 			float saturation = 1F - baseSaturation;
 
 			matrix[0, 0] = baseSaturation * rwgt + saturation;

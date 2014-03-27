@@ -28,7 +28,7 @@ namespace XImage.Filters
 
 		public void ProcessImage(XImageRequest request, XImageResponse response)
 		{
-			int w = response.OutputSize.Width - 1, h = response.OutputSize.Height - 1;
+			int w = response.CanvasSize.Width - 1, h = response.CanvasSize.Height - 1;
 			var diameter = Math.Min(_radius * 2, Math.Min(w, h));
 			var path = new GraphicsPath();
 
@@ -38,9 +38,7 @@ namespace XImage.Filters
 			path.AddArc(0, h - diameter, diameter, diameter, 90, 90);
 			path.CloseAllFigures();
 
-			var opaqueMask = request.Output.ContentType.Contains("jpeg") || request.Output.ContentType.Contains("gif");
-
-			response.OutputImage.ApplyMask(path, Brushes.White, opaqueMask);
+			response.OutputImage.ApplyMask(path, Brushes.White, !request.Output.SupportsTransparency);
 		}
 	}
 }

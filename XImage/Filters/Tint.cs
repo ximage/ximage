@@ -22,6 +22,8 @@ namespace XImage.Filters
 
 		public Tint(Color color, decimal amount)
 		{
+			// TODO: Make color work in the constructor.  Then update BGColor and the others.
+
 			_hue = color;
 			_amount = amount;
 		}

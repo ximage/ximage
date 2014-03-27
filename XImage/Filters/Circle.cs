@@ -17,7 +17,7 @@ namespace XImage.Filter
 
 		public void ProcessImage(XImageRequest request, XImageResponse response)
 		{
-			var size = response.OutputSize;
+			var size = response.CanvasSize;
 
 			var origin = Point.Empty;
 			if (size.Width < size.Height)
@@ -31,9 +31,7 @@ namespace XImage.Filter
 			var path = new GraphicsPath();
 			path.AddEllipse(new Rectangle(origin, size));
 
-			var opaqueMask = request.Output.ContentType.Contains("jpeg") || request.Output.ContentType.Contains("gif");
-
-			response.OutputImage.ApplyMask(path, Brushes.White, opaqueMask);
+			response.OutputImage.ApplyMask(path, Brushes.White, !request.Output.SupportsTransparency);
 		}
 	}
 }

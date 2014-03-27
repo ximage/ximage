@@ -25,6 +25,8 @@ namespace XImage.Outputs
 		
 		public string ContentType { get { return "image/jpeg"; } }
 
+		public bool SupportsTransparency { get { return false; } }
+
 		public Jpg()
 		{
 			_quality = DEFAULT_QUALITY;

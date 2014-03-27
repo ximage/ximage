@@ -23,6 +23,7 @@ namespace XImage
 
 		public int? Width { get; private set; }
 		public int? Height { get; private set; }
+		public bool AllowUpscaling { get; private set; }
 		public List<IFilter> Filters { get; private set; }
 		public List<IMeta> Metas { get; private set; }
 		public IOutput Output { get; private set; }
@@ -75,6 +76,11 @@ namespace XImage
 			var w = q["w"] ?? q["width"];
 			if (w != null)
 			{
+				if (w.EndsWith("!"))
+				{
+					AllowUpscaling = true;
+					w = w.Substring(0, w.Length - 1);
+				}
 				Width = w.AsNullableInt();
 				if (Width == null || Width <= 0)
 					throw new ArgumentException("Width must be a positive integer.");
@@ -85,6 +91,11 @@ namespace XImage
 			var h = q["h"] ?? q["height"];
 			if (h != null)
 			{
+				if (h.EndsWith("!"))
+				{
+					AllowUpscaling = true;
+					h = h.Substring(0, h.Length - 1);
+				}
 				Height = h.AsNullableInt();
 				if (Height == null || Height <= 0)
 					throw new ArgumentException("Height must be a positive integer.");
