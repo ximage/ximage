@@ -16,17 +16,9 @@ namespace XImage.Filters
 
 		decimal _amount;
 
-		public string Documentation
-		{
-			get { return "Saturates the colors"; }
-		}
-
 		public Saturate() : this(5) { }
 
-		public Saturate(int amount)
-			: this((decimal)amount)
-		{
-		}
+		public Saturate(int amount) : this((decimal)amount) { }
 
 		public Saturate(decimal amount)
 		{

@@ -12,11 +12,6 @@ namespace XImage.Filters
 	{
 		int _angle;
 
-		public string Documentation
-		{
-			get { return "Rotate."; }
-		}
-
 		public Rotate() : this(180) { }
 
 		public Rotate(int angle)

@@ -11,11 +11,6 @@ namespace XImage.Filters
 {
 	public class SlowBlur : IFilter
 	{
-		public string Documentation
-		{
-			get { return "Applies a gaussian blur."; }
-		}
-
 		public int Radius { get; set; }
 
 		public SlowBlur() : this(10) { }

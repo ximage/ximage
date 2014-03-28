@@ -9,11 +9,6 @@ namespace XImage.Filters
 {
 	public class Fill : IFilter
 	{
-		public string Documentation
-		{
-			get { return "Fill crop."; }
-		}
-
 		public void ProcessImage(XImageRequest request, XImageResponse response)
 		{
 			var inputSize = response.InputImage.Size;

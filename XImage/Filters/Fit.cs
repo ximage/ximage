@@ -9,11 +9,6 @@ namespace XImage.Filters
 {
 	public class Fit : IFilter
 	{
-		public string Documentation
-		{
-			get { return "Fit crop."; }
-		}
-
 		public void ProcessImage(XImageRequest request, XImageResponse response)
 		{
 			var inputSize = response.InputImage.Size;

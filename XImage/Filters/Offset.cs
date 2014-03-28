@@ -13,11 +13,6 @@ namespace XImage.Filters
 		decimal _dx;
 		decimal _dy;
 
-		public string Documentation
-		{
-			get { return "Offsets the position by x and y."; }
-		}
-
 		public Offset() : this(10, 10) { }
 
 		public Offset(int dx, int dy)

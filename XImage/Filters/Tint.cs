@@ -11,11 +11,6 @@ namespace XImage.Filters
 		Color _hue;
 		decimal _amount;
 
-		public string Documentation
-		{
-			get { return "Applies a tint."; }
-		}
-
 		public Tint() : this(Color.Red, .5M) { }
 
 		public Tint(Color color) : this(color, .5M) { }

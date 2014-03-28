@@ -11,15 +11,7 @@ namespace XImage.Filters
 	{
 		Color _color;
 
-		public string Documentation
-		{
-			get { return "Background color."; }
-		}
-
-		public BGColor(int color)
-			: this(color.ToString())
-		{
-		}
+		public BGColor(int color) : this(color.ToString()) { }
 
 		public BGColor(string color)
 		{

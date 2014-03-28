@@ -9,11 +9,6 @@ namespace XImage.Filters
 {
 	public class Stretch : IFilter
 	{
-		public string Documentation
-		{
-			get { return "Stretch crop."; }
-		}
-
 		public void ProcessImage(XImageRequest request, XImageResponse response)
 		{
 			response.CropBox = new Rectangle(Point.Empty, response.InputImage.Size);

@@ -10,11 +10,6 @@ namespace XImage.Filter
 {
 	public class Circle : IFilter
 	{
-		public string Documentation
-		{
-			get { return "Applies a mask in the shape of a circle with a diameter of either w or h, whichever is shortest."; }
-		}
-
 		public void ProcessImage(XImageRequest request, XImageResponse response)
 		{
 			var size = response.CanvasSize;

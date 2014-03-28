@@ -10,8 +10,6 @@ namespace XImage.Outputs
 {
 	public class Png : IOutput
 	{
-		public string Documentation { get { return "Uses a png encoder."; } }
-
 		public string ContentType { get { return "image/png"; } }
 
 		public bool SupportsTransparency { get { return true; } }

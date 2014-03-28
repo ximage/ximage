@@ -9,11 +9,6 @@ namespace XImage.Meta
 {
 	public class Colors : IMeta
 	{
-		public string Documentation
-		{
-			get { return "Calculates several different color attributes such as accent, average, base, dominant and palette."; }
-		}
-
 		public void Calculate(XImageRequest request, XImageResponse response, byte[] data)
 		{
 			var byteCount = data.Length;

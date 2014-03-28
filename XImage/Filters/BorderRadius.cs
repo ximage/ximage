@@ -10,16 +10,9 @@ namespace XImage.Filters
 {
 	public class BorderRadius : IFilter
 	{
-		int _radius = 10;
+		int _radius;
 
-		public string Documentation
-		{
-			get { return "Rounds the corners with by a specified radius."; }
-		}
-
-		public BorderRadius()
-		{
-		}
+		public BorderRadius() : this(10) { }
 
 		public BorderRadius(int radius)
 		{

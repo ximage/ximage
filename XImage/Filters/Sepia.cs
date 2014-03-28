@@ -18,10 +18,6 @@ namespace XImage.Filters
 			new float[] { 0, 0, 0, 0, 1 }
 		});
 
-		public string Documentation
-		{
-			get { return "Sepia"; }
-		}
 
 		public void ProcessImage(XImageRequest request, XImageResponse response)
 		{

@@ -10,8 +10,6 @@ namespace XImage
 {
 	public interface IOutput
 	{
-		string Documentation { get; }
-
 		string ContentType { get; }
 
 		bool SupportsTransparency { get; }

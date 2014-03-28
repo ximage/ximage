@@ -10,8 +10,6 @@ namespace XImage.Outputs
 {
 	public class Gif : IOutput
 	{
-		public string Documentation { get { return "Uses a gif encoder."; } }
-
 		public string ContentType { get { return "image/gif"; } }
 
 		public bool SupportsTransparency { get { return false; } }

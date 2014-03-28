@@ -18,11 +18,6 @@ namespace XImage.Filters
 			new float[] { 1, 1, 1, 0, 1 }
 		});
 
-		public string Documentation
-		{
-			get { return "Inverts the colors"; }
-		}
-
 		public void ProcessImage(XImageRequest request, XImageResponse response)
 		{
 			response.ImageAttributes.SetColorMatrix(_invert);

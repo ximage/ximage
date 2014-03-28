@@ -8,11 +8,6 @@ namespace XImage.Outputs
 {
 	public class Json : IOutput
 	{
-		public string Documentation
-		{
-			get { return "Doesn't output an image.  Outputs the meta data as a JSON response."; }
-		}
-
 		public string ContentType
 		{
 			get { return "application/json"; }

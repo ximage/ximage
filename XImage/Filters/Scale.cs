@@ -13,11 +13,6 @@ namespace XImage.Filters
 		decimal _scaleX;
 		decimal _scaleY;
 
-		public string Documentation
-		{
-			get { return "Rotate."; }
-		}
-
 		public Scale() : this(2) { }
 
 		public Scale(int scale) : this(scale, scale) { }

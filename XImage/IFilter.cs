@@ -8,8 +8,6 @@ namespace XImage
 {
 	public interface IFilter
 	{
-		string Documentation { get; }
-
 		void ProcessImage(XImageRequest request, XImageResponse response);
 	}
 }

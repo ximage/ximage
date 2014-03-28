@@ -11,11 +11,6 @@ namespace XImage.Filters
 	{
 		int _radius;
 
-		public string Documentation
-		{
-			get { return "Applies a gaussian blur."; }
-		}
-
 		public Blur() : this(50) { }
 
 		public Blur(int radius)

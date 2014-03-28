@@ -11,17 +11,9 @@ namespace XImage.Filters
 	{
 		decimal _amount;
 
-		public string Documentation
-		{
-			get { return "Contrast"; }
-		}
-
 		public Contrast() : this(5) { }
 
-		public Contrast(int amount)
-			: this((decimal)amount)
-		{
-		}
+		public Contrast(int amount) : this((decimal)amount) { }
 
 		public Contrast(decimal amount)
 		{

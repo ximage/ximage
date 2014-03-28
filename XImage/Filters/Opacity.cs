@@ -10,10 +10,6 @@ namespace XImage.Filters
 	public class Opacity : IFilter
 	{
 		decimal _amount;
-		public string Documentation
-		{
-			get { return "Opacity level."; }
-		}
 
 		public Opacity() : this(.5M) { }
 

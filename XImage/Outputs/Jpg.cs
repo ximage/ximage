@@ -18,11 +18,6 @@ namespace XImage.Outputs
 		long _quality;
 		bool _asKb;
 
-		public string Documentation
-		{
-			get { return string.Format("Uses a jpg encoder.  Optionally supply quality as a percentage, an integer between 1-100 (default {0}).", DEFAULT_QUALITY); }
-		}
-		
 		public string ContentType { get { return "image/jpeg"; } }
 
 		public bool SupportsTransparency { get { return false; } }

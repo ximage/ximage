@@ -11,17 +11,9 @@ namespace XImage.Filters
 	{
 		decimal _amount;
 
-		public string Documentation
-		{
-			get { return "Brightness"; }
-		}
-
 		public Brightness() : this(5) { }
 
-		public Brightness(int amount)
-			: this((decimal)amount)
-		{
-		}
+		public Brightness(int amount) : this((decimal)amount) { }
 
 		public Brightness(decimal amount)
 		{

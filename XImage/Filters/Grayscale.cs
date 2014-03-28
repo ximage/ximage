@@ -16,17 +16,9 @@ namespace XImage.Filters
 		
 		decimal _amount;
 
-		public string Documentation
-		{
-			get { return "Desaturates the colors"; }
-		}
-
 		public Grayscale() : this(1) { }
 
-		public Grayscale(int amount)
-			: this((decimal)amount)
-		{
-		}
+		public Grayscale(int amount) : this((decimal)amount) { }
 
 		public Grayscale(decimal amount)
 		{

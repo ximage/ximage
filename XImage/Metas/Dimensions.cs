@@ -8,11 +8,6 @@ namespace XImage.Meta
 {
 	public class Dimensions : IMeta
 	{
-		public string Documentation
-		{
-			get { return "Calculates several different size attributes widht and height for the original image and output image."; }
-		}
-
 		public void Calculate(XImageRequest request, XImageResponse response, byte[] data)
 		{
 			response.Properties["X-Image-Original-Format"] = "image/" + new ImageFormatConverter().ConvertToString(response.InputImage.RawFormat).ToLower();

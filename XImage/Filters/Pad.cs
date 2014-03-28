@@ -14,11 +14,6 @@ namespace XImage.Filters
 		int _bottom;
 		int _left;
 
-		public string Documentation
-		{
-			get { return "Adds padding."; }
-		}
-
 		public Pad() : this(10) { }
 
 		public Pad(int padding) : this(padding, padding, padding, padding) { }
