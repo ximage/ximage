@@ -93,7 +93,6 @@
     <Compile Include="GdiPlus\GdiPlusInterop.cs" />
     <Compile Include="Utilities\BitmapBits.cs" />
     <Compile Include="Utilities\Extensions.cs" />
-    <Compile Include="ICrop.cs" />
     <Compile Include="IFilter.cs" />
     <Compile Include="IOutput.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
