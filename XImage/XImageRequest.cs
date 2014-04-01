@@ -58,9 +58,8 @@ namespace XImage
 
 			ParseHelp(httpContext);
 			ParseWidthAndHeight(q);
-			ParseFilters(q);
+			ParseFiltersAndOutput(httpContext, q);
 			ParseMetas(q);
-			ParseOutput(httpContext, q);
 
 			httpContext.Response.ContentType = Output.ContentType;
 		}
@@ -104,7 +103,7 @@ namespace XImage
 			}
 		}
 
-		void ParseFilters(NameValueCollection q)
+		void ParseFiltersAndOutput(HttpContext httpContext, NameValueCollection q)
 		{
 			Filters = new List<IFilter>();
 
@@ -112,15 +111,33 @@ namespace XImage
 			if (filterValues == null)
 				return;
 
-			var filterNames = filterValues.SplitClean(';');
-			if (filterNames.Length == 0)
+			var filterNames = filterValues.SplitClean(';').ToList();
+			if (filterNames.Count == 0)
 				throw new ArgumentException("The f parameter cannot be empty.  Exclude this parameters if no filters are needed.");
 
 			foreach (var filterName in filterNames)
-				Filters.Add(ParseMethod<IFilter>(filterName));
+			{
+				var filter = ParseMethod<IFilter>(filterName);
+				if (filter is IOutput)
+					Output = filter as IOutput;
+				else
+					Filters.Add(filter);
+			}
 
 			if (Filters.Count == 0)
 				throw new ArgumentException("No filters specified.  Use ?f={filter1};{filter2} or leave f out of the query string.");
+
+			if (Output == null)
+			{
+				// Parse o param in case it was used separately.
+				var o = q["o"] ?? q["output"] ?? httpContext.Response.ContentType;
+				if (o == null)
+					throw new ArgumentException("No output format specified.  Use ?o={output} or ensure the Content-Type response header is set.");
+
+				o = o.Replace("image/", "").Replace("jpeg", "jpg");
+
+				Output = ParseMethod<IOutput>(o);
+			}
 		}
 
 		void ParseMetas(NameValueCollection q)
@@ -130,18 +147,6 @@ namespace XImage
 			// TODO: Use the query string somehow?
 
 			Metas.AddRange(_metasLookup.Select(m => Activator.CreateInstance(m.Value) as IMeta));
-		}
-
-		void ParseOutput(HttpContext httpContext, NameValueCollection q)
-		{
-			// If nothing is specified, default to the format of the original image.
-			var o = q["o"] ?? q["output"] ?? httpContext.Response.ContentType;
-			if (o == null)
-				throw new ArgumentException("No output format specified.  Use ?o={output} or ensure the Content-Type response header is set.");
-
-			o = o.Replace("image/", "").Replace("jpeg", "jpg");
-
-			Output = ParseMethod<IOutput>(o);
 		}
 
 		T ParseMethod<T>(string method)

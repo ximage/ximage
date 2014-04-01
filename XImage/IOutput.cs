@@ -8,12 +8,10 @@ using System.Threading.Tasks;
 
 namespace XImage
 {
-	public interface IOutput
+	public interface IOutput : IFilter
 	{
 		string ContentType { get; }
 
 		bool SupportsTransparency { get; }
-
-		void FormatImage(XImageRequest request, XImageResponse response);
 	}
 }

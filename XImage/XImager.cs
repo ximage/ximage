@@ -46,7 +46,7 @@ namespace XImage
 			var outputTimestamp = _stopwatch.ElapsedTicks;
 
 			// --- OUTPUT ---
-			request.Output.FormatImage(request, response);
+			request.Output.ProcessImage(request, response);
 
 			response.Properties.Add("X-Image-Time-Output", string.Format("{0:N2}ms", 1000D * (double)(_stopwatch.ElapsedTicks - outputTimestamp) / (double)Stopwatch.Frequency));
 

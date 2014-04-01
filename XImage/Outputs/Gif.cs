@@ -14,7 +14,7 @@ namespace XImage.Outputs
 
 		public bool SupportsTransparency { get { return false; } }
 
-		public void FormatImage(XImageRequest request, XImageResponse response)
+		public void ProcessImage(XImageRequest request, XImageResponse response)
 		{
 			response.OutputImage.Save(response.OutputStream, ImageFormat.Gif);
 		}

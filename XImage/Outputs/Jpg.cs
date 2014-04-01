@@ -52,7 +52,7 @@ namespace XImage.Outputs
 				throw new ArgumentException("Quality must be an integer between 1 and 100 unless you are specifing a content size, e.g. 150kb.");
 		}
 
-		public void FormatImage(XImageRequest request, XImageResponse response)
+		public void ProcessImage(XImageRequest request, XImageResponse response)
 		{
 			var encoderParameters = new EncoderParameters(2);
 			encoderParameters.Param[0] = new EncoderParameter(Encoder.Compression, (long)EncoderValue.CompressionLZW);
