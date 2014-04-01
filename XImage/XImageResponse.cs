@@ -13,7 +13,7 @@ namespace XImage
 {
 	public class XImageResponse : IDisposable
 	{
-		public Bitmap InputImage { get; private set; }
+		public Bitmap InputImage { get; set; }
 
 		public Rectangle CropBox { get; set; }
 
@@ -29,6 +29,10 @@ namespace XImage
 				if (_outputImage == null)
 					_outputImage = new Bitmap(CanvasSize.Width, CanvasSize.Height, PixelFormat.Format32bppArgb);
 				return _outputImage;
+			}
+			set
+			{
+				_outputImage = value;
 			}
 		}
 
@@ -46,6 +50,10 @@ namespace XImage
 					_outputGraphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
 				}
 				return _outputGraphics;
+			}
+			set
+			{
+				_outputGraphics = value;
 			}
 		}
 

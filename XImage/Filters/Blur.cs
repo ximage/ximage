@@ -20,7 +20,7 @@ namespace XImage.Filters
 
 		public void ProcessImage(XImageRequest request, XImageResponse response)
 		{
-			response.OutputImage.ApplyBlur(_radius * 2, false);
+			response.InputImage.ApplyBlur(_radius * 2, false);
 		}
 	}
 }

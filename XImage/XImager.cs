@@ -26,28 +26,11 @@ namespace XImage
 
 			SetCanvasDimensions(request, response);
 
-			var graphics = response.OutputGraphics;
-			var bgColor = request.Output.SupportsTransparency ? Color.Transparent : Color.White;
-			graphics.Clear(bgColor);
-
 			// --- FILTERS ---
 			foreach (var filter in request.Filters)
 				filter.ProcessImage(request, response);
 
-			var canvasSize = response.CanvasSize;
-			var contentArea = response.ContentArea;
-			var cropBox = response.CropBox;
-
-			graphics.TranslateTransform(canvasSize.Width / 2, canvasSize.Height / 2, MatrixOrder.Append);
-			graphics.DrawImage(
-				image: response.InputImage,
-				destRect: new Rectangle(contentArea.Width / -2, contentArea.Height / -2, contentArea.Width, contentArea.Height),
-				srcX: cropBox.X,
-				srcY: cropBox.Y,
-				srcWidth: cropBox.Width,
-				srcHeight: cropBox.Height,
-				srcUnit: GraphicsUnit.Pixel,
-				imageAttr: response.ImageAttributes);
+			Rasterize(request, response);
 
 			response.Properties.Add("X-Image-Time-Filters", string.Format("{0:N2}ms", 1000D * (double)(_stopwatch.ElapsedTicks - startTimestamp) / (double)Stopwatch.Frequency));
 			var metasTimestamp = _stopwatch.ElapsedTicks;
@@ -68,6 +51,27 @@ namespace XImage
 			response.Properties.Add("X-Image-Time-Output", string.Format("{0:N2}ms", 1000D * (double)(_stopwatch.ElapsedTicks - outputTimestamp) / (double)Stopwatch.Frequency));
 
 			response.Properties.Add("X-Image-Time-Total", string.Format("{0:N2}ms", 1000D * (double)(_stopwatch.ElapsedTicks - startTimestamp) / (double)Stopwatch.Frequency));
+		}
+
+		public static void Rasterize(XImageRequest request, XImageResponse response)
+		{
+			var graphics = response.OutputGraphics;
+			var canvasSize = response.CanvasSize;
+			var contentArea = response.ContentArea;
+			var cropBox = response.CropBox;
+
+			graphics.Clear(request.Output.SupportsTransparency ? Color.Transparent : Color.White);
+
+			graphics.TranslateTransform(canvasSize.Width / 2, canvasSize.Height / 2, MatrixOrder.Append);
+			graphics.DrawImage(
+				image: response.InputImage,
+				destRect: new Rectangle(contentArea.Width / -2, contentArea.Height / -2, contentArea.Width, contentArea.Height),
+				srcX: cropBox.X,
+				srcY: cropBox.Y,
+				srcWidth: cropBox.Width,
+				srcHeight: cropBox.Height,
+				srcUnit: GraphicsUnit.Pixel,
+				imageAttr: response.ImageAttributes);
 		}
 
 		static void SetCanvasDimensions(XImageRequest request, XImageResponse response)
