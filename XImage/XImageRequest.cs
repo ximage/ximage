@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Web;
 using XImage.Utilities;
 
@@ -111,7 +112,7 @@ namespace XImage
 			if (filterValues == null)
 				return;
 
-			var filterNames = filterValues.SplitClean(';').ToList();
+			var filterNames = Split(filterValues);
 			if (filterNames.Count == 0)
 				throw new ArgumentException("The f parameter cannot be empty.  Exclude this parameters if no filters are needed.");
 
@@ -195,6 +196,32 @@ namespace XImage
 			{
 				throw new ArgumentException(string.Format("Unrecognized type: {0}.", methodName));
 			}
+		}
+
+		private List<string> Split(string value)
+		{
+			var splitted = new List<string>();
+			int skipCommasOrSemicolons = 0;
+			var s = new StringBuilder();
+			foreach (var c in value.ToCharArray())
+			{
+				if ((c == ',' || c == ';') && skipCommasOrSemicolons == 0)
+				{
+					splitted.Add(s.ToString());
+					s = new StringBuilder();
+				}
+				else
+				{
+					if (c == '(')
+						skipCommasOrSemicolons++;
+					if (c == ')')
+						skipCommasOrSemicolons--;
+					s.Append(c);
+				}
+			}
+			// Thanks PoeHah for pointing it out. This adds the last element to it.
+			splitted.Add(s.ToString());
+			return splitted;
 		}
 
 		public void Dispose()
