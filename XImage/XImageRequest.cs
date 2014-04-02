@@ -109,24 +109,24 @@ namespace XImage
 			Filters = new List<IFilter>();
 
 			var filterValues = q["f"] ?? q["filter"] ?? q["filters"];
-			if (filterValues == null)
-				return;
-
-			var filterNames = Split(filterValues);
-			if (filterNames.Count == 0)
-				throw new ArgumentException("The f parameter cannot be empty.  Exclude this parameters if no filters are needed.");
-
-			foreach (var filterName in filterNames)
+			if (filterValues != null)
 			{
-				var filter = ParseMethod<IFilter>(filterName);
-				if (filter is IOutput)
-					Output = filter as IOutput;
-				else
-					Filters.Add(filter);
-			}
+				var filterNames = Split(filterValues);
+				if (filterNames.Count == 0)
+					throw new ArgumentException("The f parameter cannot be empty.  Exclude this parameters if no filters are needed.");
 
-			if (Filters.Count == 0)
-				throw new ArgumentException("No filters specified.  Use ?f={filter1};{filter2} or leave f out of the query string.");
+				foreach (var filterName in filterNames)
+				{
+					var filter = ParseMethod<IFilter>(filterName);
+					if (filter is IOutput)
+						Output = filter as IOutput;
+					else
+						Filters.Add(filter);
+				}
+
+				if (Filters.Count == 0)
+					throw new ArgumentException("No filters specified.  Use ?f={filter1};{filter2} or leave f out of the query string.");
+			}
 
 			if (Output == null)
 			{
