@@ -124,7 +124,7 @@ namespace XImage
 						Filters.Add(filter);
 				}
 
-				if (Filters.Count == 0)
+				if (Filters.Count == 0 && Output == null)
 					throw new ArgumentException("No filters specified.  Use ?f={filter1};{filter2} or leave f out of the query string.");
 			}
 
