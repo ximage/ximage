@@ -43,7 +43,7 @@ namespace XImage
 							}
 						}
 					}
-					catch (ArgumentException ex)
+					catch (Exception ex)
 					{
 						EndWithError(app, HttpStatusCode.BadRequest, ex.Message);
 					}
