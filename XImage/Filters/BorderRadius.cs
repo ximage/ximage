@@ -8,7 +8,7 @@ using XImage.Utilities;
 
 namespace XImage.Filters
 {
-	public class BorderRadius : IFilter
+	public class BorderRadius : IRasterizedFilter
 	{
 		int _radius;
 
@@ -21,6 +21,8 @@ namespace XImage.Filters
 
 		public void ProcessImage(XImageRequest request, XImageResponse response)
 		{
+			// TODO: Not compatible with Pad!
+
 			int w = response.CanvasSize.Width - 1, h = response.CanvasSize.Height - 1;
 			var diameter = Math.Min(_radius * 2, Math.Min(w, h));
 			var path = new GraphicsPath();

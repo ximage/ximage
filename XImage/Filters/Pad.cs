@@ -14,6 +14,7 @@ namespace XImage.Filters
 		int _bottom;
 		int _left;
 
+		// TODO: Bug, causes disproportionate resizing when image isn't 1:1 aspect ratio.  Try a padding of 200 on ping.jpg.
 		public Pad() : this(10) { }
 
 		public Pad(int padding) : this(padding, padding, padding, padding) { }

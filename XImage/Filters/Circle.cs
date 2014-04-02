@@ -8,13 +8,13 @@ using XImage.Utilities;
 
 namespace XImage.Filter
 {
-	public class Circle : IFilter
+	public class Circle : IRasterizedFilter
 	{
 		public void ProcessImage(XImageRequest request, XImageResponse response)
 		{
-			var size = response.CanvasSize;
+			var size = response.ContentArea.Size;
 
-			var origin = Point.Empty;
+			var origin = response.ContentArea.Location;
 			if (size.Width < size.Height)
 				origin.Y = (size.Height - size.Width) / 2;
 			else
