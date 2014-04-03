@@ -9,7 +9,7 @@ namespace XImage.Filters
 {
 	public class Fill : IFilter
 	{
-		public void ProcessImage(XImageRequest request, XImageResponse response)
+		public void PreProcess(XImageRequest request, XImageResponse response)
 		{
 			var inputSize = response.InputImage.Size;
 			var canvasSize = response.CanvasSize;
@@ -30,6 +30,10 @@ namespace XImage.Filters
 			}
 
 			response.CropBox = cropBox;
+		}
+
+		public void PostProcess(XImageRequest request, XImageResponse response)
+		{
 		}
 	}
 }

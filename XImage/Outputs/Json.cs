@@ -15,7 +15,11 @@ namespace XImage.Outputs
 
 		public bool SupportsTransparency { get { return false; } }
 
-		public void ProcessImage(XImageRequest request, XImageResponse response)
+		public void PreProcess(XImageRequest request, XImageResponse response)
+		{
+		}
+
+		public void PostProcess(XImageRequest request, XImageResponse response)
 		{
 			// Super simple JSON output.  No JSON lib necessary, reduces dependencies.
 			// Everything is a string?  What about numbers and arrays?

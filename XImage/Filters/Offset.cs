@@ -27,9 +27,13 @@ namespace XImage.Filters
 			_dy = scaleY;
 		}
 
-		public void ProcessImage(XImageRequest request, XImageResponse response)
+		public void PreProcess(XImageRequest request, XImageResponse response)
 		{
 			response.OutputGraphics.TranslateTransform((float)_dx, (float)_dy, MatrixOrder.Append);
+		}
+
+		public void PostProcess(XImageRequest request, XImageResponse response)
+		{
 		}
 	}
 }

@@ -58,7 +58,6 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Filters\BGColor.cs" />
     <Compile Include="Filters\Blur.cs" />
     <Compile Include="Filters\Brightness.cs" />
     <Compile Include="Filters\Contrast.cs" />

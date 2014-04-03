@@ -18,9 +18,13 @@ namespace XImage.Filters
 			new float[] { 1, 1, 1, 0, 1 }
 		});
 
-		public void ProcessImage(XImageRequest request, XImageResponse response)
+		public void PreProcess(XImageRequest request, XImageResponse response)
 		{
 			response.ImageAttributes.SetColorMatrix(_invert);
+		}
+
+		public void PostProcess(XImageRequest request, XImageResponse response)
+		{
 		}
 	}
 }

@@ -28,7 +28,7 @@ namespace XImage.Filters
 				throw new ArgumentException("The grayscale amount must be between 0 and 10.");
 		}
 
-		public void ProcessImage(XImageRequest request, XImageResponse response)
+		public void PreProcess(XImageRequest request, XImageResponse response)
 		{
 			var matrix = new ColorMatrix();
 
@@ -46,6 +46,10 @@ namespace XImage.Filters
 			matrix[2, 2] = baseSaturation * bwgt + saturation;
 
 			response.ImageAttributes.SetColorMatrix(matrix);
+		}
+
+		public void PostProcess(XImageRequest request, XImageResponse response)
+		{
 		}
 	}
 }

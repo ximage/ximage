@@ -10,34 +10,67 @@ namespace XImage.Filters
 {
 	public class BorderRadius : IFilter
 	{
-		int _radius;
+		int _topLeft;
+		int _topRight;
+		int _bottomRight;
+		int _bottomLeft;
 
-		public BorderRadius() : this(10) { }
+		public BorderRadius() : this(20) { }
 
-		public BorderRadius(int radius)
+		public BorderRadius(int radius) : this(radius, radius, radius, radius) { }
+
+		public BorderRadius(int topLeft, int topRight, int bottomRight, int bottomLeft)
 		{
-			_radius = radius;
+			_topLeft = topLeft;
+			_topRight = topRight;
+			_bottomRight = bottomRight;
+			_bottomLeft = bottomLeft;
 		}
 
-		public void ProcessImage(XImageRequest request, XImageResponse response)
+		public void PreProcess(XImageRequest request, XImageResponse response)
 		{
-			// TODO: Not compatible with Pad!
+			// Unless explicitly requested by the user, default to PNG for this filter.
+			if (request.IsOutputImplicitlySet)
+				request.Output = new Outputs.Png();
+		}
 
-			int w = response.CanvasSize.Width - 1, h = response.CanvasSize.Height - 1;
-			var diameter = Math.Min(_radius * 2, Math.Min(w, h));
+		public void PostProcess(XImageRequest request, XImageResponse response)
+		{
+			var contentArea = response.ContentArea;
+			var size = contentArea.Size;
+			var loc = contentArea.Location;
+
+			int w = size.Width - 1, h = size.Height - 1;
+			int diameter = 0;
 			var path = new GraphicsPath();
 
-			path.AddArc(0, 0, diameter, diameter, 180, 90);
-			path.AddArc(w - diameter, 0, diameter, diameter, 270, 90);
-			path.AddArc(w - diameter, h - diameter, diameter, diameter, 0, 90);
-			path.AddArc(0, h - diameter, diameter, diameter, 90, 90);
+			diameter = Math.Min(_topLeft * 2, Math.Min(w, h));
+			if (diameter > 0)
+				path.AddArc(loc.X, loc.Y, diameter, diameter, 180, 90);
+			else
+				path.AddLine(loc.X, loc.Y, loc.X + 1, loc.Y);
+
+			diameter = Math.Min(_topRight * 2, Math.Min(w, h));
+			if (diameter > 0)
+				path.AddArc(loc.X + w - diameter, loc.Y, diameter, diameter, 270, 90);
+			else
+				path.AddLine(loc.X + w, loc.Y, loc.X + w, loc.Y + 1);
+
+			diameter = Math.Min(_bottomRight * 2, Math.Min(w, h));
+			if (diameter > 0)
+				path.AddArc(loc.X + w - diameter, loc.Y + h - diameter, diameter, diameter, 0, 90);
+			else
+				path.AddLine(loc.X + w, loc.Y + h, loc.X + w - 1, loc.Y + h);
+
+			diameter = Math.Min(_bottomLeft * 2, Math.Min(w, h));
+			if (diameter > 0)
+				path.AddArc(loc.X, loc.Y + h - diameter, diameter, diameter, 90, 90);
+			else
+				path.AddLine(loc.X, loc.Y + h, loc.X, loc.Y + h - 1);
+			
 			path.CloseAllFigures();
 
 			response.OutputImage.ApplyMask(path, Brushes.White, !request.Output.SupportsTransparency);
-
-			// Unless explicitly requested by the user, default to PNG for this filter.
-			if (request.IsOutputImplicitlySet)
-				request.Output = new XImage.Outputs.Png();
 		}
 	}
 }

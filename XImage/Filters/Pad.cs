@@ -37,13 +37,17 @@ namespace XImage.Filters
 			if (_top < 0 || _right < 0 || _bottom < 0 || _left < 0)
 				throw new ArgumentException("Padding must be a non-negative number.");
 		}
-		public void ProcessImage(XImageRequest request, XImageResponse response)
+		public void PreProcess(XImageRequest request, XImageResponse response)
 		{
 			response.ContentArea = new Rectangle(
 				response.ContentArea.X + _left,
 				response.ContentArea.Y + _top,
 				response.ContentArea.Width - _left - _right,
 				response.ContentArea.Height - _top - _bottom);
+		}
+
+		public void PostProcess(XImageRequest request, XImageResponse response)
+		{
 		}
 	}
 }

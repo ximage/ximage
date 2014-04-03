@@ -9,9 +9,13 @@ namespace XImage.Filters
 {
 	public class Stretch : IFilter
 	{
-		public void ProcessImage(XImageRequest request, XImageResponse response)
+		public void PreProcess(XImageRequest request, XImageResponse response)
 		{
 			response.CropBox = new Rectangle(Point.Empty, response.InputImage.Size);
+		}
+
+		public void PostProcess(XImageRequest request, XImageResponse response)
+		{
 		}
 	}
 }

@@ -20,7 +20,11 @@ namespace XImage.Filters
 			Radius = radius / 2 * 2 + 1;
 		}
 
-		public void ProcessImage(XImageRequest request, XImageResponse response)
+		public void PreProcess(XImageRequest request, XImageResponse response)
+		{
+		}
+
+		public void PostProcess(XImageRequest request, XImageResponse response)
 		{
 			using (var bitmapBits = response.OutputImage.GetBitmapBits(true))
 			{

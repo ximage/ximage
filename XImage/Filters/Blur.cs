@@ -18,7 +18,11 @@ namespace XImage.Filters
 			_radius = radius;
 		}
 
-		public void ProcessImage(XImageRequest request, XImageResponse response)
+		public void PreProcess(XImageRequest request, XImageResponse response)
+		{
+		}
+
+		public void PostProcess(XImageRequest request, XImageResponse response)
 		{
 			response.OutputImage.ApplyBlur(_radius * 2, false);
 		}

@@ -23,7 +23,7 @@ namespace XImage.Filters
 				throw new ArgumentException("The contrast amount must be between 0 and 10.");
 		}
 
-		public void ProcessImage(XImageRequest request, XImageResponse response)
+		public void PreProcess(XImageRequest request, XImageResponse response)
 		{
 			float contrast = (float)_amount;
 			if (contrast > 1F) // After 1 it goes to a 1-10 scale, weird.
@@ -40,6 +40,10 @@ namespace XImage.Filters
 			});
 
 			response.ImageAttributes.SetColorMatrix(matrix);
+		}
+
+		public void PostProcess(XImageRequest request, XImageResponse response)
+		{
 		}
 	}
 }

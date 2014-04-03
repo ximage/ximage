@@ -20,13 +20,17 @@ namespace XImage.Filters
 			_amount = amount;
 		}
 
-		public void ProcessImage(XImageRequest request, XImageResponse response)
+		public void PreProcess(XImageRequest request, XImageResponse response)
 		{
 			var matrix = new ColorMatrix();
 			matrix.Matrix00 = matrix.Matrix11 = matrix.Matrix22 = matrix.Matrix44 = 1;
 			matrix.Matrix33 = (float)_amount;
 
 			response.ImageAttributes.SetColorMatrix(matrix);
+		}
+
+		public void PostProcess(XImageRequest request, XImageResponse response)
+		{
 		}
 	}
 }

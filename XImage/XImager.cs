@@ -28,9 +28,10 @@ namespace XImage
 
 			// --- FILTERS ---
 			foreach (var filter in request.Filters)
-				filter.ProcessImage(request, response);
-
+				filter.PreProcess(request, response);
 			Rasterize(request, response);
+			foreach (var filter in request.Filters)
+				filter.PostProcess(request, response);
 
 			response.Properties.Add("X-Image-Time-Filters", string.Format("{0:N2}ms", 1000D * (double)(_stopwatch.ElapsedTicks - startTimestamp) / (double)Stopwatch.Frequency));
 			var metasTimestamp = _stopwatch.ElapsedTicks;
@@ -46,7 +47,7 @@ namespace XImage
 			var outputTimestamp = _stopwatch.ElapsedTicks;
 
 			// --- OUTPUT ---
-			request.Output.ProcessImage(request, response);
+			request.Output.PostProcess(request, response);
 
 			response.Properties.Add("X-Image-Time-Output", string.Format("{0:N2}ms", 1000D * (double)(_stopwatch.ElapsedTicks - outputTimestamp) / (double)Stopwatch.Frequency));
 
@@ -128,7 +129,7 @@ namespace XImage
 			}
 
 			// By default, use the Fit crop.
-			new Fit().ProcessImage(request, response);
+			new Fit().PreProcess(request, response);
 
 			// By default the content area is the full canvas.
 			// TODO: 9-patch logic goes here.

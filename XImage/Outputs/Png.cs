@@ -14,7 +14,11 @@ namespace XImage.Outputs
 
 		public bool SupportsTransparency { get { return true; } }
 
-		public void ProcessImage(XImageRequest request, XImageResponse response)
+		public void PreProcess(XImageRequest request, XImageResponse response)
+		{
+		}
+
+		public void PostProcess(XImageRequest request, XImageResponse response)
 		{
 			response.OutputImage.Save(response.OutputStream, ImageFormat.Png);
 		}

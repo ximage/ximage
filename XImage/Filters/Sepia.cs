@@ -19,9 +19,13 @@ namespace XImage.Filters
 		});
 
 
-		public void ProcessImage(XImageRequest request, XImageResponse response)
+		public void PreProcess(XImageRequest request, XImageResponse response)
 		{
 			response.ImageAttributes.SetColorMatrix(_sepia);
+		}
+
+		public void PostProcess(XImageRequest request, XImageResponse response)
+		{
 		}
 	}
 }

@@ -22,13 +22,32 @@ namespace XImage
 		static readonly Dictionary<string, Type> _outputsLookup;
 		static readonly Dictionary<Type, Dictionary<string, Type>> _lookupLookup;
 
+		HttpContext _httpContext;
+
 		public int? Width { get; private set; }
+
 		public int? Height { get; private set; }
+	
 		public bool AllowUpscaling { get; private set; }
+		
 		public List<IFilter> Filters { get; private set; }
+		
 		public List<IMeta> Metas { get; private set; }
-		public IOutput Output { get; set; }
+
+		IOutput _output = null;
+		public IOutput Output
+		{
+			get { return _output; }
+			set
+			{
+				_output = value;
+				if (_output != null)
+					_httpContext.Response.ContentType = _output.ContentType;
+			}
+		}
+		
 		public bool IsOutputImplicitlySet { get; private set; }
+		
 		static XImageRequest()
 		{
 			var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(a => a.GetTypes()).ToList();
@@ -56,14 +75,14 @@ namespace XImage
 
 		public XImageRequest(HttpContext httpContext)
 		{
+			_httpContext = httpContext;
+
 			var q = HttpUtility.ParseQueryString(httpContext.Request.Url.Query);
 
 			ParseHelp(httpContext);
 			ParseWidthAndHeight(q);
 			ParseFiltersAndOutput(httpContext, q);
 			ParseMetas(q);
-
-			httpContext.Response.ContentType = Output.ContentType;
 		}
 
 		void ParseHelp(HttpContext httpContext)

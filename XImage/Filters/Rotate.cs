@@ -19,9 +19,13 @@ namespace XImage.Filters
 			_angle = angle;
 		}
 
-		public void ProcessImage(XImageRequest request, XImageResponse response)
+		public void PreProcess(XImageRequest request, XImageResponse response)
 		{
 			response.OutputGraphics.RotateTransform(_angle, MatrixOrder.Append);
+		}
+
+		public void PostProcess(XImageRequest request, XImageResponse response)
+		{
 		}
 	}
 }
