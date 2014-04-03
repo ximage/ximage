@@ -27,7 +27,8 @@ namespace XImage
 		public bool AllowUpscaling { get; private set; }
 		public List<IFilter> Filters { get; private set; }
 		public List<IMeta> Metas { get; private set; }
-		public IOutput Output { get; private set; }
+		public IOutput Output { get; set; }
+		public bool IsOutputImplicitlySet { get; private set; }
 		static XImageRequest()
 		{
 			var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(a => a.GetTypes()).ToList();
@@ -131,7 +132,14 @@ namespace XImage
 			if (Output == null)
 			{
 				// Parse o param in case it was used separately.
-				var o = q["o"] ?? q["output"] ?? httpContext.Response.ContentType;
+				var o = q["o"] ?? q["output"];
+				if (o == null)
+					IsOutputImplicitlySet = true;
+
+				// If o is still null, pull from the content type of the input image.
+				o = o ?? httpContext.Response.ContentType;
+
+				// If o is still null, we have bigger problems.
 				if (o == null)
 					throw new ArgumentException("No output format specified.  Use ?o={output} or ensure the Content-Type response header is set.");
 

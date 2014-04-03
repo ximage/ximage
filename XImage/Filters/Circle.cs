@@ -27,6 +27,10 @@ namespace XImage.Filter
 			path.AddEllipse(new Rectangle(origin, size));
 
 			response.OutputImage.ApplyMask(path, Brushes.White, !request.Output.SupportsTransparency);
+
+			// Unless explicitly requested by the user, default to PNG for this filter.
+			if (request.IsOutputImplicitlySet)
+				request.Output = new XImage.Outputs.Png();
 		}
 	}
 }
