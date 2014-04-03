@@ -8,7 +8,7 @@ using XImage.Utilities;
 
 namespace XImage.Filters
 {
-	public class BorderRadius : IRasterizedFilter
+	public class BorderRadius : IFilter
 	{
 		int _radius;
 

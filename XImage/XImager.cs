@@ -28,21 +28,7 @@ namespace XImage
 
 			// --- FILTERS ---
 			foreach (var filter in request.Filters)
-			{
-				if (filter is IRasterizedFilter)
-				{
-					Rasterize(request, response);
-					filter.ProcessImage(request, response);
-					response.InputImage = response.OutputImage;
-					response.OutputGraphics = null;
-					response.OutputImage = null;
-					SetCanvasDimensions(request, response);
-				}
-				else
-				{
-					filter.ProcessImage(request, response);
-				}
-			}
+				filter.ProcessImage(request, response);
 
 			Rasterize(request, response);
 

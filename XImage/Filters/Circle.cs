@@ -8,7 +8,7 @@ using XImage.Utilities;
 
 namespace XImage.Filter
 {
-	public class Circle : IRasterizedFilter
+	public class Circle : IFilter
 	{
 		public void ProcessImage(XImageRequest request, XImageResponse response)
 		{

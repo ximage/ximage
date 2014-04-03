@@ -10,8 +10,4 @@ namespace XImage
 	{
 		void ProcessImage(XImageRequest request, XImageResponse response);
 	}
-
-	public interface IRasterizedFilter : IFilter
-	{
-	}
 }

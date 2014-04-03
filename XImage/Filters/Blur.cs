@@ -7,7 +7,7 @@ using XImage.Utilities;
 
 namespace XImage.Filters
 {
-	public class Blur : IRasterizedFilter
+	public class Blur : IFilter
 	{
 		int _radius;
 
