@@ -83,6 +83,8 @@ namespace XImage
 			ParseWidthAndHeight(q);
 			ParseFiltersAndOutput(httpContext, q);
 			ParseMetas(q);
+
+			ParseBackwardsCompatibility(httpContext, q);
 		}
 
 		void ParseHelp(HttpContext httpContext)
@@ -176,6 +178,37 @@ namespace XImage
 
 			Metas.AddRange(_metasLookup.Select(m => Activator.CreateInstance(m.Value) as IMeta));
 		}
+
+		private void ParseBackwardsCompatibility(HttpContext httpContext, NameValueCollection q)
+		{
+			var c = q["c"] ?? q["crop"];
+			if (c != null)
+			{
+				switch (c)
+				{
+					case "fit":
+					case "zoom":
+					case "ffffff":
+						Filters.Insert(0, new Filters.Fit());
+						break;
+					case "fill":
+					case "zoom!":
+						Filters.Insert(0, new Filters.Fill());
+						break;
+					case "stretch":
+						Filters.Insert(0, new Filters.Stretch());
+						break;
+					case "whitespace":
+						Filters.Insert(0, new Filters.Trim());
+						break;
+					case "whitespace!":
+						Filters.Insert(0, new Filters.Trim());
+						Filters.Insert(0, new Filters.Fill());
+						break;
+				}
+			}
+		}
+
 
 		T ParseMethod<T>(string method)
 			where T : class
