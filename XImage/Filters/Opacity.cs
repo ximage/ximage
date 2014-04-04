@@ -18,6 +18,8 @@ namespace XImage.Filters
 		public Opacity(decimal amount)
 		{
 			_amount = amount;
+
+			// TODO: Assert correct args here.
 		}
 
 		public void PreProcess(XImageRequest request, XImageResponse response)

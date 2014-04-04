@@ -29,7 +29,9 @@ namespace XImage
 			// --- FILTERS ---
 			foreach (var filter in request.Filters)
 				filter.PreProcess(request, response);
+
 			Rasterize(request, response);
+			
 			foreach (var filter in request.Filters)
 				filter.PostProcess(request, response);
 

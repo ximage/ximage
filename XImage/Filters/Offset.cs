@@ -21,10 +21,10 @@ namespace XImage.Filters
 			_dy = dy;
 		}
 
-		public Offset(decimal scaleX, decimal scaleY)
+		public Offset(decimal dx, decimal dy)
 		{
-			_dx = scaleX;
-			_dy = scaleY;
+			_dx = dx;
+			_dy = dy;
 		}
 
 		public void PreProcess(XImageRequest request, XImageResponse response)
