@@ -5,42 +5,16 @@ using System.Linq;
 using System.Web;
 using XImage.Utilities;
 
-namespace XImage.Crops
+namespace XImage.Filters
 {
-	public class Whitespace : ICrop
+	public class Trim : IFilter
 	{
-		const byte WHITE_ENOUGH = 252;
-		int _top;
-		int _right;
-		int _bottom;
-		int _left;
+		const byte WHITE_ENOUGH = 245;
 
-		public string Documentation
+		public void PreProcess(XImageRequest request, XImageResponse response)
 		{
-			get { return "Removes any padding added to images."; }
-		}
+			bool allowClipping = request.Width != null && request.Height != null && request.Filters.OfType<Fill>().Any();
 
-		public Whitespace() : this(0) { }
-
-		public Whitespace(int padding) : this(padding, padding, padding, padding) { }
-
-		public Whitespace(int topBottom, int leftRight) : this(topBottom, leftRight, topBottom, leftRight) { }
-
-		public Whitespace(int top, int leftRight, int bottom) : this(top, leftRight, bottom, leftRight) { }
-
-		public Whitespace(int top, int right, int bottom, int left)
-		{
-			_top = top;
-			_right = right;
-			_bottom = bottom;
-			_left = left;
-
-			if (_top < 0 || _right < 0 || _bottom < 0 || _left < 0)
-				throw new ArgumentException("Padding must be a non-negative number.");
-		}
-
-		public void SetSizeAndCrop(XImageRequest request, XImageResponse response)
-		{
 			using (var bitmapBits = response.InputImage.GetBitmapBits())
 			{
 				int bytesPerPixel = Bitmap.GetPixelFormatSize(response.InputImage.PixelFormat) / 8;
@@ -95,69 +69,50 @@ namespace XImage.Crops
 				response.CropBox = new Rectangle(left, top, right - left, bottom - top);
 			}
 
-			response.OutputSize = GetOutputSize(request, response.CropBox.Size);
+			response.CanvasSize = GetOutputSize(request, response.CropBox.Size, allowClipping);
+			response.ContentArea = new Rectangle(Point.Empty, response.CanvasSize);
 
 			var cropBox = response.CropBox;
 
 			// Readjust the cropbox's width or height so there is no stretching.
 			if (request.Width != null && request.Height != null)
 			{
-				var targetIsWiderThanOutput = (float)cropBox.Width / (float)cropBox.Height > (float)response.OutputSize.Width / (float)response.OutputSize.Height;
+				var targetIsWiderThanOutput = (float)cropBox.Width / (float)cropBox.Height > (float)response.CanvasSize.Width / (float)response.CanvasSize.Height;
 				if (targetIsWiderThanOutput)
 				{
-					if (request.AllowClipping)
+					if (allowClipping)
 					{
-						var size = response.OutputSize.ScaleToHeight(cropBox.Height);
+						var size = response.CanvasSize.ScaleToHeight(cropBox.Height);
 						cropBox.Inflate(Convert.ToInt32((float)(size.Width - cropBox.Width) / 2F), 0);
 					}
 					else
 					{
-						var size = response.OutputSize.ScaleToWidth(cropBox.Width);
+						var size = response.CanvasSize.ScaleToWidth(cropBox.Width);
 						cropBox.Inflate(0, Convert.ToInt32((float)(size.Height - cropBox.Height) / 2F));
 					}
 				}
 				else
 				{
-					if (request.AllowClipping)
+					if (allowClipping)
 					{
-						var size = response.OutputSize.ScaleToWidth(cropBox.Width);
+						var size = response.CanvasSize.ScaleToWidth(cropBox.Width);
 						cropBox.Inflate(0, Convert.ToInt32((float)(size.Height - cropBox.Height) / 2F));
 					}
 					else
 					{
-						var size = response.OutputSize.ScaleToHeight(cropBox.Height);
+						var size = response.CanvasSize.ScaleToHeight(cropBox.Height);
 						cropBox.Inflate(Convert.ToInt32((float)(size.Width - cropBox.Width) / 2F), 0);
 					}
 				}
 			}
 
-			// Account for padding.
-			if (_top > 0 || _right > 0 || _bottom > 0 || _left > 0)
-			{
-				var scaleX = (float)(response.OutputSize.Width - _left - _right) / (float)response.OutputSize.Width;
-				var scaleY = (float)(response.OutputSize.Height - _top - _bottom) / (float)response.OutputSize.Height;
-				var scale = Math.Min(scaleX, scaleY);
-				if (scale <= 0) // negative because padding was more than the image size
-					scale = .01F;
-
-				cropBox = new Rectangle(
-					cropBox.X,
-					cropBox.Y,
-					Convert.ToInt32((float)cropBox.Width / scale),
-					Convert.ToInt32((float)cropBox.Height / scale));
-				cropBox.X -= Convert.ToInt32((float)_left / (float)response.OutputSize.Width * (float)cropBox.Width);
-				cropBox.Y -= Convert.ToInt32((float)_top / (float)response.OutputSize.Height * (float)cropBox.Height);
-			}
-
 			response.CropBox = cropBox;
-
-			response.OutputGraphics.Clear(Color.White);
 		}
 
-		Size GetOutputSize(XImageRequest request, Size original)
+		Size GetOutputSize(XImageRequest request, Size original, bool allowClipping)
 		{
 			if (request.Width == null && request.Height == null)
-				return new Size(original.Width + _left + _right, original.Height + _top + _bottom);
+				return new Size(original.Width, original.Height);
 
 			var w = request.Width;
 			var h = request.Height;
@@ -175,7 +130,7 @@ namespace XImage.Crops
 				var targetIsWiderThanOutput = (float)original.Width / (float)original.Height > (float)size.Width / (float)size.Height;
 				if (targetIsWiderThanOutput)
 				{
-					if (request.AllowClipping)
+					if (allowClipping)
 					{
 						if (original.Height <= size.Height)
 							size = size.ScaleToHeight(original.Height);
@@ -188,7 +143,7 @@ namespace XImage.Crops
 				}
 				else
 				{
-					if (request.AllowClipping)
+					if (allowClipping)
 					{
 						if (original.Width <= size.Width)
 							size = size.ScaleToWidth(original.Width);
@@ -202,6 +157,10 @@ namespace XImage.Crops
 			}
 
 			return size;
+		}
+
+		public void PostProcess(XImageRequest request, XImageResponse response)
+		{
 		}
 	}
 }
