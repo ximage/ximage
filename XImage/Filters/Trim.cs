@@ -9,7 +9,14 @@ namespace XImage.Filters
 {
 	public class Trim : IFilter
 	{
-		const byte WHITE_ENOUGH = 245;
+		int _threshold;
+
+		public Trim() : this(25) { }
+
+		public Trim(int threshold)
+		{
+			_threshold = threshold;
+		}
 
 		public void PreProcess(XImageRequest request, XImageResponse response)
 		{
@@ -19,13 +26,16 @@ namespace XImage.Filters
 			{
 				int bytesPerPixel = Bitmap.GetPixelFormatSize(response.InputImage.PixelFormat) / 8;
 				int i = 0, halfWidth = response.InputImage.Width / 2, halfHeight = response.InputImage.Height / 2;
-				byte r, g, b;
+				int r, g, b, r0, g0, b0;
 				int left = halfWidth, right = halfWidth, top = halfHeight, bottom = halfHeight;
 				var data = bitmapBits.Data;
 
 				for (int y = 0; y < response.InputImage.Height; y++)
 				{
 					i = y * bitmapBits.BitmapData.Stride;
+					r0 = 255 - _threshold;
+					g0 = 255 - _threshold;
+					b0 = 255 - _threshold;
 
 					for (int x = 0; x < halfWidth; x++)
 					{
@@ -34,7 +44,7 @@ namespace XImage.Filters
 						g = data[i + 1];
 						b = data[i];
 
-						if (r < WHITE_ENOUGH || g < WHITE_ENOUGH || b < WHITE_ENOUGH)
+						if (r0 - r > _threshold || g0 - g > _threshold || b0 - b > _threshold)
 						{
 							left = Math.Min(left, x);
 							top = Math.Min(top, y);
@@ -42,10 +52,16 @@ namespace XImage.Filters
 							break;
 						}
 
+						r0 = r;
+						g0 = g;
+						b0 = b;
 						i += bytesPerPixel;
 					}
 
 					i = y * bitmapBits.BitmapData.Stride + response.InputImage.Width * bytesPerPixel - bytesPerPixel;
+					r0 = 255 - _threshold;
+					g0 = 255 - _threshold;
+					b0 = 255 - _threshold;
 
 					for (int x = response.InputImage.Width; x > halfWidth; x--)
 					{
@@ -54,7 +70,7 @@ namespace XImage.Filters
 						g = data[i + 1];
 						b = data[i];
 
-						if (r < WHITE_ENOUGH || g < WHITE_ENOUGH || b < WHITE_ENOUGH)
+						if (r0 - r > _threshold || g0 - g > _threshold || b0 - b > _threshold)
 						{
 							right = Math.Max(right, x);
 							top = Math.Min(top, y);
@@ -62,6 +78,9 @@ namespace XImage.Filters
 							break;
 						}
 
+						r0 = r;
+						g0 = g;
+						b0 = b;
 						i -= bytesPerPixel;
 					}
 				}
