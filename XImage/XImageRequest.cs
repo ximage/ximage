@@ -213,7 +213,6 @@ namespace XImage
 		T ParseMethod<T>(string method)
 			where T : class
 		{
-			// Note: This doesn't account for strings as filter args yet, just numbers.
 			if (method.Contains(' '))
 				throw new ArgumentException("Don't leave any spaces in your filter methods.  Enforcing this strictly helps optimize cache hit ratios.");
 			var tokens = method.Split('(', ')');
@@ -224,16 +223,45 @@ namespace XImage
 			if (tokens.Length > 2)
 			{
 				// Object array of strongly-typed (parsed) objects.
-				var strArgs = tokens[1].Split(',');
-				args = new object[strArgs.Length];
+				var strArgs = Split(tokens[1]);
+				args = new object[strArgs.Count];
 				for (int c = 0; c < args.Length; c++)
 				{
 					var s = strArgs[c];
-					var d = s.AsNullableDecimal();
-					if (d.HasValue)
-						args[c] = d;
-					else
-						args[c] = s;
+
+					// If in quotes, force it to be a string.
+					if (s.Contains('"'))
+					{
+						args[c] = s.Replace("\"", "");
+						continue;
+					}
+
+					// Is it a number?
+					var number = s.AsNullableDecimal();
+					if (number != null)
+					{
+						args[c] = number.Value;
+						continue;
+					}
+
+					// Is it a color?
+					var color = s.AsNullableColor();
+					if (color != null)
+					{
+						args[c] = color.Value;
+						continue;
+					}
+
+					// Is it a rectangle?
+					var rectangle = s.AsNullableRectangle();
+					if (rectangle != null)
+					{
+						args[c] = rectangle.Value;
+						continue;
+					}
+
+					// Default to a string then.
+					args[c] = s.Replace("\"", "");
 				}
 			}
 
@@ -269,9 +297,9 @@ namespace XImage
 				}
 				else
 				{
-					if (c == '(')
+					if (c == '(' || c == '{' || c == '[')
 						skipCommasOrSemicolons++;
-					if (c == ')')
+					if (c == ')' || c == '}' || c == ']')
 						skipCommasOrSemicolons--;
 					s.Append(c);
 				}

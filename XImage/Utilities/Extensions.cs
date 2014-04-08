@@ -34,6 +34,53 @@ namespace XImage.Utilities
 			return null;
 		}
 
+		public static Color? AsNullableColor(this string value)
+		{
+			var color = value;
+			if (color.Contains('{') || color.Contains('}'))
+				color = color.Replace("{", "").Replace("}", "");
+
+			// Yup, you're seeing that right.  Maybe later I'll find a non-throwing converter.
+			try
+			{
+				return ColorTranslator.FromHtml(color);
+			}
+			catch
+			{
+				try
+				{
+					return ColorTranslator.FromHtml("#" + color);
+				}
+				catch
+				{
+					if (value.Contains('{'))
+						throw new ArgumentException(value + " is not a valid color.  Try something more like: white, {6699ff}, or {255,255,255} or {255,255,255,64}");
+
+					return null;
+				}
+			}
+		}
+
+		public static Rectangle? AsNullableRectangle(this string value)
+		{
+			if (!value.Contains('[') || !value.Contains(']'))
+				return null;
+
+			var args = value.SplitClean(',');
+			if (args.Length != 4)
+				throw new ArgumentException("Rectangles must have four arguments: [x,y,w,h]");
+
+			var x = args[0].AsNullableInt();
+			var y = args[1].AsNullableInt();
+			var w = args[2].AsNullableInt();
+			var h = args[3].AsNullableInt();
+
+			if (x == null || y == null || w == null || h == null)
+				throw new ArgumentException("Rectangle arguments must be non-decimal values.");
+
+			return new Rectangle(x.Value, y.Value, w.Value, h.Value);
+		}
+
 		public static TValue GetValueOrDefault<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key)
 		{
 			TValue value;
