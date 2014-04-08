@@ -67,6 +67,7 @@
     <Compile Include="Filters\Fit.cs" />
     <Compile Include="Filters\FlipX.cs" />
     <Compile Include="Filters\FlipY.cs" />
+    <Compile Include="Filters\Gradient.cs" />
     <Compile Include="Filters\Grayscale.cs" />
     <Compile Include="Filters\Invert.cs" />
     <Compile Include="Filters\Offset.cs" />
