@@ -9,11 +9,11 @@ namespace XImage.Filters
 {
 	public class Blur : IFilter
 	{
-		int _radius;
+		decimal _radius;
 
 		public Blur() : this(50) { }
 
-		public Blur(int radius)
+		public Blur(decimal radius)
 		{
 			_radius = radius;
 		}
@@ -24,7 +24,7 @@ namespace XImage.Filters
 
 		public void PostProcess(XImageRequest request, XImageResponse response)
 		{
-			response.OutputImage.ApplyBlur(_radius * 2, false);
+			response.OutputImage.ApplyBlur((int)(_radius * 2M), false);
 		}
 	}
 }

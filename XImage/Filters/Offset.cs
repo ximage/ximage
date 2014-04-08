@@ -15,12 +15,6 @@ namespace XImage.Filters
 
 		public Offset() : this(10, 10) { }
 
-		public Offset(int dx, int dy)
-		{
-			_dx = dx;
-			_dy = dy;
-		}
-
 		public Offset(decimal dx, decimal dy)
 		{
 			_dx = dx;

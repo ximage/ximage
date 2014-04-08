@@ -10,30 +10,22 @@ namespace XImage.Filters
 {
 	public class Scale : IFilter
 	{
-		decimal _scaleX;
-		decimal _scaleY;
+		float _scaleX;
+		float _scaleY;
 
 		public Scale() : this(2) { }
 
-		public Scale(int scale) : this(scale, scale) { }
-
 		public Scale(decimal scale) : this(scale, scale) { }
-
-		public Scale(int scaleX, int scaleY)
-		{
-			_scaleX = scaleX;
-			_scaleY = scaleY;
-		}
 
 		public Scale(decimal scaleX, decimal scaleY)
 		{
-			_scaleX = scaleX;
-			_scaleY = scaleY;
+			_scaleX = (float)scaleX;
+			_scaleY = (float)scaleY;
 		}
 
 		public void PreProcess(XImageRequest request, XImageResponse response)
 		{
-			response.OutputGraphics.ScaleTransform((float)_scaleX, (float)_scaleY, MatrixOrder.Append);
+			response.OutputGraphics.ScaleTransform(_scaleX, _scaleY, MatrixOrder.Append);
 		}
 
 		public void PostProcess(XImageRequest request, XImageResponse response)

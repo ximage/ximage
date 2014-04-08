@@ -13,8 +13,6 @@ namespace XImage.Filters
 
 		public Opacity() : this(.5M) { }
 
-		public Opacity(int amount) : this((decimal)amount) { }
-
 		public Opacity(decimal amount)
 		{
 			_amount = amount;

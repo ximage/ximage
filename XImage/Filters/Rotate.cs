@@ -10,13 +10,13 @@ namespace XImage.Filters
 {
 	public class Rotate : IFilter
 	{
-		int _angle;
+		float _angle;
 
 		public Rotate() : this(180) { }
 
-		public Rotate(int angle)
+		public Rotate(decimal angle)
 		{
-			_angle = angle;
+			_angle = (float)angle;
 		}
 
 		public void PreProcess(XImageRequest request, XImageResponse response)

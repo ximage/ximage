@@ -13,8 +13,6 @@ namespace XImage.Filters
 
 		public Brightness() : this(5) { }
 
-		public Brightness(int amount) : this((decimal)amount) { }
-
 		public Brightness(decimal amount)
 		{
 			_amount = amount;

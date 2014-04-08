@@ -13,8 +13,6 @@ namespace XImage.Filters
 
 		public Contrast() : this(5) { }
 
-		public Contrast(int amount) : this((decimal)amount) { }
-
 		public Contrast(decimal amount)
 		{
 			_amount = amount;

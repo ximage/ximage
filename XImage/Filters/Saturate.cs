@@ -14,15 +14,13 @@ namespace XImage.Filters
 		const float gwgt = 0.6094f;
 		const float bwgt = 0.0820f;
 
-		decimal _amount;
+		float _amount;
 
 		public Saturate() : this(5) { }
 
-		public Saturate(int amount) : this((decimal)amount) { }
-
 		public Saturate(decimal amount)
 		{
-			_amount = amount;
+			_amount = (float)amount;
 
 			if (_amount > 10 || _amount < 0)
 				throw new ArgumentException("The grayscale amount must be between 0 and 10.");
@@ -32,7 +30,7 @@ namespace XImage.Filters
 		{
 			var matrix = new ColorMatrix();
 
-			float baseSaturation = 1F - (float)_amount;
+			float baseSaturation = 1F - _amount;
 			float saturation = 1F - baseSaturation;
 
 			matrix[0, 0] = baseSaturation * rwgt + saturation;

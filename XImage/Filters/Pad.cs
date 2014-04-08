@@ -17,22 +17,22 @@ namespace XImage.Filters
 		// TODO: Bug, causes disproportionate resizing when image isn't 1:1 aspect ratio.  Try a padding of 200 on ping.jpg.
 		public Pad() : this(10) { }
 
-		public Pad(int padding) : this(padding, padding, padding, padding) { }
+		public Pad(decimal padding) : this(padding, padding, padding, padding) { }
 
 		// TODO: Add ChangeSize method to IFilter.
 		// The ctors below are private because of a bug.  
 		// Stretching and incorrect offsets may occur if the padding values aren't all equal.
 
-		private Pad(int topBottom, int leftRight) : this(topBottom, leftRight, topBottom, leftRight) { }
+		private Pad(decimal topBottom, decimal leftRight) : this(topBottom, leftRight, topBottom, leftRight) { }
 
-		private Pad(int top, int leftRight, int bottom) : this(top, leftRight, bottom, leftRight) { }
+		private Pad(decimal top, decimal leftRight, decimal bottom) : this(top, leftRight, bottom, leftRight) { }
 
-		private Pad(int top, int right, int bottom, int left)
+		private Pad(decimal top, decimal right, decimal bottom, decimal left)
 		{
-			_top = top;
-			_right = right;
-			_bottom = bottom;
-			_left = left;
+			_top = (int)top;
+			_right = (int)right;
+			_bottom = (int)bottom;
+			_left = (int)left;
 
 			if (_top < 0 || _right < 0 || _bottom < 0 || _left < 0)
 				throw new ArgumentException("Padding must be a non-negative number.");

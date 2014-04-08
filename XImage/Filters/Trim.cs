@@ -13,9 +13,9 @@ namespace XImage.Filters
 
 		public Trim() : this(25) { }
 
-		public Trim(int threshold)
+		public Trim(decimal threshold)
 		{
-			_threshold = threshold;
+			_threshold = (int)threshold;
 		}
 
 		public void PreProcess(XImageRequest request, XImageResponse response)

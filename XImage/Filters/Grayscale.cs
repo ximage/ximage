@@ -18,8 +18,6 @@ namespace XImage.Filters
 
 		public Grayscale() : this(1) { }
 
-		public Grayscale(int amount) : this((decimal)amount) { }
-
 		public Grayscale(decimal amount)
 		{
 			_amount = amount;

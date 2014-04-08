@@ -17,14 +17,14 @@ namespace XImage.Filters
 
 		public BorderRadius() : this(20) { }
 
-		public BorderRadius(int radius) : this(radius, radius, radius, radius) { }
+		public BorderRadius(decimal radius) : this(radius, radius, radius, radius) { }
 
-		public BorderRadius(int topLeft, int topRight, int bottomRight, int bottomLeft)
+		public BorderRadius(decimal topLeft, decimal topRight, decimal bottomRight, decimal bottomLeft)
 		{
-			_topLeft = topLeft;
-			_topRight = topRight;
-			_bottomRight = bottomRight;
-			_bottomLeft = bottomLeft;
+			_topLeft = (int)topLeft;
+			_topRight = (int)topRight;
+			_bottomRight = (int)bottomRight;
+			_bottomLeft = (int)bottomLeft;
 		}
 
 		public void PreProcess(XImageRequest request, XImageResponse response)

@@ -230,10 +230,7 @@ namespace XImage
 				{
 					var s = strArgs[c];
 					var d = s.AsNullableDecimal();
-					var i = s.AsNullableInt();
-					if (i.HasValue)
-						args[c] = i;
-					else if (d.HasValue)
+					if (d.HasValue)
 						args[c] = d;
 					else
 						args[c] = s;
