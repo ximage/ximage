@@ -11,15 +11,14 @@ namespace XImage.Meta
 	{
 		public void Calculate(XImageRequest request, XImageResponse response, byte[] data)
 		{
-			var byteCount = data.Length;
-			var pixelCount = byteCount / (Bitmap.GetPixelFormatSize(response.OutputImage.PixelFormat) / 8);
+			var pixelCount = data.Length / (Bitmap.GetPixelFormatSize(response.OutputImage.PixelFormat) / 8);
 
 			int r = 0, g = 0, b = 0;
 			int rSum = 0, gSum = 0, bSum = 0;
 			int rBucket = 0, gBucket = 0, bBucket = 0;
 			var histogram = new Dictionary<Color, int>();
 			int histogramSize = 32;
-			for (int i = 0; i < byteCount; i += 4)
+			for (int i = 0; i < data.Length; i += 4)
 			{
 				r = data[i + 2];
 				g = data[i + 1];
