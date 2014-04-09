@@ -66,7 +66,7 @@ namespace XImage.Utilities
 			if (!value.Contains('[') || !value.Contains(']'))
 				return null;
 
-			var args = value.SplitClean(',');
+			var args = value.SplitClean('[', ',', ']');
 			if (args.Length != 4)
 				throw new ArgumentException("Rectangles must have four arguments: [x,y,w,h]");
 
