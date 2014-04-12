@@ -28,9 +28,9 @@ namespace XImage.Outputs
 			_asKb = false;
 		}
 
-		public Jpg(int quality)
+		public Jpg(decimal quality)
 		{
-			_quality = quality;
+			_quality = Convert.ToInt64(quality);
 			_asKb = false;
 
 			if (_quality <= 0 || _quality > 100)
