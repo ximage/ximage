@@ -229,6 +229,16 @@ namespace XImage
 				{
 					var s = strArgs[c];
 
+					// If it's "url" take the next value to be the URL.
+					if (s == "url" && tokens.Length > 2)
+					{
+						var url = tokens[2];
+						if (!url.ToLower().StartsWith("http://") && !url.ToLower().StartsWith("https://"))
+							url = "http://" + url;
+						args[c] = new Uri(url);
+						continue;
+					}
+
 					// If in quotes, force it to be a string.
 					if (s.Contains('"'))
 					{
@@ -292,7 +302,8 @@ namespace XImage
 			{
 				if ((c == ',' || c == ';') && skipCommasOrSemicolons == 0)
 				{
-					splitted.Add(s.ToString());
+					if (s.Length > 0)
+						splitted.Add(s.ToString());
 					s = new StringBuilder();
 				}
 				else
@@ -304,8 +315,8 @@ namespace XImage
 					s.Append(c);
 				}
 			}
-			// Thanks PoeHah for pointing it out. This adds the last element to it.
-			splitted.Add(s.ToString());
+			if (s.Length > 0)
+				splitted.Add(s.ToString());
 			return splitted;
 		}
 
