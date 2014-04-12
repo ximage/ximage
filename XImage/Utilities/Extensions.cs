@@ -131,26 +131,16 @@ namespace XImage.Utilities
 
 		public static void ApplyMask(this Bitmap bitmap, GraphicsPath path, Brush brush, bool opaqueMask = false)
 		{
-			// TODO: This next line needs to be batch-able so we're not copying bytes over and over.  (Maybe use unsafe?)
-			using (var bitmapBits = bitmap.GetBitmapBits(true))
+			using (var maskBitmap = new Bitmap(bitmap.Width, bitmap.Height))
 			{
-				using (var maskBitmap = new Bitmap(bitmap.Width, bitmap.Height))
+				using (var maskGraphics = Graphics.FromImage(maskBitmap))
 				{
-					using (var maskGraphics = Graphics.FromImage(maskBitmap))
-					{
-						maskGraphics.Clear(Color.Black);
-						maskGraphics.SmoothingMode = SmoothingMode.HighQuality;
+					maskGraphics.Clear(Color.Black);
+					maskGraphics.SmoothingMode = SmoothingMode.HighQuality;
 
-						maskGraphics.FillPath(brush, path);
+					maskGraphics.FillPath(brush, path);
 
-						using (var maskData = maskBitmap.GetBitmapBits(false))
-						{
-							if (opaqueMask)
-								bitmapBits.Data.BlendLayer(maskData.Data, BlendingModes.OpaqueMask);
-							else
-								bitmapBits.Data.BlendLayer(maskData.Data, BlendingModes.Mask);
-						}
-					}
+					ApplyMask(bitmap, maskBitmap, opaqueMask);
 				}
 			}
 		}
