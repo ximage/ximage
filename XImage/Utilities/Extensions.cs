@@ -138,6 +138,7 @@ namespace XImage.Utilities
 				{
 					using (var maskGraphics = Graphics.FromImage(maskBitmap))
 					{
+						maskGraphics.Clear(Color.Black);
 						maskGraphics.SmoothingMode = SmoothingMode.HighQuality;
 
 						maskGraphics.FillPath(brush, path);
@@ -150,6 +151,21 @@ namespace XImage.Utilities
 								bitmapBits.Data.BlendLayer(maskData.Data, BlendingModes.Mask);
 						}
 					}
+				}
+			}
+		}
+
+		public static void ApplyMask(this Bitmap bitmap, Bitmap mask, bool opaqueMask = false)
+		{
+			// TODO: This next line needs to be batch-able so we're not copying bytes over and over.  (Maybe use unsafe?)
+			using (var bitmapBits = bitmap.GetBitmapBits(true))
+			{
+				using (var maskData = mask.GetBitmapBits(false))
+				{
+					if (opaqueMask)
+						bitmapBits.Data.BlendLayer(maskData.Data, BlendingModes.OpaqueMask);
+					else
+						bitmapBits.Data.BlendLayer(maskData.Data, BlendingModes.Mask);
 				}
 			}
 		}
@@ -169,13 +185,13 @@ namespace XImage.Utilities
 			{
 				case BlendingModes.Mask:
 					for (int i = 3; i < length; i += 4)
-						targetLayer[i] = layerToBlend[i];
+						if (targetLayer[i] != 0) // Ignore these since it uses transparent black.
+							targetLayer[i] = layerToBlend[i - 1];
 					break;
 				case BlendingModes.OpaqueMask:
 					for (int i = 0; i < length; i += 4)
 					{
-						targetLayer[i + 3] = layerToBlend[i + 3];
-						var p = (float)(255 - layerToBlend[i + 3]) / 255F;
+						var p = (float)(255 - layerToBlend[i]) / 255F;
 						targetLayer[i] += Convert.ToByte((float)(255 - targetLayer[i]) * p);
 						targetLayer[i + 1] += Convert.ToByte((float)(255 - targetLayer[i + 1]) * p);
 						targetLayer[i + 2] += Convert.ToByte((float)(255 - targetLayer[i + 2]) * p);
