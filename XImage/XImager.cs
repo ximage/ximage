@@ -18,42 +18,41 @@ namespace XImage
 	public class XImager
 	{
 		public static readonly string[] XIMAGE_PARAMETERS = { "help", "w", "width", "h", "height", "f", "filter", "filters", "o", "output" };
-		private static readonly Stopwatch _stopwatch = Stopwatch.StartNew();
 
 		public static void ProcessImage(XImageRequest request, XImageResponse response)
 		{
-			var startTimestamp = _stopwatch.ElapsedTicks;
-
-			SetCanvasDimensions(request, response);
-
-			// --- FILTERS ---
-			foreach (var filter in request.Filters)
-				filter.PreProcess(request, response);
-
-			Rasterize(request, response);
-			
-			foreach (var filter in request.Filters)
-				filter.PostProcess(request, response);
-
-			response.Properties.Add("X-Image-Time-Filters", string.Format("{0:N2}ms", 1000D * (double)(_stopwatch.ElapsedTicks - startTimestamp) / (double)Stopwatch.Frequency));
-			var metasTimestamp = _stopwatch.ElapsedTicks;
-
-			// --- METAS ---
-			using (var bitmapBits = response.OutputImage.GetBitmapBits())
+			using (response.Diagnostics.Measure("X-Image-Time-Total"))
 			{
-				foreach (var meta in request.Metas)
-					meta.Calculate(request, response, bitmapBits.Data);
+				SetCanvasDimensions(request, response);
+
+				// --- FILTERS ---
+				using (response.Diagnostics.Measure("X-Image-Time-Filters"))
+				{
+					foreach (var filter in request.Filters)
+						filter.PreProcess(request, response);
+
+					Rasterize(request, response);
+
+					foreach (var filter in request.Filters)
+						filter.PostProcess(request, response);
+				}
+
+				// --- METAS ---
+				using (response.Diagnostics.Measure("X-Image-Time-Metas"))
+				{
+					using (var bitmapBits = response.OutputImage.GetBitmapBits())
+					{
+						foreach (var meta in request.Metas)
+							meta.Calculate(request, response, bitmapBits.Data);
+					}
+				}
+
+				// --- OUTPUT ---
+				using (response.Diagnostics.Measure("X-Image-Time-Output"))
+				{
+					request.Output.PostProcess(request, response);
+				}
 			}
-
-			response.Properties.Add("X-Image-Time-Metas", string.Format("{0:N2}ms", 1000D * (double)(_stopwatch.ElapsedTicks - metasTimestamp) / (double)Stopwatch.Frequency));
-			var outputTimestamp = _stopwatch.ElapsedTicks;
-
-			// --- OUTPUT ---
-			request.Output.PostProcess(request, response);
-
-			response.Properties.Add("X-Image-Time-Output", string.Format("{0:N2}ms", 1000D * (double)(_stopwatch.ElapsedTicks - outputTimestamp) / (double)Stopwatch.Frequency));
-
-			response.Properties.Add("X-Image-Time-Total", string.Format("{0:N2}ms", 1000D * (double)(_stopwatch.ElapsedTicks - startTimestamp) / (double)Stopwatch.Frequency));
 		}
 
 		public static void Rasterize(XImageRequest request, XImageResponse response)

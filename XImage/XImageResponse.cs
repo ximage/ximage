@@ -63,6 +63,8 @@ namespace XImage
 
 		public NameValueCollection Properties { get; private set; }
 
+		public XImageDiagnostics Diagnostics { get; private set; }
+
 		public XImageResponse(HttpContext httpContext)
 		{
 			InputImage = Bitmap.FromStream(httpContext.Response.Filter) as Bitmap;
@@ -72,6 +74,7 @@ namespace XImage
 			ImageAttributes = new ImageAttributes();
 			OutputStream = httpContext.Response.OutputStream;
 			Properties = httpContext.Response.Headers;
+			Diagnostics = new XImageDiagnostics(Properties);
 		}
 
 		public void Dispose()

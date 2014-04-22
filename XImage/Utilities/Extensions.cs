@@ -118,6 +118,17 @@ namespace XImage.Utilities
 			return (float)size.Width / (float)size.Height;
 		}
 
+		public static bool ContainsKey(this NameValueCollection collection, string key)
+		{
+			// It seems that when the querystring has a key but no value, e.g. '?help' NVC reports 'help'
+			// as the value and null for the key.  I was expecting 'help' as the key.  
+
+			return Enumerable
+				.Range(0, collection.AllKeys.Length)
+				.Select(i => collection.AllKeys[i] ?? collection.Get(i))
+				.Any(i => key == i);
+		}
+
 		public static bool ContainsAnyKeys(this NameValueCollection collection, IEnumerable<string> keys)
 		{
 			// It seems that when the querystring has a key but no value, e.g. '?help' NVC reports 'help'

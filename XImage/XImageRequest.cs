@@ -47,7 +47,9 @@ namespace XImage
 		}
 		
 		public bool IsOutputImplicitlySet { get; private set; }
-		
+
+		public bool IsDebug { get; private set; }
+
 		static XImageRequest()
 		{
 			var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(a => a.GetTypes()).ToList();
@@ -83,6 +85,7 @@ namespace XImage
 			ParseWidthAndHeight(q);
 			ParseFiltersAndOutput(httpContext, q);
 			ParseMetas(q);
+			ParseDebug(q);
 
 			ParseBackwardsCompatibility(httpContext, q);
 		}
@@ -177,6 +180,11 @@ namespace XImage
 			// TODO: Use the query string somehow?
 
 			Metas.AddRange(_metasLookup.Select(m => Activator.CreateInstance(m.Value) as IMeta));
+		}
+
+		void ParseDebug(NameValueCollection q)
+		{
+			IsDebug = q.ContainsKey("debug");
 		}
 
 		private void ParseBackwardsCompatibility(HttpContext httpContext, NameValueCollection q)
