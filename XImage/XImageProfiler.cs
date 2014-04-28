@@ -7,24 +7,36 @@ using System.Text;
 
 namespace XImage
 {
-	public class XImageDiagnostics
+	public class XImageProfiler
 	{
+		Stopwatch _stopwatch = Stopwatch.StartNew();
 		NameValueCollection _properties;
 
-		public XImageDiagnostics(NameValueCollection properties)
+		public List<Tuple<string, long>> Markers { get; private set; }
+
+		public XImageProfiler(NameValueCollection properties)
 		{
 			_properties = properties;
+			Markers = new List<Tuple<string, long>>();
+			Mark(""); // Gotta have a starting point.
+		}
+
+		public void Mark(string name)
+		{
+			Markers.Add(new Tuple<string, long>(name, _stopwatch.ElapsedTicks));
 		}
 
 		public IDisposable Measure(string name)
 		{
-			var stopwatch = Stopwatch.StartNew();
-			var startTimestamp = stopwatch.ElapsedTicks;
+			var startTimestamp = _stopwatch.ElapsedTicks;
 			return new BlockEndAction(() =>
 			{
-				var endTimestamp = stopwatch.ElapsedTicks;
+				var endTimestamp = _stopwatch.ElapsedTicks;
+				
+				//Markers.Add(new Tuple<string, long>(name, endTimestamp));
+
 				_properties.Add(
-					name, 
+					name,
 					string.Format(
 						"{0:N2}ms",
 						1000D * (double)(endTimestamp - startTimestamp) / (double)Stopwatch.Frequency));

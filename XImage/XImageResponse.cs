@@ -63,9 +63,9 @@ namespace XImage
 
 		public NameValueCollection Properties { get; private set; }
 
-		public XImageDiagnostics Diagnostics { get; private set; }
+		public XImageProfiler Profiler { get; private set; }
 
-		public XImageResponse(HttpContext httpContext)
+		public XImageResponse(HttpContext httpContext, XImageProfiler profiler = null)
 		{
 			InputImage = Bitmap.FromStream(httpContext.Response.Filter) as Bitmap;
 			CropBox = new Rectangle(Point.Empty, InputImage.Size);
@@ -74,7 +74,11 @@ namespace XImage
 			ImageAttributes = new ImageAttributes();
 			OutputStream = httpContext.Response.OutputStream;
 			Properties = httpContext.Response.Headers;
-			Diagnostics = new XImageDiagnostics(Properties);
+			Profiler = profiler ?? new XImageProfiler(Properties);
+
+			// If debugging, don't dump the image down the response stream.
+			if (HttpUtility.ParseQueryString(httpContext.Request.Url.Query).ContainsKey("debug"))
+				OutputStream = new MemoryStream();
 		}
 
 		public void Dispose()

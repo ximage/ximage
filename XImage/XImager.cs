@@ -21,36 +21,48 @@ namespace XImage
 
 		public static void ProcessImage(XImageRequest request, XImageResponse response)
 		{
-			using (response.Diagnostics.Measure("X-Image-Time-Total"))
+			using (response.Profiler.Measure("X-Image-Time-Total"))
 			{
 				SetCanvasDimensions(request, response);
+				response.Profiler.Mark("Canvas dimensions calculated");
 
 				// --- FILTERS ---
-				using (response.Diagnostics.Measure("X-Image-Time-Filters"))
+				using (response.Profiler.Measure("X-Image-Time-Filters"))
 				{
 					foreach (var filter in request.Filters)
+					{
 						filter.PreProcess(request, response);
+						response.Profiler.Mark("Filter.PreProcess: " + filter.GetType().Name);
+					}
 
 					Rasterize(request, response);
+					response.Profiler.Mark("Rasterize");
 
 					foreach (var filter in request.Filters)
+					{
 						filter.PostProcess(request, response);
+						response.Profiler.Mark("Filter.PostProcess: " + filter.GetType().Name);
+					}
 				}
 
 				// --- METAS ---
-				using (response.Diagnostics.Measure("X-Image-Time-Metas"))
+				using (response.Profiler.Measure("X-Image-Time-Metas"))
 				{
 					using (var bitmapBits = response.OutputImage.GetBitmapBits())
 					{
 						foreach (var meta in request.Metas)
+						{
 							meta.Calculate(request, response, bitmapBits.Data);
+							response.Profiler.Mark("Meta: " + meta.GetType().Name);
+						}
 					}
 				}
 
 				// --- OUTPUT ---
-				using (response.Diagnostics.Measure("X-Image-Time-Output"))
+				using (response.Profiler.Measure("X-Image-Time-Output"))
 				{
 					request.Output.PostProcess(request, response);
+					response.Profiler.Mark("Image encoded");
 				}
 			}
 		}

@@ -140,6 +140,11 @@ namespace XImage.Utilities
 				.Any(i => keys.Contains(i));
 		}
 
+		public static bool HasXImageParameters(this HttpRequest request)
+		{
+			return request.QueryString.ContainsAnyKeys(XImager.XIMAGE_PARAMETERS);
+		}
+
 		public static void ApplyMask(this Bitmap bitmap, GraphicsPath path, Brush brush, bool opaqueMask = false)
 		{
 			using (var maskBitmap = new Bitmap(bitmap.Width, bitmap.Height))
