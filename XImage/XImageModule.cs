@@ -93,6 +93,8 @@ namespace XImage
 
 		void EndWithDebug(HttpApplication app)
 		{
+			var url = app.Request.RawUrl.Replace("debug", "");
+
 			var profiler = app.Context.Items["XImage.Profiler"] as XImageProfiler;
 			app.Response.ClearHeaders();
 			app.Response.ClearContent();
@@ -106,16 +108,25 @@ namespace XImage
 				var previous = profiler.Markers.First();
 				foreach (var marker in profiler.Markers.Skip(1))
 				{
+					//app.Response.Output.Write("<span style=\"padding: 20px; display: inline-block\">");
 					app.Response.Output.Write("<div>");
+					{
+						app.Response.Output.Write(marker.Item1);
+						app.Response.Output.Write(" <b style=\"padding-left: 20px;\">");
+						var ticks = marker.Item2 - previous.Item2;
+						app.Response.Output.Write(string.Format(
+							"{0:N2}ms",
+							1000D * (double)ticks / (double)Stopwatch.Frequency));
+						app.Response.Output.Write("</b> ");
 
-					var ticks = marker.Item2 - previous.Item2;
-					app.Response.Output.Write(marker.Item1);
-					app.Response.Output.Write(" ");
-					app.Response.Output.Write(string.Format(
-						"{0:N2}ms",
-						1000D * (double)ticks / (double)Stopwatch.Frequency));
-
+						//app.Response.Output.Write("<br /><img src=\"");
+						//{
+						//	app.Response.Output.Write(url);
+						//}
+						//app.Response.Output.Write("\" />");
+					}
 					app.Response.Output.Write("</div>");
+					//app.Response.Output.Write("</span>");
 
 					previous = marker;
 				}
