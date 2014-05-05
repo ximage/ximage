@@ -89,6 +89,7 @@
     <Compile Include="Filters\BorderRadius.cs" />
     <Compile Include="Metas\Colors.cs" />
     <Compile Include="Metas\Dimensions.cs" />
+    <Compile Include="Outputs\Debug.cs" />
     <Compile Include="Outputs\Help.cs" />
     <Compile Include="Outputs\Gif.cs" />
     <Compile Include="Outputs\Jpg.cs" />
