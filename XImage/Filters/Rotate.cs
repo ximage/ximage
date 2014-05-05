@@ -8,6 +8,7 @@ using XImage.Utilities;
 
 namespace XImage.Filters
 {
+	[Documentation(Text = "neato mosquito")]
 	public class Rotate : IFilter
 	{
 		float _angle;

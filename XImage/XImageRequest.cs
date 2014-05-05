@@ -17,10 +17,6 @@ namespace XImage
 	public class XImageRequest : IDisposable
 	{
 		public static readonly int MAX_SIZE = ConfigurationManager.AppSettings["XImage.MaxSize"].AsNullableInt() ?? 1000;
-		static readonly Dictionary<string, Type> _filtersLookup;
-		static readonly Dictionary<string, Type> _metasLookup;
-		static readonly Dictionary<string, Type> _outputsLookup;
-		static readonly Dictionary<Type, Dictionary<string, Type>> _lookupLookup;
 
 		HttpContext _httpContext;
 
@@ -49,31 +45,6 @@ namespace XImage
 		public bool IsOutputImplicitlySet { get; private set; }
 
 		public bool IsDebug { get; private set; }
-
-		static XImageRequest()
-		{
-			var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(a => a.GetTypes()).ToList();
-
-			_filtersLookup = GetTypes<IFilter>(types).ToDictionary(k => k.Name.ToLower(), v => v);
-			_metasLookup = GetTypes<IMeta>(types).ToDictionary(k => k.Name.ToLower(), v => v);
-			_outputsLookup = GetTypes<IOutput>(types).ToDictionary(k => k.Name.ToLower(), v => v);
-
-			_lookupLookup = new Dictionary<Type, Dictionary<string, Type>>()
-			{
-				{ typeof(IFilter), _filtersLookup },
-				{ typeof(IMeta), _metasLookup },
-				{ typeof(IOutput), _outputsLookup },
-			};
-		}
-
-		static List<Type> GetTypes<T>(List<Type> types)
-			where T : class
-		{
-			var interfaceType = typeof(T);
-			return types
-				.Where(t => interfaceType.IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract)
-				.ToList();
-		}
 
 		public XImageRequest(HttpContext httpContext)
 		{
@@ -136,13 +107,13 @@ namespace XImage
 			var filterValues = q["f"] ?? q["filter"] ?? q["filters"];
 			if (filterValues != null)
 			{
-				var filterNames = Split(filterValues);
-				if (filterNames.Count == 0)
+				var filterMethodsWithArgs = filterValues.SplitMethods(); ;
+				if (filterMethodsWithArgs.Count == 0)
 					throw new ArgumentException("The f parameter cannot be empty.  Exclude this parameters if no filters are needed.");
 
-				foreach (var filterName in filterNames)
+				foreach (var filterString in filterMethodsWithArgs)
 				{
-					var filter = ParseMethod<IFilter>(filterName);
+					var filter = XImageFactory.CreateInstance<IFilter>(filterString);
 					if (filter is IOutput)
 						Output = filter as IOutput;
 					else
@@ -169,7 +140,7 @@ namespace XImage
 
 				o = o.Replace("image/", "").Replace("jpeg", "jpg");
 
-				Output = ParseMethod<IOutput>(o);
+				Output = XImageFactory.CreateInstance<IOutput>(o);
 			}
 		}
 
@@ -179,7 +150,7 @@ namespace XImage
 
 			// TODO: Use the query string somehow?
 
-			Metas.AddRange(_metasLookup.Select(m => Activator.CreateInstance(m.Value) as IMeta));
+			Metas.AddRange(XImageFactory.MetaTypes.Select(m => Activator.CreateInstance(m) as IMeta));
 		}
 
 		void ParseDebug(NameValueCollection q)
@@ -215,117 +186,6 @@ namespace XImage
 						break;
 				}
 			}
-		}
-
-
-		T ParseMethod<T>(string method)
-			where T : class
-		{
-			if (method.Contains(' '))
-				throw new ArgumentException("Don't leave any spaces in your filter methods.  Enforcing this strictly helps optimize cache hit ratios.");
-			var tokens = method.Split('(', ')');
-			if (tokens.Length == 3 && tokens[2] != "")
-				throw new ArgumentException("Filter methods must be of the format 'method(arg1,arg2,...)'.");
-			var methodName = tokens[0];
-			object[] args = null;
-			if (tokens.Length > 2)
-			{
-				// Object array of strongly-typed (parsed) objects.
-				var strArgs = Split(tokens[1]);
-				args = new object[strArgs.Count];
-				for (int c = 0; c < args.Length; c++)
-				{
-					var s = strArgs[c];
-
-					// If it's "url" take the next value to be the URL.
-					if (s == "url" && tokens.Length > 2)
-					{
-						var url = tokens[2];
-						if (!url.ToLower().StartsWith("http://") && !url.ToLower().StartsWith("https://"))
-							url = "http://" + url;
-						args[c] = new Uri(url);
-						continue;
-					}
-
-					// If in quotes, force it to be a string.
-					if (s.Contains('"'))
-					{
-						args[c] = s.Replace("\"", "");
-						continue;
-					}
-
-					// Is it a number?
-					var number = s.AsNullableDecimal();
-					if (number != null)
-					{
-						args[c] = number.Value;
-						continue;
-					}
-
-					// Is it a color?
-					var color = s.AsNullableColor();
-					if (color != null)
-					{
-						args[c] = color.Value;
-						continue;
-					}
-
-					// Is it a rectangle?
-					var rectangle = s.AsNullableRectangle();
-					if (rectangle != null)
-					{
-						args[c] = rectangle.Value;
-						continue;
-					}
-
-					// Default to a string then.
-					args[c] = s.Replace("\"", "");
-				}
-			}
-
-			Type type;
-			if (_lookupLookup[typeof(T)].TryGetValue(methodName, out type))
-			{
-				try
-				{
-					return Activator.CreateInstance(type, args) as T;
-				}
-				catch (MissingMethodException ex)
-				{
-					throw new ArgumentException(string.Format("There is no constructor for {0}.", method), ex);
-				}
-			}
-			else
-			{
-				throw new ArgumentException(string.Format("Unrecognized type: {0}.", methodName));
-			}
-		}
-
-		private List<string> Split(string value)
-		{
-			var splitted = new List<string>();
-			int skipCommasOrSemicolons = 0;
-			var s = new StringBuilder();
-			foreach (var c in value.ToCharArray())
-			{
-				if ((c == ',' || c == ';') && skipCommasOrSemicolons == 0)
-				{
-					if (s.Length > 0)
-						splitted.Add(s.ToString());
-					s = new StringBuilder();
-				}
-				else
-				{
-					if (c == '(' || c == '{' || c == '[')
-						skipCommasOrSemicolons++;
-					if (c == ')' || c == '}' || c == ']')
-						skipCommasOrSemicolons--;
-					s.Append(c);
-				}
-			}
-			if (s.Length > 0)
-				splitted.Add(s.ToString());
-			return splitted;
 		}
 
 		public void Dispose()

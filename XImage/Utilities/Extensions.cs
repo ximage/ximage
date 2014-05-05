@@ -4,6 +4,7 @@ using System.Collections.Specialized;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
+using System.Text;
 using System.Web;
 
 namespace XImage.Utilities
@@ -101,6 +102,33 @@ namespace XImage.Utilities
 		public static string[] SplitClean(this string value, params char[] separator)
 		{
 			return value.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+		}
+
+		public static List<string> SplitMethods(this string value)
+		{
+			var splitted = new List<string>();
+			int skipCommasOrSemicolons = 0;
+			var s = new StringBuilder();
+			foreach (var c in value.ToCharArray())
+			{
+				if ((c == ',' || c == ';') && skipCommasOrSemicolons == 0)
+				{
+					if (s.Length > 0)
+						splitted.Add(s.ToString());
+					s = new StringBuilder();
+				}
+				else
+				{
+					if (c == '(' || c == '{' || c == '[')
+						skipCommasOrSemicolons++;
+					if (c == ')' || c == '}' || c == ']')
+						skipCommasOrSemicolons--;
+					s.Append(c);
+				}
+			}
+			if (s.Length > 0)
+				splitted.Add(s.ToString());
+			return splitted;
 		}
 
 		public static Size ScaleToWidth(this Size size, int width)

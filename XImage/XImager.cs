@@ -17,7 +17,7 @@ namespace XImage
 {
 	public class XImager
 	{
-		public static readonly string[] XIMAGE_PARAMETERS = { "help", "w", "width", "h", "height", "f", "filter", "filters", "o", "output" };
+		public static readonly string[] XIMAGE_PARAMETERS = { "help", "w", "width", "h", "height", "f", "filter", "filters", "o", "output", "debug" };
 
 		public static void ProcessImage(XImageRequest request, XImageResponse response)
 		{
