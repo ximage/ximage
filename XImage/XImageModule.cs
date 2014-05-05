@@ -11,14 +11,12 @@ namespace XImage
 {
 	public class XImageModule : IHttpModule
 	{
-		static readonly string HELP = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream("XImage.Resources.Help.txt")).ReadToEnd();
-
 		public void Init(HttpApplication app)
 		{
 			app.BeginRequest += (_, __) =>
 			{
 				// Keep it lightweight.  Don't do any XImage work unless the query string has XImage keys.
-				// Note: At this point, we don't necessarily if it's an image yet.
+				// Note: At this point, we don't necessarily know if it's an image yet.
 				if (app.Request.HasXImageParameters())
 				{
 					app.Context.Items["XImage.Profiler"] = new XImageProfiler(app.Response.Headers);
@@ -64,31 +62,8 @@ namespace XImage
 			}
 			catch (Exception ex)
 			{
-				EndWithError(HttpContext.Current.ApplicationInstance, HttpStatusCode.BadRequest, ex.Message);
+				new Outputs.Help(ex.Message).PostProcess(null, null);
 			}
-		}
-
-		void EndWithError(HttpApplication app, HttpStatusCode statusCode, string error = null)
-		{
-			app.Response.ClearHeaders();
-			app.Response.ClearContent();
-			app.Response.TrySkipIisCustomErrors = true;
-			app.Response.StatusCode = (int)statusCode;
-			app.Response.ContentType = "text/html";
-			app.Response.Output.WriteLine("<html><body><pre>");
-			if (!error.IsNullOrEmpty())
-			{
-				app.Response.Output.WriteLine("ERROR");
-				app.Response.Output.WriteLine("-----");
-				app.Response.Output.WriteLine(error);
-				app.Response.Output.WriteLine("");
-
-				app.Response.AddHeader("X-Image-Error", error);
-			}
-			app.Response.Output.WriteLine(HELP, app.Request.Url.Segments.Last());
-			app.Response.Output.WriteLine("</pre></body></html>");
-	
-			app.Response.End();
 		}
 
 		void EndWithDebug(HttpApplication app)

@@ -56,6 +56,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\Help.txt" />
     <Content Include="Resources\avatar.jpg" />
+    <EmbeddedResource Include="Resources\Help.html" />
     <Content Include="Resources\pink.jpg" />
     <Content Include="Web.config" />
   </ItemGroup>
@@ -88,6 +89,7 @@
     <Compile Include="Filters\BorderRadius.cs" />
     <Compile Include="Metas\Colors.cs" />
     <Compile Include="Metas\Dimensions.cs" />
+    <Compile Include="Outputs\Help.cs" />
     <Compile Include="Outputs\Gif.cs" />
     <Compile Include="Outputs\Jpg.cs" />
     <Compile Include="Outputs\Json.cs" />

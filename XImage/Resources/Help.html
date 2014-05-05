@@ -1,0 +1,118 @@
+﻿
+<!DOCTYPE html>
+<html class="">
+<head>
+    <title>XImage</title>
+    <style type="text/css">
+        body {
+            /*background-color: #000020;
+            color: #0080C0;*/
+            margin: auto;
+            width: 640px;
+            font-family: Courier;
+            font-size: 14px;
+        }
+
+        /*a {
+            color: #A0C060;
+        }
+
+        b {
+            color: #A0C060;
+        }*/
+
+        table a {
+            display: none;
+        }
+
+        h1 {
+            font-size: 14px;
+            font-weight: normal;
+        }
+
+        td {
+            vertical-align: top;
+            padding-left: 20px;
+        }
+    </style>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+</head>
+<body>
+    <!-- <img src="http://x.shopsavvy.com/24543656135?w=100&f=circle" style="float: right"> -->
+    <pre>
+____  ___.___                               
+\   \/  /|   | _____ _____     ____   ____  
+ \     / |   |/     \\__  \   / ___\_/ __ \ 
+ /     \ |   |  Y Y  \/ __ \_/ /_/  >  ___/ 
+/___/\  \|___|__|_|  (____  /\___  / \___  >
+      \_/          \/     \//_____/      \/ </pre>
+
+    <p>
+        XImage (Extensible Image) is an open technology for real-time image manipulation over HTTP.  It defines a standard interface for performing common image operations such as resizing, cropping, compressing, filtering, etc.  In addition, it describes how to add extended functionality that might be custom for your use case in a manner that is discoverable and reusable.
+    </p>
+
+    <h1>QUERY STRING</h1>
+    <table id="mainTable">
+        <tr>
+            <td>
+                <b>help</b>
+            </td>
+            <td>
+                Shows this help screen.  Each implementation of XImage must show this help screen which is primarily used to show which features it supports.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <b>w</b>
+            </td>
+            <td>
+                Width of the image.  If h is not supplied, it will be inferred proportionally.  By default, it will not be resized larger than its original dimensions.  To allow upscaling append '!'.
+                <a href="pink.jpg?w=100">pink.jpg?w=100</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <b>h</b>
+            </td>
+            <td>
+                Height of the image.  If w is not supplied, it will be inferred proportionally.  By default, it will not be resized larger than its original dimensions.  To allow upscaling append '!'.
+                <a href="pink.jpg?h=100">pink.jpg?h=100</a>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <b>f</b>
+            </td>
+            <td>
+                Filters, functions and effects to apply to the image.  Combine more than one of these together using ','.
+                <table>
+
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <b>o</b>
+            </td>
+            <td>
+                Output format of the image.
+                <table>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+    <script type="text/javascript">
+        $("#mainTable").mousemove(function (e) {
+            $('.follow').css({ 'top': e.clientY + 20, 'left': e.clientX + 20 });
+        });
+        $("#mainTable").mouseover(function (e) {
+            $('.follow').css({ 'display': 'inline' });
+        });
+        $("#mainTable").mouseout(function (e) {
+            $('.follow').css({ 'display': 'none' });
+        });
+    </script>
+    <img src="http://x.shopsavvy.com/24543656135?w=200" class="follow" style="position: absolute; z-index: 1000;" />
+</body>
+</html>
