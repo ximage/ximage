@@ -52,19 +52,12 @@ namespace XImage
 
 			var q = HttpUtility.ParseQueryString(httpContext.Request.Url.Query);
 
-			ParseHelp(httpContext);
 			ParseWidthAndHeight(q);
 			ParseFiltersAndOutput(httpContext, q);
 			ParseMetas(q);
 			ParseDebug(q);
 
 			ParseBackwardsCompatibility(httpContext, q);
-		}
-
-		void ParseHelp(HttpContext httpContext)
-		{
-			if (httpContext.Request.RawUrl.EndsWith("?help"))
-				throw new ArgumentException(string.Empty);
 		}
 
 		void ParseWidthAndHeight(NameValueCollection q)

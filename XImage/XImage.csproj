@@ -54,7 +54,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\Help.txt" />
     <Content Include="Resources\avatar.jpg" />
     <EmbeddedResource Include="Resources\Help.html" />
     <Content Include="Resources\pink.jpg" />

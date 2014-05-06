@@ -121,7 +121,7 @@ namespace XImage
 			}
 			else
 			{
-				throw new ArgumentException(string.Format("Unrecognized type: {0}.", methodName));
+				throw new ArgumentException(string.Format("Could not find any function by that name and/or arguments: {0}.", methodName));
 			}
 		}
 	}

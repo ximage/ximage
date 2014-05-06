@@ -11,6 +11,7 @@ using System.Web;
 
 namespace XImage.Outputs
 {
+	[Documentation(Text = "Shows this help page.")]
 	public class Help : IOutput
 	{
 		static readonly string HELP = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream("XImage.Resources.Help.html")).ReadToEnd();
@@ -22,7 +23,8 @@ namespace XImage.Outputs
 
 		public bool SupportsTransparency { get { return false; } }
 
-		public Help() : this((int)HttpStatusCode.BadRequest, null) { }
+		[Example(QueryString = "?o=help")]
+		public Help() : this((int)HttpStatusCode.OK, null) { }
 
 		public Help(int statusCode) : this(statusCode, null) { }
 
@@ -53,10 +55,9 @@ namespace XImage.Outputs
 
 			app.Response.Output.WriteLine(
 				HELP
+				.Replace("{{error}}", _errorMessage ?? "")
 				.Replace("{{filters}}", filtersHtml.ToString())
 				.Replace("{{outputs}}", outputsHtml.ToString()));
-
-			app.Response.End();
 		}
 
 		private static StringBuilder BuildFunctionsDocs(IEnumerable<Type> types)
@@ -78,11 +79,14 @@ namespace XImage.Outputs
 					foreach (var constructor in functionType.GetConstructors())
 					{
 						var exampleAttr = Attribute.GetCustomAttribute(constructor, typeof(ExampleAttribute)) as ExampleAttribute;
-						var args = string.Join(",", constructor.GetParameters().Select(p => p.Name.ToLower()));
-						examplesHtml.Append(
-							EXAMPLE_TEMPLATE
-							.Replace("{{url}}", "pink.jpg" + exampleAttr.QueryString)
-							.Replace("{{ctor}}", functionType.Name.ToLower() + string.Format("({0})", args)));
+						if (exampleAttr != null)
+						{
+							var args = string.Join(",", constructor.GetParameters().Select(p => p.Name.ToLower()));
+							examplesHtml.Append(
+								EXAMPLE_TEMPLATE
+								.Replace("{{url}}", "pink.jpg" + exampleAttr.QueryString)
+								.Replace("{{ctor}}", functionType.Name.ToLower() + string.Format("({0})", args)));
+						}
 					}
 
 					functionString = functionString.Replace("{examples}", examplesHtml.ToString());
