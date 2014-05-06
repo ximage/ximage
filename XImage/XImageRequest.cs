@@ -44,8 +44,6 @@ namespace XImage
 		
 		public bool IsOutputImplicitlySet { get; private set; }
 
-		public bool IsDebug { get; private set; }
-
 		public XImageRequest(HttpContext httpContext)
 		{
 			_httpContext = httpContext;
@@ -55,7 +53,6 @@ namespace XImage
 			ParseWidthAndHeight(q);
 			ParseFiltersAndOutput(httpContext, q);
 			ParseMetas(q);
-			ParseDebug(q);
 
 			ParseBackwardsCompatibility(httpContext, q);
 		}
@@ -146,11 +143,6 @@ namespace XImage
 			Metas.AddRange(XImageFactory.MetaTypes.Select(m => Activator.CreateInstance(m) as IMeta));
 		}
 
-		void ParseDebug(NameValueCollection q)
-		{
-			IsDebug = q.ContainsKey("debug");
-		}
-
 		private void ParseBackwardsCompatibility(HttpContext httpContext, NameValueCollection q)
 		{
 			var c = q["c"] ?? q["crop"];
@@ -183,6 +175,17 @@ namespace XImage
 
 		public void Dispose()
 		{
+			if (Filters != null)
+				foreach (var f in Filters)
+					if (f is IDisposable)
+						(f as IDisposable).Dispose();
+			if (Metas != null)
+				foreach (var m in Metas)
+					if (m is IDisposable)
+						(m as IDisposable).Dispose();
+			if (Output != null)
+				if (Output is IDisposable)
+					(Output as IDisposable).Dispose();
 		}
 	}
 }

@@ -9,7 +9,7 @@ using System.Web;
 
 namespace XImage.Outputs
 {
-	public class Debug : IOutput
+	public class Debug : IOutput, IDisposable
 	{
 		public string ContentType { get { return "text/html"; } }
 
@@ -20,6 +20,10 @@ namespace XImage.Outputs
 		}
 
 		public void PostProcess(XImageRequest request, XImageResponse response)
+		{
+		}
+
+		public void Dispose()
 		{
 			var app = HttpContext.Current.ApplicationInstance;
 

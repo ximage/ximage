@@ -54,9 +54,6 @@ namespace XImage
 						profiler.Mark("Image decoded");
 
 						XImager.ProcessImage(xRequest, xResponse);
-
-						if (xRequest.IsDebug)
-							new Outputs.Debug().PostProcess(null, null);
 					}
 				}
 			}
