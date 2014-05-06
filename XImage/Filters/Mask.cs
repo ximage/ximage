@@ -9,10 +9,12 @@ using XImage.Utilities;
 
 namespace XImage.Filters
 {
+	[Documentation(Text = "Masks the current image with the specified bitmap.")]
 	public class Mask : IFilter
 	{
 		Uri _uri;
 
+		[Example(QueryString = "?w=100&f=mask(url(mask.png))")]
 		public Mask(Uri uri)
 		{
 			_uri = uri;

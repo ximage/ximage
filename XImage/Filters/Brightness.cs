@@ -7,12 +7,15 @@ using XImage.Utilities;
 
 namespace XImage.Filters
 {
+	[Documentation(Text = "Increases or decreases the brightness.  Use 0-1 to decrease brightness and 1-10 to increase.")]
 	public class Brightness : IFilter
 	{
 		decimal _amount;
 
+		[Example(QueryString = "?w=100&f=brightness")]
 		public Brightness() : this(5) { }
 
+		[Example(QueryString = "?w=100&f=brightness(10)")]
 		public Brightness(decimal amount)
 		{
 			_amount = amount;

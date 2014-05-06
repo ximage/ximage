@@ -7,12 +7,16 @@ using XImage.Utilities;
 
 namespace XImage.Filters
 {
+	[Documentation(Text = @"Trims the image to fit tightly around the image content while ignoring any whitespace.
+							Optionally indicate the whitespace threshold.")]
 	public class Trim : IFilter
 	{
 		int _threshold;
 
+		[Example(QueryString = "?w=100&h=100&f=trim")]
 		public Trim() : this(25) { }
 
+		[Example(QueryString = "?w=t00&h=100&f=trim(50)")]
 		public Trim(decimal threshold)
 		{
 			_threshold = (int)threshold;

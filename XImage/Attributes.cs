@@ -9,4 +9,9 @@ namespace XImage
 	{
 		public string Text { get; set; }
 	}
+
+	public class ExampleAttribute : Attribute
+	{
+		public string QueryString { get; set; }
+	}
 }

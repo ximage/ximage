@@ -6,8 +6,14 @@ using System.Web;
 
 namespace XImage.Outputs
 {
+	[Documentation(Text = "Outputs the meta data about the image as JSON.")]
 	public class Json : IOutput
 	{
+		[Example(QueryString = "?o=json")]
+		public Json()
+		{
+		}
+
 		public string ContentType
 		{
 			get { return "application/json"; }

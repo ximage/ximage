@@ -8,13 +8,16 @@ using XImage.Utilities;
 
 namespace XImage.Filters
 {
+	[Documentation(Text = "Offsets the position of the image by a specified amount.")]
 	public class Offset : IFilter
 	{
 		decimal _dx;
 		decimal _dy;
 
+		[Example(QueryString = "?w=100&f=offset")]
 		public Offset() : this(10, 10) { }
 
+		[Example(QueryString = "?w=100&f=offset(20,20)")]
 		public Offset(decimal dx, decimal dy)
 		{
 			_dx = dx;

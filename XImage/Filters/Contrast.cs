@@ -7,12 +7,15 @@ using XImage.Utilities;
 
 namespace XImage.Filters
 {
+	[Documentation(Text = "Increases or decreases the contrast.  Use 0-1 to decrease and 1-10 to increase.")]
 	public class Contrast : IFilter
 	{
 		decimal _amount;
 
+		[Example(QueryString = "?w=100&f=contrast")]
 		public Contrast() : this(5) { }
 
+		[Example(QueryString = "?w=100&f=contrast(10)")]
 		public Contrast(decimal amount)
 		{
 			_amount = amount;

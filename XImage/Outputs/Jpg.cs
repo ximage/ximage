@@ -10,6 +10,10 @@ using XImage.Utilities;
 
 namespace XImage.Outputs
 {
+	[Documentation(Text = @"Uses a JPEG encoder.  It uses a default quality of 75 which can be specified in settings.
+							Additionally, specify a custom quality with values 1-100.  To get real fancy, target 
+							a specific file size by appending kb after the number.  It does a best-effort attempt 
+							to get the image within 10% of the desired file size.  Not all sizes are feasible.")]
 	public class Jpg : IOutput
 	{
 		static readonly int DEFAULT_QUALITY = ConfigurationManager.AppSettings["XImage.DefaultQuality"].AsNullableInt() ?? 75;
@@ -22,12 +26,14 @@ namespace XImage.Outputs
 
 		public bool SupportsTransparency { get { return false; } }
 
+		[Example(QueryString = "?w=100&o=jpg")]
 		public Jpg()
 		{
 			_quality = DEFAULT_QUALITY;
 			_asKb = false;
 		}
 
+		[Example(QueryString = "?w=100&o=jpg(20)")]
 		public Jpg(decimal quality)
 		{
 			_quality = Convert.ToInt64(quality);
@@ -37,14 +43,15 @@ namespace XImage.Outputs
 				throw new ArgumentException("Quality must be an integer between 1 and 100.");
 		}
 
-		public Jpg(string quality) // e.g. 150kb
+		[Example(QueryString = "?w=100&o=jpg(50kb)")]
+		public Jpg(string qualityInKB) // e.g. 150kb
 		{
-			_asKb = quality.EndsWith("kb");
+			_asKb = qualityInKB.EndsWith("kb");
 			if (_asKb)
-				quality = quality.Replace("kb", "");
-			_quality = quality.AsNullableInt() ?? DEFAULT_QUALITY;
+				qualityInKB = qualityInKB.Replace("kb", "");
+			_quality = qualityInKB.AsNullableInt() ?? DEFAULT_QUALITY;
 
-			if (!quality.AsNullableInt().HasValue)
+			if (!qualityInKB.AsNullableInt().HasValue)
 				throw new ArgumentException("Quality must be an integer between 1 and 100 or a size in kb, e.g. 150kb.");
 			else if (_quality <= 0)
 				throw new ArgumentException("Quality must be an integer between 1 and 100.");

@@ -1,38 +1,51 @@
-﻿
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html class="">
 <head>
     <title>XImage</title>
+
     <style type="text/css">
         body {
-            /*background-color: #000020;
-            color: #0080C0;*/
             margin: auto;
             width: 640px;
             font-family: Courier;
             font-size: 14px;
         }
 
-        /*a {
-            color: #A0C060;
-        }
-
-        b {
-            color: #A0C060;
-        }*/
-
-        table a {
-            display: none;
-        }
-
-        h1 {
+        h3 {
             font-size: 14px;
-            font-weight: normal;
+            font-weight: bold;
+            margin: 0px;
+            margin-right: 20px;
+            float: left;
         }
 
-        td {
-            vertical-align: top;
-            padding-left: 20px;
+        h4 {
+            font-size: 14px;
+            font-weight: bold;
+            margin: 0px;
+            padding-left: 0px;
+            clear: both;
+        }
+
+        ul {
+            padding-left: 30px;
+        }
+
+            ul ul {
+                padding-left: 60px;
+            }
+
+        li {
+            list-style-type: none;
+        }
+
+        h4 {
+            margin-top: 10px;
+        }
+
+        li p {
+            margin: 0px;
+            margin-left: 60px;
         }
     </style>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
@@ -51,68 +64,69 @@ ____  ___.___
         XImage (Extensible Image) is an open technology for real-time image manipulation over HTTP.  It defines a standard interface for performing common image operations such as resizing, cropping, compressing, filtering, etc.  In addition, it describes how to add extended functionality that might be custom for your use case in a manner that is discoverable and reusable.
     </p>
 
-    <h1>QUERY STRING</h1>
-    <table id="mainTable">
-        <tr>
-            <td>
-                <b>help</b>
-            </td>
-            <td>
+    <ul>
+        <li>
+            <h3>help</h3>
+            <p>
                 Shows this help screen.  Each implementation of XImage must show this help screen which is primarily used to show which features it supports.
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <b>w</b>
-            </td>
-            <td>
-                Width of the image.  If h is not supplied, it will be inferred proportionally.  By default, it will not be resized larger than its original dimensions.  To allow upscaling append '!'.
-                <a href="pink.jpg?w=100">pink.jpg?w=100</a>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <b>h</b>
-            </td>
-            <td>
-                Height of the image.  If w is not supplied, it will be inferred proportionally.  By default, it will not be resized larger than its original dimensions.  To allow upscaling append '!'.
-                <a href="pink.jpg?h=100">pink.jpg?h=100</a>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <b>f</b>
-            </td>
-            <td>
-                Filters, functions and effects to apply to the image.  Combine more than one of these together using ','.
-                <table>
+            </p>
+            <ul>
+                <li>
+                    <a href="pink.jpg?help">pink.jpg?help</a>
+                </li>
+            </ul>
+        </li>
 
-                </table>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <b>o</b>
-            </td>
-            <td>
-                Output format of the image.
-                <table>
+        <li>
+            <h3>w</h3>
+            <p>
+                Width of the image.  If h is not supplied, it will be inferred proportionally.  Dimensions will not be resized larger than the original unless upscaling is indicated by appending '!'.
+            </p>
+            <ul>
+                <li>
+                    <a href="pink.jpg?w=100">pink.jpg?w=100</a>
+                </li>
+            </ul>
+        </li>
 
-                </table>
-            </td>
-        </tr>
-    </table>
-    <script type="text/javascript">
-        $("#mainTable").mousemove(function (e) {
-            $('.follow').css({ 'top': e.clientY + 20, 'left': e.clientX + 20 });
-        });
-        $("#mainTable").mouseover(function (e) {
-            $('.follow').css({ 'display': 'inline' });
-        });
-        $("#mainTable").mouseout(function (e) {
-            $('.follow').css({ 'display': 'none' });
-        });
-    </script>
-    <img src="http://x.shopsavvy.com/24543656135?w=200" class="follow" style="position: absolute; z-index: 1000;" />
+        <li>
+            <h3>h</h3>
+            <p>
+                Height of the image.  If h is not supplied, it will be inferred proportionally.  Dimensions will not be resized larger than the original unless upscaling is indicated by appending '!'.
+            </p>
+            <ul>
+                <li>
+                    <a href="pink.jpg?h=100">pink.jpg?h=100</a>
+                </li>
+            </ul>
+        </li>
+
+        <li>
+            <h3>f</h3>
+            <p>
+                Filters, functions and effects to apply to the image.  Combine more than one of these together using ',' or ';'.
+            </p>
+
+            <ul>
+
+{{filters}}
+
+            </ul>
+        </li>
+
+        <li>
+            <h3>o</h3>
+            <p>
+                Output formats.  These can be compression codecs, diagnostic details, even this very help page, etc.
+            </p>
+
+            <ul>
+
+{{outputs}}
+
+            </ul>
+        </li>
+    </ul>
+
 </body>
 </html>

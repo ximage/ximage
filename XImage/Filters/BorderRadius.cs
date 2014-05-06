@@ -8,6 +8,7 @@ using XImage.Utilities;
 
 namespace XImage.Filters
 {
+	[Documentation(Text = "Rounds the corners.")]
 	public class BorderRadius : IFilter
 	{
 		int _topLeft;
@@ -15,10 +16,13 @@ namespace XImage.Filters
 		int _bottomRight;
 		int _bottomLeft;
 
+		[Example(QueryString = "?w=100&f=borderradius")]
 		public BorderRadius() : this(20) { }
 
+		[Example(QueryString = "?w=100&f=borderradius(20)")]
 		public BorderRadius(decimal radius) : this(radius, radius, radius, radius) { }
 
+		[Example(QueryString = "?w=100&f=borderradius(20,20,0,0")]
 		public BorderRadius(decimal topLeft, decimal topRight, decimal bottomRight, decimal bottomLeft)
 		{
 			_topLeft = (int)topLeft;

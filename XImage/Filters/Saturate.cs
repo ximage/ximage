@@ -7,6 +7,7 @@ using XImage.Utilities;
 
 namespace XImage.Filters
 {
+	[Documentation(Text = "Adjusts the saturation.  Use 0-1 to desaturate and 1-10 to increase saturation.")]
 	public class Saturate : IFilter
 	{
 		// Luminance vector for linear RGB
@@ -16,14 +17,16 @@ namespace XImage.Filters
 
 		float _amount;
 
+		[Example(QueryString = "?w=100&f=saturate")]
 		public Saturate() : this(5) { }
 
+		[Example(QueryString = "?w=100&f=saturate(.5)")]
 		public Saturate(decimal amount)
 		{
 			_amount = (float)amount;
 
 			if (_amount > 10 || _amount < 0)
-				throw new ArgumentException("The grayscale amount must be between 0 and 10.");
+				throw new ArgumentException("The amount must be between 0 and 10.");
 		}
 
 		public void PreProcess(XImageRequest request, XImageResponse response)

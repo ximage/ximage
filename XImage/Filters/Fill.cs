@@ -7,8 +7,17 @@ using XImage.Utilities;
 
 namespace XImage.Filters
 {
+	[Documentation(Text = @"The image will be resized proportionally until it fills up the canvas.  
+							This may result in clipping off the top/bottom or left/right edges.  
+							The image will not be resized larger than its original dimensions 
+							unless you append ! to the end, e.g. 'fill!'")]
 	public class Fill : IFilter
 	{
+		[Example(QueryString = "?w=100&h=100&f=fill")]
+		public Fill()
+		{
+		}
+
 		public void PreProcess(XImageRequest request, XImageResponse response)
 		{
 			var inputSize = response.InputImage.Size;

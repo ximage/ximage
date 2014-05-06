@@ -7,8 +7,14 @@ using XImage.Utilities;
 
 namespace XImage.Filters
 {
+	[Documentation(Text = "Inverts the colors.")]
 	public class Invert : IFilter
 	{
+		[Example(QueryString = "?w=100&f=invert")]
+		public Invert()
+		{
+		}
+
 		static readonly ColorMatrix _invert = new ColorMatrix(new float[][]
 		{
 			new float[] { -1, 0, 0, 0, 0 }, 

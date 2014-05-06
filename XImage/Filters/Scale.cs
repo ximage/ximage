@@ -8,15 +8,19 @@ using XImage.Utilities;
 
 namespace XImage.Filters
 {
+	[Documentation(Text = "Scales the image (the canvas stays the same).")]
 	public class Scale : IFilter
 	{
 		float _scaleX;
 		float _scaleY;
 
+		[Example(QueryString = "?w=100&f=scale")]
 		public Scale() : this(2) { }
 
+		[Example(QueryString = "?w=100&f=scale(.5)")]
 		public Scale(decimal scale) : this(scale, scale) { }
 
+		[Example(QueryString = "?w=100&f=scale(1,2)")]
 		public Scale(decimal scaleX, decimal scaleY)
 		{
 			_scaleX = (float)scaleX;

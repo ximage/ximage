@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Text;
 using System.Web;
 
 namespace XImage.Outputs
@@ -47,9 +48,65 @@ namespace XImage.Outputs
 			app.Response.StatusCode = (int)_statusCode;
 			app.Response.ContentType = "text/html";
 
-			app.Response.Output.WriteLine(HELP);
+			var filtersHtml = BuildFunctionsDocs(XImageFactory.FilterTypes);
+			var outputsHtml = BuildFunctionsDocs(XImageFactory.OutputTypes);
+
+			app.Response.Output.WriteLine(
+				HELP
+				.Replace("{{filters}}", filtersHtml.ToString())
+				.Replace("{{outputs}}", outputsHtml.ToString()));
 
 			app.Response.End();
 		}
+
+		private static StringBuilder BuildFunctionsDocs(IEnumerable<Type> types)
+		{
+			var html = new StringBuilder();
+			foreach (var functionType in types.OrderBy(f => f.Name))
+			{
+				string functionString = null;
+
+				var docs = Attribute.GetCustomAttribute(functionType, typeof(DocumentationAttribute)) as DocumentationAttribute;
+				if (docs != null)
+				{
+					functionString = string.Format(
+						METHOD_TEMPLATE
+						.Replace("{{name}}", functionType.Name.ToLower())
+						.Replace("{{text}}", docs.Text));
+
+					var examplesHtml = new StringBuilder();
+					foreach (var constructor in functionType.GetConstructors())
+					{
+						var exampleAttr = Attribute.GetCustomAttribute(constructor, typeof(ExampleAttribute)) as ExampleAttribute;
+						var args = string.Join(",", constructor.GetParameters().Select(p => p.Name.ToLower()));
+						examplesHtml.Append(
+							EXAMPLE_TEMPLATE
+							.Replace("{{url}}", "pink.jpg" + exampleAttr.QueryString)
+							.Replace("{{ctor}}", functionType.Name.ToLower() + string.Format("({0})", args)));
+					}
+
+					functionString = functionString.Replace("{examples}", examplesHtml.ToString());
+				}
+
+				html.Append(functionString);
+			}
+			return html;
+		}
+
+		const string METHOD_TEMPLATE = @"
+			<li>
+				<h3>{{name}}</h3>
+				<p>
+					{{text}}
+				</p>
+				<ul>
+					{{examples}}
+				</ul>
+			</li>";
+
+		const string EXAMPLE_TEMPLATE = @"
+					<li>
+						<a href=""{{url}}"">{{ctor}}</a>
+					</li>";
 	}
 }

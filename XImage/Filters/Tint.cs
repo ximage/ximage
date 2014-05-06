@@ -6,15 +6,19 @@ using System.Web;
 
 namespace XImage.Filters
 {
+	[Documentation(Text = "Applies a tint to the image.")]
 	public class Tint : IFilter
 	{
 		Color _hue;
 		decimal _amount;
 
+		[Example(QueryString = "?w=300&h=100&f=tint")]
 		public Tint() : this(Color.Red, .5M) { }
 
+		[Example(QueryString = "?w=300&h=100&f=tint({red})")]
 		public Tint(Color color) : this(color, .5M) { }
 
+		[Example(QueryString = "?w=300&h=100&f=tint({blue},.5)")]
 		public Tint(Color color, decimal amount)
 		{
 			// TODO: Make color work in the constructor.  Then update BGColor and the others.

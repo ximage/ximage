@@ -7,6 +7,7 @@ using System.Drawing.Drawing2D;
 
 namespace XImage.Filters
 {
+	[Documentation(Text = "Applies a gradient over the image.")]
 	public class Gradient : IFilter
 	{
 		Color _color1;
@@ -14,12 +15,16 @@ namespace XImage.Filters
 		float _angle;
 		Rectangle _rectangle;
 
+		[Example(QueryString = "?w=100&f=gradient")]
 		public Gradient() : this(Color.White, Color.Black, 90) { }
 
+		[Example(QueryString = "?w=100&f=gradient({red},{blue})")]
 		public Gradient(Color color1, Color color2) : this(color1, color2, 90) { }
 
+		[Example(QueryString = "?w=100&f=gradient({red},{blue},45)")]
 		public Gradient(Color color1, Color color2, decimal angle) : this(color1, color2, angle, Rectangle.Empty) { }
 
+		[Example(QueryString = "?w=100&f=gradient({red},{blue},45,[25,25,50,50])")]
 		public Gradient(Color color1, Color color2, decimal angle, Rectangle rectangle)
 		{
 			_color1 = color1;

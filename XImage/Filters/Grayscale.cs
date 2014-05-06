@@ -7,6 +7,7 @@ using XImage.Utilities;
 
 namespace XImage.Filters
 {
+	[Documentation(Text = "Grayscales the image.  Use 0-1 to adjust varying degrees of saturation.")]
 	public class Grayscale : IFilter
 	{
 		// Luminance vector for linear RGB
@@ -16,8 +17,10 @@ namespace XImage.Filters
 		
 		decimal _amount;
 
+		[Example(QueryString = "?w=100&f=grayscale")]
 		public Grayscale() : this(1) { }
 
+		[Example(QueryString = "?w=100&f=grayscale(.5)")]
 		public Grayscale(decimal amount)
 		{
 			_amount = amount;

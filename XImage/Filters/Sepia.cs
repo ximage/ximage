@@ -7,8 +7,14 @@ using XImage.Utilities;
 
 namespace XImage.Filters
 {
+	[Documentation(Text = "Applies a sepia filter.")]
 	public class Sepia : IFilter
 	{
+		[Example(QueryString = "?w=100&f=sepia")]
+		public Sepia()
+		{
+		}
+
 		static readonly ColorMatrix _sepia = new ColorMatrix(new float[][]
 		{
 			new float[] { .393f, .349f, .272f, 0, 0 }, 

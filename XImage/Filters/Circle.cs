@@ -8,8 +8,14 @@ using XImage.Utilities;
 
 namespace XImage.Filters
 {
+	[Documentation(Text = "Crops the image into a circle.  This will return a square image if it isn't already.  It also defaults to a PNG output (unless overridden) to support transparency.")]
 	public class Circle : IFilter
 	{
+		[Example(QueryString = "?w=100&f=circle")]
+		public Circle()
+		{
+		}
+
 		public void PreProcess(XImageRequest request, XImageResponse response)
 		{
 			// Unless explicitly requested by the user, default to PNG for this filter.

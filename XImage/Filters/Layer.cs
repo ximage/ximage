@@ -9,10 +9,12 @@ using XImage.Utilities;
 
 namespace XImage.Filters
 {
+	[Documentation(Text = "Draws an image over the current one.")]
 	public class Layer : IFilter
 	{
 		Uri _uri;
 
+		[Example(QueryString = "?w=100&f=layer(url(overlay.png))")]
 		public Layer(Uri uri)
 		{
 			_uri = uri;
