@@ -21,7 +21,7 @@ namespace XImage
 		{
 			var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(a => a.GetTypes()).ToList();
 
-			_filtersLookup = GetTypes<IFilter>(types).ToDictionary(k => k.Name.ToLower(), v => v);
+			_filtersLookup = GetTypes<IFilter>(types).Where(t => t != typeof(IOutput)).ToDictionary(k => k.Name.ToLower(), v => v);
 			_metasLookup = GetTypes<IMeta>(types).ToDictionary(k => k.Name.ToLower(), v => v);
 			_outputsLookup = GetTypes<IOutput>(types).ToDictionary(k => k.Name.ToLower(), v => v);
 
