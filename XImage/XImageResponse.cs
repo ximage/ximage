@@ -21,16 +21,20 @@ namespace XImage
 
 		public Size CanvasSize { get; set; }
 
+		public Matrix VectorTransform { get; set; }
+
+		public ImageAttributes ImageAttributes { get; set; }
+
 		private Bitmap _outputImage = null;
 		public Bitmap OutputImage
 		{
 			get
 			{
 				if (_outputImage == null)
-					_outputImage = new Bitmap(CanvasSize.Width, CanvasSize.Height, PixelFormat.Format32bppArgb);
+					throw new ApplicationException("OutputImage is not accessible until the PostProcess stage of the pipeline.");
 				return _outputImage;
 			}
-			set
+			internal set
 			{
 				_outputImage = value;
 			}
@@ -42,22 +46,14 @@ namespace XImage
 			get
 			{
 				if (_outputGraphics == null)
-				{
-					_outputGraphics = Graphics.FromImage(OutputImage);
-					_outputGraphics.InterpolationMode = InterpolationMode.HighQualityBicubic; // TODO: Make this a setting.
-					_outputGraphics.SmoothingMode = SmoothingMode.HighQuality;
-					//_outputGraphics.CompositingQuality = CompositingQuality.HighQuality;
-					_outputGraphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-				}
+					throw new ApplicationException("OutputGraphics is not accessible until the PostProcess stage of the pipeline.");
 				return _outputGraphics;
 			}
-			set
+			internal set
 			{
 				_outputGraphics = value;
 			}
 		}
-
-		public ImageAttributes ImageAttributes { get; private set; }
 
 		public Stream OutputStream { get; private set; }
 
@@ -72,6 +68,7 @@ namespace XImage
 			CanvasSize = InputImage.Size;
 			ContentArea = new Rectangle(Point.Empty, CanvasSize);
 			ImageAttributes = new ImageAttributes();
+			VectorTransform = new Matrix();
 			OutputStream = httpContext.Response.OutputStream;
 			Properties = httpContext.Response.Headers;
 			Profiler = profiler ?? new XImageProfiler(Properties);

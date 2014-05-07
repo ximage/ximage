@@ -72,14 +72,27 @@ namespace XImage
 
 		public static void Rasterize(XImageRequest request, XImageResponse response)
 		{
-			var graphics = response.OutputGraphics;
 			var canvasSize = response.CanvasSize;
 			var contentArea = response.ContentArea;
 			var cropBox = response.CropBox;
 
-			graphics.Clear(request.Outputs.Exists(o => o.SupportsTransparency) ? Color.Transparent : Color.White);
+			// Set the OutputImage and OutputGraphics objects which can be used in the PostProcess methods.
+			response.OutputImage = new Bitmap(canvasSize.Width, canvasSize.Height, PixelFormat.Format32bppArgb);
+			response.OutputGraphics = Graphics.FromImage(response.OutputImage);
+			response.OutputGraphics.InterpolationMode = InterpolationMode.HighQualityBicubic; // TODO: Make this a setting.
+			response.OutputGraphics.SmoothingMode = SmoothingMode.HighQuality;
+			response.OutputGraphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+			//response.OutputGraphics.CompositingQuality = CompositingQuality.HighQuality;
 
-			graphics.DrawImage(
+			// Apply any vector transformations.
+			response.OutputGraphics.Transform = response.VectorTransform;
+
+			// Set the background.
+			var clearColor = request.Outputs.Exists(o => o.SupportsTransparency) ? Color.Transparent : Color.White;
+			response.OutputGraphics.Clear(clearColor);
+
+			// Draw the image in the proper position with the proper image attributes (color transformations).
+			response.OutputGraphics.DrawImage(
 				image: response.InputImage,
 				destRect: new Rectangle(0, 0, contentArea.Width, contentArea.Height),
 				srcX: cropBox.X,
@@ -92,8 +105,6 @@ namespace XImage
 
 		static void SetCanvasDimensions(XImageRequest request, XImageResponse response)
 		{
-			// TODO: Simplify...
-
 			if (request.Width == null && request.Height == null)
 			{
 				// Do nothing here, but prevents the other conditions from running.

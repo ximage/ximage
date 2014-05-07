@@ -37,7 +37,7 @@ namespace XImage.Filters
 			var layerRequest = HttpWebRequest.CreateHttp(_uri);
 			var layerResponse = Bitmap.FromStream(layerRequest.GetResponse().GetResponseStream()) as Bitmap;
 
-			int w = response.OutputImage.Width, h = response.OutputImage.Height;
+			int w = response.CanvasSize.Width, h = response.CanvasSize.Height;
 			using (var layer = new Bitmap(w, h, PixelFormat.Format32bppArgb))
 			{
 				using (var graphics = Graphics.FromImage(layer))

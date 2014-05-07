@@ -37,7 +37,7 @@ namespace XImage.Filters
 			var maskRequest = HttpWebRequest.CreateHttp(_uri);
 			var maskResponse = Bitmap.FromStream(maskRequest.GetResponse().GetResponseStream()) as Bitmap;
 
-			int w = response.OutputImage.Width, h = response.OutputImage.Height;
+			int w = response.CanvasSize.Width, h = response.CanvasSize.Height;
 			using (var mask = new Bitmap(w, h, PixelFormat.Format32bppArgb))
 			{
 				using (var graphics = Graphics.FromImage(mask))

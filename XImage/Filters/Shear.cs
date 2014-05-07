@@ -8,17 +8,17 @@ using XImage.Utilities;
 
 namespace XImage.Filters
 {
-	[Documentation(Text = "Offsets the position of the image by a specified amount.")]
-	public class Offset : IFilter
+	[Documentation(Text = "Applies a shear vector.")]
+	public class Shear : IFilter
 	{
 		decimal _dx;
 		decimal _dy;
 
-		[Example(QueryString = "?w=100&f=offset")]
-		public Offset() : this(10, 10) { }
+		[Example(QueryString = "?w=100&f=shear(.1,.05),scale(.75)")]
+		public Shear() : this(.1M, .2M) { }
 
-		[Example(QueryString = "?w=100&f=offset(20,20)")]
-		public Offset(decimal dx, decimal dy)
+		[Example(QueryString = "?w=100&f=shear(.1,.2)")]
+		public Shear(decimal dx, decimal dy)
 		{
 			_dx = dx;
 			_dy = dy;
@@ -26,7 +26,7 @@ namespace XImage.Filters
 
 		public void PreProcess(XImageRequest request, XImageResponse response)
 		{
-			response.VectorTransform.Translate((float)_dx, (float)_dy, MatrixOrder.Append);
+			response.VectorTransform.Shear((float)_dx, (float)_dy, MatrixOrder.Append);
 		}
 
 		public void PostProcess(XImageRequest request, XImageResponse response)

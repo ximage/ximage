@@ -80,6 +80,7 @@
     <Compile Include="Filters\Saturate.cs" />
     <Compile Include="Filters\Scale.cs" />
     <Compile Include="Filters\Sepia.cs" />
+    <Compile Include="Filters\Shear.cs" />
     <Compile Include="Filters\Stretch.cs" />
     <Compile Include="Filters\Tint.cs" />
     <Compile Include="Filters\Trim.cs" />

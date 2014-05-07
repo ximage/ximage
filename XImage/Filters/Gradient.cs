@@ -39,7 +39,7 @@ namespace XImage.Filters
 
 		public void PostProcess(XImageRequest request, XImageResponse response)
 		{
-			var size = response.OutputImage.Size;
+			var size = response.CanvasSize;
 			if (_rectangle.IsEmpty)
 				_rectangle = new Rectangle(0, 0, size.Width, size.Height);
 
