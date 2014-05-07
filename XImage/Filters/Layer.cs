@@ -24,7 +24,10 @@ namespace XImage.Filters
 		{
 			// Unless explicitly requested by the user, default to PNG for this filter.
 			if (request.IsOutputImplicitlySet)
-				request.Output = new Outputs.Png();
+			{
+				request.Outputs.RemoveAll(o => o.ContentType.StartsWith("image"));
+				request.Outputs.Add(new Outputs.Png());
+			}
 		}
 
 		public void PostProcess(XImageRequest request, XImageResponse response)

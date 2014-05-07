@@ -30,17 +30,7 @@ namespace XImage
 		
 		public List<IMeta> Metas { get; private set; }
 
-		IOutput _output = null;
-		public IOutput Output
-		{
-			get { return _output; }
-			set
-			{
-				_output = value;
-				if (_output != null)
-					_httpContext.Response.ContentType = _output.ContentType;
-			}
-		}
+		public List<IOutput> Outputs { get; private set; }
 		
 		public bool IsOutputImplicitlySet { get; private set; }
 
@@ -93,11 +83,12 @@ namespace XImage
 		void ParseFiltersAndOutput(HttpContext httpContext, NameValueCollection q)
 		{
 			Filters = new List<IFilter>();
+			Outputs = new List<IOutput>();
 
-			var filterValues = q["f"] ?? q["filter"] ?? q["filters"];
-			if (filterValues != null)
+			var f = q["f"] ?? q["filter"] ?? q["filters"];
+			if (f != null)
 			{
-				var filterMethodsWithArgs = filterValues.SplitMethods(); ;
+				var filterMethodsWithArgs = f.SplitMethods();
 				if (filterMethodsWithArgs.Count == 0)
 					throw new ArgumentException("The f parameter cannot be empty.  Exclude this parameters if no filters are needed.");
 
@@ -105,33 +96,42 @@ namespace XImage
 				{
 					var filter = XImageFactory.CreateInstance<IFilter>(filterString);
 					if (filter is IOutput)
-						Output = filter as IOutput;
+						Outputs.Add(filter as IOutput);
 					else
 						Filters.Add(filter);
 				}
 
-				if (Filters.Count == 0 && Output == null)
+				if (Filters.Count == 0 && Outputs.Count == 0)
 					throw new ArgumentException("No filters specified.  Use ?f={filter1};{filter2} or leave f out of the query string.");
 			}
 
-			if (Output == null)
+			// Parse o param in case it was used separately.
+			var o = q["o"] ?? q["output"] ?? q["outputs"];
+			if (o != null)
 			{
-				// Parse o param in case it was used separately.
-				var o = q["o"] ?? q["output"];
-				if (o == null)
-					IsOutputImplicitlySet = true;
+				var outputMethodsWithArgs = o.SplitMethods();
+				if (outputMethodsWithArgs.Count == 0)
+					throw new ArgumentException("The o parameter cannot be empty.  Exclude this parameters if no outputs are needed.");
 
-				// If o is still null, pull from the content type of the input image.
-				o = o ?? httpContext.Response.ContentType;
+				foreach (var outputString in outputMethodsWithArgs)
+					Outputs.Add(XImageFactory.CreateInstance<IOutput>(outputString));
 
-				// If o is still null, we have bigger problems.
-				if (o == null)
-					throw new ArgumentException("No output format specified.  Use ?o={output} or ensure the Content-Type response header is set.");
-
-				o = o.Replace("image/", "").Replace("jpeg", "jpg");
-
-				Output = XImageFactory.CreateInstance<IOutput>(o);
+				if (Outputs.Count == 0)
+					throw new ArgumentException("No outputs specified.  Use ?o={output1};{output2} or leave o out of the query string.");
 			}
+
+			// If this request doesn't already have an image-based output, implicity set one.
+			if (!Outputs.Exists(oo => oo.ContentType.ToLower().Contains("image/")))
+			{
+				IsOutputImplicitlySet = true;
+
+				var implicitOutput = httpContext.Response.ContentType ?? "jpg";
+				implicitOutput = implicitOutput.Replace("image/", "").Replace("jpeg", "jpg");
+				var output = XImageFactory.CreateInstance<IOutput>(implicitOutput);
+				Outputs.Insert(0, output);
+			}
+
+			_httpContext.Response.ContentType = Outputs.LastOrDefault().ContentType;
 		}
 
 		void ParseMetas(NameValueCollection q)
@@ -175,17 +175,13 @@ namespace XImage
 
 		public void Dispose()
 		{
-			if (Filters != null)
-				foreach (var f in Filters)
-					if (f is IDisposable)
-						(f as IDisposable).Dispose();
-			if (Metas != null)
-				foreach (var m in Metas)
-					if (m is IDisposable)
-						(m as IDisposable).Dispose();
-			if (Output != null)
-				if (Output is IDisposable)
-					(Output as IDisposable).Dispose();
+			var disposables = 
+				Filters.OfType<IDisposable>()
+				.Union(Metas.OfType<IDisposable>())
+				.Union(Outputs.OfType<IDisposable>());
+
+			foreach (var disposable in disposables)
+				disposable.Dispose();
 		}
 	}
 }

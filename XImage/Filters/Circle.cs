@@ -20,7 +20,10 @@ namespace XImage.Filters
 		{
 			// Unless explicitly requested by the user, default to PNG for this filter.
 			if (request.IsOutputImplicitlySet)
-				request.Output = new Outputs.Png();
+			{
+				request.Outputs.RemoveAll(o => o.ContentType.StartsWith("image"));
+				request.Outputs.Add(new Outputs.Png());
+			}
 
 			// Make the assumption that if they want a circle, they also want square dimensions.
 			var smallestSide = Math.Min(response.CanvasSize.Width, response.CanvasSize.Height);
@@ -45,7 +48,7 @@ namespace XImage.Filters
 			var path = new GraphicsPath();
 			path.AddEllipse(new Rectangle(origin, size));
 
-			response.OutputImage.ApplyMask(path, Brushes.White, !request.Output.SupportsTransparency);
+			response.OutputImage.ApplyMask(path, Brushes.White, !request.Outputs.Exists(o => o.SupportsTransparency));
 		}
 	}
 }

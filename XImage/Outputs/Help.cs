@@ -48,7 +48,7 @@ namespace XImage.Outputs
 			app.Response.ClearContent();
 			app.Response.TrySkipIisCustomErrors = true;
 			app.Response.StatusCode = (int)_statusCode;
-			app.Response.ContentType = "text/html";
+			app.Response.ContentType = ContentType;
 
 			var filtersHtml = BuildFunctionsDocs(XImageFactory.FilterTypes);
 			var outputsHtml = BuildFunctionsDocs(XImageFactory.OutputTypes);

@@ -24,7 +24,10 @@ namespace XImage.Filters
 		{
 			// Unless explicitly requested by the user, default to PNG for this filter.
 			if (request.IsOutputImplicitlySet)
-				request.Output = new Outputs.Png();
+			{
+				request.Outputs.RemoveAll(o => o.ContentType.StartsWith("image"));
+				request.Outputs.Add(new Outputs.Png());
+			}
 		}
 
 		public void PostProcess(XImageRequest request, XImageResponse response)
@@ -42,7 +45,7 @@ namespace XImage.Filters
 					graphics.DrawImage(maskResponse, new Rectangle(0, 0, w, h));
 				}
 
-				response.OutputImage.ApplyMask(mask, !request.Output.SupportsTransparency);
+				response.OutputImage.ApplyMask(mask, !request.Outputs.Exists(o => o.SupportsTransparency));
 			}
 		}
 	}

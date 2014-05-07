@@ -29,7 +29,10 @@ namespace XImage.Filters
 		{
 			// Unless explicitly requested by the user, default to PNG for this filter.
 			if (request.IsOutputImplicitlySet)
-				request.Output = new Outputs.Png();
+			{
+				request.Outputs.RemoveAll(o => o.ContentType.StartsWith("image"));
+				request.Outputs.Add(new Outputs.Png());
+			}
 
 			var matrix = new ColorMatrix();
 			matrix.Matrix00 = matrix.Matrix11 = matrix.Matrix22 = matrix.Matrix44 = 1;

@@ -34,7 +34,7 @@ namespace XImage.Outputs
 			app.Response.ClearContent();
 			app.Response.TrySkipIisCustomErrors = true;
 			app.Response.StatusCode = 200;
-			app.Response.ContentType = "text/html";
+			app.Response.ContentType = ContentType;
 			app.Response.Output.WriteLine("<!DOCTYPE html><html><head><title>XImage</title></head><body>");
 
 			if (profiler.Markers.Count > 0)

@@ -31,6 +31,11 @@ namespace XImage.Outputs
 
 		public void Dispose()
 		{
+			var app = HttpContext.Current.ApplicationInstance;
+
+			app.Response.ClearContent();
+			app.Response.ContentType = ContentType;
+
 			// Super simple JSON output.  No JSON lib necessary, reduces dependencies.
 			// Everything is a string?  What about numbers and arrays?
 

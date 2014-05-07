@@ -61,8 +61,11 @@ namespace XImage
 				// --- OUTPUT ---
 				using (response.Profiler.Measure("X-Image-Time-Output"))
 				{
-					request.Output.PostProcess(request, response);
-					response.Profiler.Mark("Image encoded");
+					foreach (var output in request.Outputs)
+					{
+						output.PostProcess(request, response);
+						response.Profiler.Mark("Image encoded: " + output.GetType().Name);
+					}
 				}
 			}
 		}
@@ -74,7 +77,7 @@ namespace XImage
 			var contentArea = response.ContentArea;
 			var cropBox = response.CropBox;
 
-			graphics.Clear(request.Output.SupportsTransparency ? Color.Transparent : Color.White);
+			graphics.Clear(request.Outputs.Exists(o => o.SupportsTransparency) ? Color.Transparent : Color.White);
 
 			graphics.TranslateTransform(canvasSize.Width / 2, canvasSize.Height / 2, MatrixOrder.Append);
 			graphics.DrawImage(
