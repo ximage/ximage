@@ -15,7 +15,7 @@ namespace XImage.Filters
 		[Example(QueryString = "?w=100&f=blur")]
 		public Blur() : this(50) { }
 
-		[Example(QueryString = "?w=100&f=blur(5)")]
+		[Example(QueryString = "?w=100&f=blur(10)&o=png")]
 		public Blur(decimal radius)
 		{
 			_radius = radius;
