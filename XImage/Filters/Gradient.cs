@@ -41,8 +41,8 @@ namespace XImage.Filters
 		{
 			var size = response.OutputImage.Size;
 			if (_rectangle.IsEmpty)
-				_rectangle = new Rectangle(size.Width / -2, size.Height / -2, size.Width, size.Height);
-			_rectangle.Offset(size.Width / -2, size.Height / -2);
+				_rectangle = new Rectangle(0, 0, size.Width, size.Height);
+
 			var brush = new LinearGradientBrush(_rectangle, _color1, _color2, _angle);
 			response.OutputGraphics.FillRectangle(brush, _rectangle);
 		}

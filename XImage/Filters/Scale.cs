@@ -29,7 +29,10 @@ namespace XImage.Filters
 
 		public void PreProcess(XImageRequest request, XImageResponse response)
 		{
+			int x = response.CanvasSize.Width / 2, y = response.CanvasSize.Height / 2;
+			response.OutputGraphics.TranslateTransform(-x, -y, MatrixOrder.Append);
 			response.OutputGraphics.ScaleTransform(_scaleX, _scaleY, MatrixOrder.Append);
+			response.OutputGraphics.TranslateTransform(x, y, MatrixOrder.Append);
 		}
 
 		public void PostProcess(XImageRequest request, XImageResponse response)

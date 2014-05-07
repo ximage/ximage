@@ -79,10 +79,9 @@ namespace XImage
 
 			graphics.Clear(request.Outputs.Exists(o => o.SupportsTransparency) ? Color.Transparent : Color.White);
 
-			graphics.TranslateTransform(canvasSize.Width / 2, canvasSize.Height / 2, MatrixOrder.Append);
 			graphics.DrawImage(
 				image: response.InputImage,
-				destRect: new Rectangle(contentArea.Width / -2, contentArea.Height / -2, contentArea.Width, contentArea.Height),
+				destRect: new Rectangle(0, 0, contentArea.Width, contentArea.Height),
 				srcX: cropBox.X,
 				srcY: cropBox.Y,
 				srcWidth: cropBox.Width,

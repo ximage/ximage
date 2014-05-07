@@ -45,7 +45,7 @@ namespace XImage.Filters
 					graphics.DrawImage(layerResponse, new Rectangle(0, 0, w, h));
 				}
 
-				response.OutputGraphics.DrawImage(layer, new Rectangle(w / -2, h / -2, w, h));
+				response.OutputGraphics.DrawImage(layer, new Rectangle(0, 0, w, h));
 			}
 		}
 	}
