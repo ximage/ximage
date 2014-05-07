@@ -57,11 +57,14 @@ namespace XImage.Outputs
 				HELP
 				.Replace("{{error}}", _errorMessage ?? "")
 				.Replace("{{filters}}", filtersHtml.ToString())
-				.Replace("{{outputs}}", outputsHtml.ToString()));
+				.Replace("{{outputs}}", outputsHtml.ToString())
+				.Replace("{{url}}", app.Request.Url.Segments.Last()));
 		}
 
 		private static StringBuilder BuildFunctionsDocs(IEnumerable<Type> types)
 		{
+			var app = HttpContext.Current.ApplicationInstance;
+
 			var html = new StringBuilder();
 			foreach (var functionType in types.OrderBy(f => f.Name))
 			{
@@ -84,7 +87,7 @@ namespace XImage.Outputs
 							var args = string.Join(",", constructor.GetParameters().Select(p => p.Name.ToLower()));
 							examplesHtml.Append(
 								EXAMPLE_TEMPLATE
-								.Replace("{{url}}", "pink.jpg" + exampleAttr.QueryString)
+								.Replace("{{url}}", app.Request.Url.Segments.Last() + exampleAttr.QueryString)
 								.Replace("{{ctor}}", functionType.Name.ToLower() + string.Format("({0})", args)));
 						}
 					}
