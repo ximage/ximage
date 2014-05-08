@@ -12,4 +12,9 @@ namespace XImage
 
 		void PostProcess(XImageRequest request, XImageResponse response);
 	}
+
+	public interface IForcibleFilter : IFilter
+	{
+		bool Force { get; set; }
+	}
 }

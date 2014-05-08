@@ -22,9 +22,11 @@ namespace XImage
 
 		public int? Width { get; private set; }
 
+		public bool ForceWidth { get; set; }
+
 		public int? Height { get; private set; }
 	
-		public bool AllowUpscaling { get; private set; }
+		public bool ForceHeight { get; private set; }
 		
 		public List<IFilter> Filters { get; private set; }
 		
@@ -54,7 +56,7 @@ namespace XImage
 			{
 				if (w.EndsWith("!"))
 				{
-					AllowUpscaling = true;
+					ForceWidth = true;
 					w = w.Substring(0, w.Length - 1);
 				}
 				Width = w.AsNullableInt();
@@ -69,7 +71,7 @@ namespace XImage
 			{
 				if (h.EndsWith("!"))
 				{
-					AllowUpscaling = true;
+					ForceHeight = true;
 					h = h.Substring(0, h.Length - 1);
 				}
 				Height = h.AsNullableInt();

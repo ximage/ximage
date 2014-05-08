@@ -47,6 +47,11 @@ namespace XImage
 		{
 			if (methodWithArgs.Contains(' '))
 				throw new ArgumentException("Don't leave any spaces in your filter methods.  Enforcing this strictly helps optimize cache hit ratios.");
+
+			bool force = methodWithArgs.EndsWith("!");
+			if (force)
+				methodWithArgs = methodWithArgs.Substring(0, methodWithArgs.Length - 1);
+
 			var tokens = methodWithArgs.Split('(', ')');
 			if (tokens.Length == 3 && tokens[2] != "")
 				throw new ArgumentException("Filter methods must be of the format 'method(arg1,arg2,...)'.");
@@ -112,7 +117,12 @@ namespace XImage
 			{
 				try
 				{
-					return Activator.CreateInstance(type, args) as T;
+					var obj = Activator.CreateInstance(type, args) as T;
+
+					if (force && obj is IForcibleFilter)
+						(obj as IForcibleFilter).Force = true;
+
+					return obj;
 				}
 				catch (MissingMethodException ex)
 				{
