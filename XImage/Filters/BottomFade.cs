@@ -7,10 +7,10 @@ using System.Drawing.Drawing2D;
 
 namespace XImage.Filters
 {
-	[Documentation(Text = "bla bla bla")]
+	[Documentation(Text = "Subtle fade on the bottom of the image with the average color.")]
 	public class BottomFade : IFilter
 	{
-		[Example(QueryString = "?sldkfjsadlfk jasdflks adf")]
+		[Example(QueryString = "?w=100&f=bottomfade")]
 		public BottomFade()
 		{
 		}
@@ -22,11 +22,11 @@ namespace XImage.Filters
 		public void PostProcess(XImageRequest request, XImageResponse response)
 		{
 			Color color;
-			if (!response.Palette.TryGetValue("Accent", out color))
+			if (!response.Palette.TryGetValue("Average", out color))
 				color = Color.Black;
 
 			int w = response.CanvasSize.Width;
-			int h = response.CanvasSize.Height / 2;
+			int h = response.CanvasSize.Height / 3;
 
 			var brush = new LinearGradientBrush(new Rectangle(0, 0, w, h), Color.Transparent, color, 90F);
 
