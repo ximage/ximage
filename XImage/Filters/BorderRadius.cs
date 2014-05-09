@@ -43,9 +43,9 @@ namespace XImage.Filters
 
 		public void PostProcess(XImageRequest request, XImageResponse response)
 		{
-			var contentArea = response.ContentArea;
-			var size = contentArea.Size;
-			var loc = contentArea.Location;
+			// TODO: This doesn't work with padding (ContentArea?), also Fill gives a negative position in ContentArea.
+			var size = response.CanvasSize;
+			var loc = Point.Empty;
 
 			int w = size.Width - 1, h = size.Height - 1;
 			int diameter = 0;
