@@ -11,7 +11,7 @@ namespace XImage.Meta
 	{
 		public void Calculate(XImageRequest request, XImageResponse response, byte[] data)
 		{
-			var pixelCount = data.Length / (Bitmap.GetPixelFormatSize(response.OutputImage.PixelFormat) / 8);
+			var pixelCount = 0;
 
 			int r = 0, g = 0, b = 0;
 			int rSum = 0, gSum = 0, bSum = 0;
@@ -24,11 +24,6 @@ namespace XImage.Meta
 				g = data[i + 1];
 				b = data[i];
 
-				// Sum up channels for use on averages.
-				rSum += r;
-				gSum += g;
-				bSum += b;
-
 				// Place colors in buckets for use on pallete.
 				rBucket = (r / histogramSize);
 				gBucket = (g / histogramSize);
@@ -37,6 +32,13 @@ namespace XImage.Meta
 				// Ignore greys.
 				if (rBucket != gBucket || gBucket != bBucket || bBucket != rBucket)
 				{
+					pixelCount++;
+
+					// Sum up channels for use on averages.
+					rSum += r;
+					gSum += g;
+					bSum += b;
+
 					var bucket = Color.FromArgb(rBucket, gBucket, bBucket);
 					if (!histogram.ContainsKey(bucket))
 						histogram[bucket] = 1;
@@ -44,6 +46,10 @@ namespace XImage.Meta
 						histogram[bucket]++;
 				}
 			}
+
+			if (pixelCount == 0)
+				return;
+
 			var rAvg = rSum / pixelCount;
 			var gAvg = gSum / pixelCount;
 			var bAvg = bSum / pixelCount;
