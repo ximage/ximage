@@ -62,6 +62,7 @@
   <ItemGroup>
     <Compile Include="Attributes.cs" />
     <Compile Include="Filters\Blur.cs" />
+    <Compile Include="Filters\BottomFade.cs" />
     <Compile Include="Filters\Brightness.cs" />
     <Compile Include="Filters\Contrast.cs" />
     <Compile Include="Filters\Fill.cs" />
