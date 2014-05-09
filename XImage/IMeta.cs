@@ -8,6 +8,6 @@ namespace XImage
 {
 	public interface IMeta
 	{
-		void Calculate(XImageRequest request, XImageResponse response, byte[] data);
+		void Calculate(XImageRequest request, XImageResponse response);
 	}
 }

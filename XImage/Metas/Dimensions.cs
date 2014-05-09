@@ -8,7 +8,7 @@ namespace XImage.Meta
 {
 	public class Dimensions : IMeta
 	{
-		public void Calculate(XImageRequest request, XImageResponse response, byte[] data)
+		public void Calculate(XImageRequest request, XImageResponse response)
 		{
 			response.Properties["X-Image-Original-Format"] = "image/" + new ImageFormatConverter().ConvertToString(response.InputImage.RawFormat).ToLower();
 			response.Properties["X-Image-Original-Width"] = response.InputImage.Width.ToString();

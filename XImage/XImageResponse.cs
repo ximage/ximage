@@ -55,6 +55,8 @@ namespace XImage
 			}
 		}
 
+		public Dictionary<string, Color> Palette { get; set; }
+
 		public Stream OutputStream { get; private set; }
 
 		public NameValueCollection Properties { get; private set; }
@@ -72,6 +74,7 @@ namespace XImage
 			OutputStream = httpContext.Response.OutputStream;
 			Properties = httpContext.Response.Headers;
 			Profiler = profiler ?? new XImageProfiler(Properties);
+			Palette = new Dictionary<string, Color>();
 
 			// If debugging, don't dump the image down the response stream.
 			if (HttpUtility.ParseQueryString(httpContext.Request.Url.Query).ContainsKey("debug"))

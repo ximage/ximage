@@ -23,6 +23,9 @@ namespace XImage
 		{
 			using (response.Profiler.Measure("X-Image-Time-Total"))
 			{
+				CalculatePalette(request, response);
+				response.Profiler.Mark("Calculate color palette");
+
 				// --- FILTERS ---
 				using (response.Profiler.Measure("X-Image-Time-Filters"))
 				{
@@ -48,13 +51,10 @@ namespace XImage
 				// --- METAS ---
 				using (response.Profiler.Measure("X-Image-Time-Metas"))
 				{
-					using (var bitmapBits = response.OutputImage.GetBitmapBits())
+					foreach (var meta in request.Metas)
 					{
-						foreach (var meta in request.Metas)
-						{
-							meta.Calculate(request, response, bitmapBits.Data);
-							response.Profiler.Mark("Meta: " + meta.GetType().Name);
-						}
+						meta.Calculate(request, response);
+						response.Profiler.Mark("Meta: " + meta.GetType().Name);
 					}
 				}
 
@@ -70,7 +70,7 @@ namespace XImage
 			}
 		}
 
-		public static void Rasterize(XImageRequest request, XImageResponse response)
+		static void Rasterize(XImageRequest request, XImageResponse response)
 		{
 			var canvasSize = response.CanvasSize;
 			var contentArea = response.ContentArea;
@@ -101,6 +101,90 @@ namespace XImage
 				srcHeight: cropBox.Height,
 				srcUnit: GraphicsUnit.Pixel,
 				imageAttr: response.ImageAttributes);
+		}
+
+		static void CalculatePalette(XImageRequest request, XImageResponse response)
+		{
+			try
+			{
+				using (var bitmapBits = response.InputImage.GetBitmapBits())
+				{
+					var data = bitmapBits.Data;
+					var pixelCount = 0;
+
+					int r = 0, g = 0, b = 0;
+					int rSum = 0, gSum = 0, bSum = 0;
+					int rBucket = 0, gBucket = 0, bBucket = 0;
+					var histogram = new Dictionary<Color, int>();
+					int histogramSize = 32;
+					for (int i = 0; i < data.Length; i += 4)
+					{
+						r = data[i + 2];
+						g = data[i + 1];
+						b = data[i];
+
+						// Place colors in buckets for use on pallete.
+						rBucket = (r / histogramSize);
+						gBucket = (g / histogramSize);
+						bBucket = (b / histogramSize);
+
+						// Ignore greys.
+						if (rBucket != gBucket || gBucket != bBucket || bBucket != rBucket)
+						{
+							pixelCount++;
+
+							// Sum up channels for use on averages.
+							rSum += r;
+							gSum += g;
+							bSum += b;
+
+							var bucket = Color.FromArgb(rBucket, gBucket, bBucket);
+							if (!histogram.ContainsKey(bucket))
+								histogram[bucket] = 1;
+							else
+								histogram[bucket]++;
+						}
+					}
+
+					if (pixelCount == 0)
+						return;
+
+					var rAvg = rSum / pixelCount;
+					var gAvg = gSum / pixelCount;
+					var bAvg = bSum / pixelCount;
+					var averageColor = Color.FromArgb(rAvg, gAvg, bAvg);
+					response.Palette["Average"] = averageColor;
+
+					var palette = histogram
+						.OrderByDescending(p => p.Value)
+						.Take(8)
+						.Select(p => p.Key)
+						.ToList();
+					if (palette.Count > 0)
+					{
+						for (int i = 0; i < palette.Count; i++)
+						{
+							palette[i] = Color.FromArgb(palette[i].R * histogramSize, palette[i].G * histogramSize, palette[i].B * histogramSize);
+							response.Palette["Palette" + i] = palette[i];
+						}
+
+						response.Palette["Dominant"] = palette
+							.First();
+
+						response.Palette["Accent"] = palette
+							.OrderByDescending(p => Math.Max(p.R, Math.Max(p.G, p.B)))
+							.First();
+
+						response.Palette["Base"] = palette
+							.OrderBy(p => Math.Max(p.R, Math.Max(p.G, p.B)))
+							.First();
+					}
+				}
+			}
+			catch
+			{
+				// TODO: This only works on PixelFormat.Format32bppArgb.  Fix that.
+			}
 		}
 	}
 }
