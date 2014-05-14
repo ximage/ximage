@@ -168,8 +168,9 @@ namespace XImage
 						Filters.Insert(0, new Filters.Trim());
 						break;
 					case "whitespace!":
+						if (Width != null && Height != null)
+							Filters.Insert(0, new Filters.Fill());
 						Filters.Insert(0, new Filters.Trim());
-						Filters.Insert(0, new Filters.Fill());
 						break;
 				}
 			}
