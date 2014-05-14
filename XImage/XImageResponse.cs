@@ -75,10 +75,6 @@ namespace XImage
 			Properties = httpContext.Response.Headers;
 			Profiler = profiler ?? new XImageProfiler(Properties);
 			Palette = new Dictionary<string, Color>();
-
-			// If debugging, don't dump the image down the response stream.
-			if (HttpUtility.ParseQueryString(httpContext.Request.Url.Query).ContainsKey("debug"))
-				OutputStream = new MemoryStream();
 		}
 
 		public void Dispose()
