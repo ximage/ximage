@@ -174,6 +174,12 @@ namespace XImage
 						break;
 				}
 			}
+
+			var fill = Filters.Where(f => f is XImage.Filters.Fill).FirstOrDefault();
+			if (fill != null && (Width == null || Height == null))
+			{
+				Filters.Remove(fill);
+			}
 		}
 
 		public void Dispose()
