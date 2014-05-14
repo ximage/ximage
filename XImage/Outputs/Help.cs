@@ -50,7 +50,7 @@ namespace XImage.Outputs
 			app.Response.StatusCode = (int)_statusCode;
 			app.Response.ContentType = ContentType;
 
-			var filtersHtml = BuildFunctionsDocs(XImageFactory.FilterTypes);
+			var filtersHtml = BuildFunctionsDocs(XImageFactory.FilterTypes.Where(t => !t.GetInterfaces().Any(i => i == typeof(IOutput))));
 			var outputsHtml = BuildFunctionsDocs(XImageFactory.OutputTypes);
 
 			app.Response.Output.WriteLine(

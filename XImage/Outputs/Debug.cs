@@ -9,11 +9,17 @@ using System.Web;
 
 namespace XImage.Outputs
 {
+	[Documentation(Text = "Shows a breakdown of the steps and time taken.  Can be combined with other outputs like ?o=png,debug.")]
 	public class Debug : IOutput, IDisposable
 	{
 		public string ContentType { get { return "text/html"; } }
 
 		public bool SupportsTransparency { get { return false; } }
+
+		[Example(QueryString = "?o=debug")]
+		public Debug()
+		{
+		}
 
 		public void PreProcess(XImageRequest request, XImageResponse response)
 		{
