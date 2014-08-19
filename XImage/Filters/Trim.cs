@@ -87,7 +87,21 @@ namespace XImage.Filters
 					}
 				}
 
-				response.CropBox = new Rectangle(left, top, right - left, bottom - top);
+				int width = right - left;
+				if (width == 0)
+				{
+					left = 0;
+					width = response.InputImage.Width;
+				}
+
+				int height = bottom - top;
+				if (height == 0)
+				{
+					top = 0;
+					height = response.InputImage.Height;
+				}
+
+				response.CropBox = new Rectangle(left, top, width, height);
 			}
 
 			// Re-run the default crop.  This can be overridden (e.g. by fill) by 
