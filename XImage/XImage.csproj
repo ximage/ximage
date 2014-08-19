@@ -74,6 +74,7 @@
     <Compile Include="Filters\Invert.cs" />
     <Compile Include="Filters\Layer.cs" />
     <Compile Include="Filters\Mask.cs" />
+    <Compile Include="Filters\Mosaic.cs" />
     <Compile Include="Filters\Offset.cs" />
     <Compile Include="Filters\Opacity.cs" />
     <Compile Include="Filters\Pad.cs" />
