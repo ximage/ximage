@@ -91,6 +91,14 @@ namespace XImage
 						continue;
 					}
 
+					// Odd exception case.  Does it end with a b?  If so, the color converters will run with it.
+					// This is used by Jpg for targeting a size, e.g. 90kb or 900b.
+					if (s.EndsWith("b"))
+					{
+						args[c] = s;
+						continue;
+					}
+
 					// Is it a color?
 					var color = s.AsNullableColor();
 					if (color != null)

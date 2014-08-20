@@ -20,7 +20,7 @@ namespace XImage.Outputs
 		static readonly ImageCodecInfo _encoder = ImageCodecInfo.GetImageEncoders().First(c => c.MimeType == "image/jpeg");
 
 		long _quality;
-		bool _asKb;
+		bool _useTargetSize;
 
 		public string ContentType { get { return "image/jpeg"; } }
 
@@ -30,33 +30,53 @@ namespace XImage.Outputs
 		public Jpg()
 		{
 			_quality = DEFAULT_QUALITY;
-			_asKb = false;
+			_useTargetSize = false;
 		}
 
 		[Example(QueryString = "?w=100&o=jpg(20)")]
 		public Jpg(decimal quality)
 		{
 			_quality = Convert.ToInt64(quality);
-			_asKb = false;
+			_useTargetSize = false;
 
 			if (_quality <= 0 || _quality > 100)
 				throw new ArgumentException("Quality must be an integer between 1 and 100.");
 		}
 
 		[Example(QueryString = "?w=100&o=jpg(50kb)")]
-		public Jpg(string qualityInKB) // e.g. 150kb
+		public Jpg(string targetSize) // e.g. 150kb
 		{
-			_asKb = qualityInKB.EndsWith("kb");
-			if (_asKb)
-				qualityInKB = qualityInKB.Replace("kb", "");
-			_quality = qualityInKB.AsNullableInt() ?? DEFAULT_QUALITY;
+			targetSize = targetSize.ToLower();
+			_useTargetSize = true;
 
-			if (!qualityInKB.AsNullableInt().HasValue)
-				throw new ArgumentException("Quality must be an integer between 1 and 100 or a size in kb, e.g. 150kb.");
-			else if (_quality <= 0)
+			long multiplier = 1;
+			if (targetSize.EndsWith("mb"))
+			{
+				targetSize = targetSize.Replace("mb", "");
+				multiplier = 1024 * 1024;
+			}
+			else if (targetSize.EndsWith("kb"))
+			{
+				targetSize = targetSize.Replace("kb", "");
+				multiplier = 1024;
+			}
+			else if (targetSize.EndsWith("b"))
+			{
+				targetSize = targetSize.Replace("b", "");
+				multiplier = 1;
+			}
+			else
+			{
+				throw new ArgumentException("When specifing a target size, please use the format 90b, 90kb or 90mb.");
+			}
+
+			if (!targetSize.AsNullableInt().HasValue)
+				throw new ArgumentException("When specifing a target size, please use the format 90b, 90kb or 90mb.");
+
+			_quality = targetSize.AsNullableInt().Value * multiplier;
+
+			if (_quality <= 0)
 				throw new ArgumentException("Quality must be an integer between 1 and 100.");
-			else if (!_asKb && _quality > 100)
-				throw new ArgumentException("Quality must be an integer between 1 and 100 unless you are specifing a content size, e.g. 150kb.");
 		}
 
 		public void PreProcess(XImageRequest request, XImageResponse response)
@@ -70,7 +90,7 @@ namespace XImage.Outputs
 			encoderParameters.Param[1] = new EncoderParameter(Encoder.Quality, _quality);
 			int saveAttempts = 5;
 
-			if (_asKb)
+			if (_useTargetSize)
 				BinarySearchImageQuality(response.OutputImage, response.OutputStream, encoderParameters, ref saveAttempts, 1, 100);
 			else
 				response.OutputImage.Save(response.OutputStream, _encoder, encoderParameters);
@@ -78,7 +98,7 @@ namespace XImage.Outputs
 
 		void BinarySearchImageQuality(Bitmap inputImage, Stream outputStream, EncoderParameters encoderParams, ref int saveAttempts, long lowerRange, long upperRange)
 		{
-			long targetSize = _quality * 1024; // kilobytes to bytes
+			long targetSize = _quality;
 			long testQuality = (upperRange - lowerRange) / 2L + lowerRange;
 			using (var mem = new MemoryStream())
 			{
