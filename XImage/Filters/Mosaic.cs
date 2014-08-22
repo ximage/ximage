@@ -27,6 +27,12 @@ namespace XImage.Filters
 
 		public void PreProcess(XImageRequest request, XImageResponse response)
 		{
+			// Unless explicitly requested by the user, default to PNG for this filter.
+			if (request.IsOutputImplicitlySet)
+			{
+				request.Outputs.RemoveAll(o => o.ContentType.StartsWith("image"));
+				request.Outputs.Add(new Outputs.Png());
+			}
 		}
 
 		public void PostProcess(XImageRequest request, XImageResponse response)
