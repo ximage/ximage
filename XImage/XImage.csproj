@@ -79,6 +79,7 @@
     <Compile Include="Filters\Opacity.cs" />
     <Compile Include="Filters\Pad.cs" />
     <Compile Include="Filters\Rotate.cs" />
+    <Compile Include="Filters\SalePoster.cs" />
     <Compile Include="Filters\Saturate.cs" />
     <Compile Include="Filters\Scale.cs" />
     <Compile Include="Filters\Sepia.cs" />

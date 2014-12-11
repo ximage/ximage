@@ -45,8 +45,8 @@ namespace XImage
 		public static T CreateInstance<T>(string methodWithArgs)
 			where T : class
 		{
-			if (methodWithArgs.Contains(' '))
-				throw new ArgumentException("Don't leave any spaces in your filter methods.  Enforcing this strictly helps optimize cache hit ratios.");
+			//if (methodWithArgs.Contains(' '))
+			//	throw new ArgumentException("Don't leave any spaces in your filter methods.  Enforcing this strictly helps optimize cache hit ratios.");
 
 			bool force = methodWithArgs.EndsWith("!");
 			if (force)
