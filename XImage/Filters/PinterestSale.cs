@@ -25,6 +25,14 @@ namespace XImage.Filters
 		string _storeName;
 
 		[Example(QueryString = "?f=pinterestsale(...,...,...)")]
+		public PinterestSale(string storeAvatar, string storeName)
+		{
+			_salePoster = null;
+			_storeAvatar = new Uri(storeAvatar);
+			_storeName = storeName.Replace("_", " ");
+		}
+
+		[Example(QueryString = "?f=pinterestsale(...,...,...)")]
 		public PinterestSale(string salePoster, string storeAvatar, string storeName)
 		{
 			_salePoster = new Uri(salePoster);
@@ -43,11 +51,6 @@ namespace XImage.Filters
 		{
 			// TODO: async/await here OR (even better) fetch these somewhere else.
 
-			var salePosterImage = Bitmap.FromStream(
-				HttpWebRequest.CreateHttp(_salePoster)
-				.GetResponse()
-				.GetResponseStream()) as Bitmap;
-
 			var storeAvatarImage = Bitmap.FromStream(
 				HttpWebRequest.CreateHttp(_storeAvatar)
 				.GetResponse()
@@ -57,16 +60,6 @@ namespace XImage.Filters
 			var avatarBounds = new Rectangle(AVATAR_MARGINS, productSize.Height + AVATAR_MARGINS, AVATAR_SIZE, AVATAR_SIZE);
 			var avatarMask = new GraphicsPath();
 			avatarMask.AddEllipse(avatarBounds.X, avatarBounds.Y, avatarBounds.Width - 1, avatarBounds.Height - 1);
-
-			var salePosterSize = salePosterImage.Size.ScaleToWidth(POSTER_SIZE);
-			if (salePosterSize.Height > salePosterSize.Width)
-				salePosterSize = salePosterImage.Size.ScaleToHeight(POSTER_SIZE);
-			var salePosterBounds = new Rectangle(
-				productSize.Width - salePosterSize.Width - POSTER_MARGINS,
-				productSize.Height + FOOTER_HEIGHT - salePosterSize.Height - POSTER_MARGINS,
-				salePosterSize.Width,
-				salePosterSize.Height);
-			var salePosterBorder = Rectangle.Inflate(salePosterBounds, POSTER_MARGINS, POSTER_MARGINS);
 
 			response.OutputGraphics.Clear(Color.White);
 
@@ -86,6 +79,30 @@ namespace XImage.Filters
 				new Font(FontFamily.GenericSansSerif, 22, FontStyle.Regular),
 				new SolidBrush(Color.FromArgb(183, 183, 183)),
 				new Point(avatarBounds.Right + 7, avatarBounds.Top + 7 + AVATAR_SIZE / 2));
+
+			if (_salePoster != null)
+				DrawSalePoster(response, _salePoster, productSize);
+		}
+
+		private void DrawSalePoster(XImageResponse response, Uri salePoster, Size productSize)
+		{
+			if (salePoster == null)
+				return;
+
+			var salePosterImage = Bitmap.FromStream(
+				HttpWebRequest.CreateHttp(salePoster)
+				.GetResponse()
+				.GetResponseStream()) as Bitmap;
+
+			var salePosterSize = salePosterImage.Size.ScaleToWidth(POSTER_SIZE);
+			if (salePosterSize.Height > salePosterSize.Width)
+				salePosterSize = salePosterImage.Size.ScaleToHeight(POSTER_SIZE);
+			var salePosterBounds = new Rectangle(
+				productSize.Width - salePosterSize.Width - POSTER_MARGINS,
+				productSize.Height + FOOTER_HEIGHT - salePosterSize.Height - POSTER_MARGINS,
+				salePosterSize.Width,
+				salePosterSize.Height);
+			var salePosterBorder = Rectangle.Inflate(salePosterBounds, POSTER_MARGINS, POSTER_MARGINS);
 
 			response.OutputGraphics.FillRectangle(Brushes.White, salePosterBorder);
 			response.OutputGraphics.DrawImage(salePosterImage, salePosterBounds);
